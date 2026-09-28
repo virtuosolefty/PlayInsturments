@@ -1,0 +1,300 @@
+/* ==========================================================================
+   polish.css — production pass. Loaded last, so it wins over the layers
+   before it without editing them.
+
+   1. Dark theme: benchmarked against Linear, Vercel/Geist, Raycast and
+      Spotify. What they share: a near-black base with only a trace of hue,
+      surfaces separated by small luminance steps (≈ +3–4% L each), hairline
+      borders instead of heavy outlines, a 1px top highlight on raised
+      surfaces, and exactly one saturated accent. The old dark theme was a
+      mid purple-grey (#191922 / #22222e) with low-contrast lavender text,
+      which read muddy rather than deep.
+   2. Icons, focus mode, live HUD, library art, hint behaviour, responsive.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- dark */
+:root[data-theme="dark"] {
+  --bg: #0b0b10;
+  --bg-1: #131319;
+  --bg-2: #1a1a22;
+  --bg-3: #24242e;
+  --line: #2c2c38;
+  --line-soft: #1f1f28;
+  --text: #ededf3;
+  --text-dim: #a6a6b5;
+  --text-faint: #8b8b9c;          /* 5.4:1 on --bg-1, clears WCAG AA */
+  --accent: #a594ff;
+  --accent-dim: #6f5fe0;
+  --accent-soft: #1f1b36;
+  --on-accent: #120d2b;
+  --brand: #a594ff;
+  --brand-dim: #3b3368;
+  --good: #5ad79a;
+  --bad: #ff6b82;
+  --warn: #f5b94f;
+  --info: #6eb4ff;
+  --now: #6eb4ff;
+  --screen: #0e0e14;
+  --right-hand: #5ab8ff;
+  --left-hand: #b89cff;
+  --pad-face: #1a1a22;
+  --pad-face-hover: #22222c;
+  --lift: inset 0 1px 0 rgb(255 255 255 / 4%);
+  --lift-strong: inset 0 1px 0 rgb(255 255 255 / 7%);
+  --elev-1: 0 1px 2px rgb(0 0 0 / 40%), var(--lift);
+  --elev-2: 0 8px 24px rgb(0 0 0 / 45%), var(--lift);
+  --elev-3: 0 24px 64px rgb(0 0 0 / 60%), var(--lift-strong);
+  --studio-shadow: 0 0 0 1px rgb(255 255 255 / 2%), 0 24px 60px -24px rgb(0 0 0 / 70%), var(--lift);
+  color-scheme: dark;
+}
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(1100px 520px at 12% -12%, rgb(124 108 255 / 9%), transparent 62%),
+    radial-gradient(900px 480px at 100% 0%, rgb(90 184 255 / 5%), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+:root[data-theme="dark"] .studio-app .pane.center,
+:root[data-theme="dark"] .studio-app .pane.right,
+:root[data-theme="dark"] .studio-app .pane.left {
+  background: var(--bg-1);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--studio-shadow);
+}
+:root[data-theme="dark"] .studio-app .studio-header {
+  background: radial-gradient(ellipse 60% 120% at 100% 0%, rgb(165 148 255 / 10%), transparent 70%);
+}
+:root[data-theme="dark"] .studio-app .controls { background: var(--bg-1); border-color: var(--line-soft); }
+:root[data-theme="dark"] .studio-app .stage-toolbar { background: var(--bg-1); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+:root[data-theme="dark"] .studio-app .instrument-controls { background: var(--bg-1); }
+
+/* Segmented controls: selected = raised surface, not a lighter purple slab. */
+:root[data-theme="dark"] .instrument-picker,
+:root[data-theme="dark"] .workspace-switch,
+:root[data-theme="dark"] .library-instruments,
+:root[data-theme="dark"] .studio-app .mode-switch,
+:root[data-theme="dark"] .stage-view-switch { background: var(--bg); border-color: var(--line-soft); }
+:root[data-theme="dark"] .instrument-picker button[aria-pressed="true"],
+:root[data-theme="dark"] .workspace-switch button[aria-pressed="true"],
+:root[data-theme="dark"] .library-instruments button[aria-pressed="true"],
+:root[data-theme="dark"] .studio-app .mode-switch button.on,
+:root[data-theme="dark"] .stage-view-switch button[aria-pressed="true"] {
+  background: var(--bg-3);
+  color: var(--text);
+  border-color: transparent;
+  box-shadow: var(--lift-strong), 0 1px 2px rgb(0 0 0 / 50%);
+}
+:root[data-theme="dark"] .instrument-picker button[aria-pressed="true"] svg { color: var(--accent); }
+
+/* Primary action: a lit accent with a soft glow, the one bright thing on screen. */
+:root[data-theme="dark"] button.primary,
+:root[data-theme="dark"] .studio-app button.primary,
+:root[data-theme="dark"] .studio-app .pad.primary {
+  background: linear-gradient(180deg, #b6a9ff, #9582ff);
+  border-color: #b6a9ff;
+  color: var(--on-accent);
+  box-shadow: 0 8px 24px -8px rgb(149 130 255 / 65%), inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+:root[data-theme="dark"] .studio-app .pad.primary.armed,
+:root[data-theme="dark"] .studio-app .pad.primary.transport-toggle.armed {
+  background: linear-gradient(180deg, #6ee7b0, #3fcf8e);
+  border-color: #6ee7b0;
+  color: #06281a;
+  box-shadow: 0 8px 24px -8px rgb(63 207 142 / 60%), inset 0 1px 0 rgb(255 255 255 / 35%);
+}
+
+/* Secondary buttons and fields. */
+:root[data-theme="dark"] .studio-app .pad,
+:root[data-theme="dark"] .studio-app .drawer-toggle,
+:root[data-theme="dark"] .studio-app .io-strip,
+:root[data-theme="dark"] .setup-trigger,
+:root[data-theme="dark"] .theme-toggle,
+:root[data-theme="dark"] .focus-toggle,
+:root[data-theme="dark"] .options-toggle,
+:root[data-theme="dark"] .show-feedback {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  box-shadow: var(--lift);
+}
+:root[data-theme="dark"] .studio-app .pad:hover:not(:disabled),
+:root[data-theme="dark"] .studio-app .drawer-toggle:hover,
+:root[data-theme="dark"] .setup-trigger:hover,
+:root[data-theme="dark"] .theme-toggle:hover,
+:root[data-theme="dark"] .focus-toggle:hover,
+:root[data-theme="dark"] .options-toggle:hover,
+:root[data-theme="dark"] .show-feedback:hover { background: var(--bg-3); color: var(--text); }
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] input[type="search"],
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="dark"] .studio-app .library-search input { background: var(--bg); border-color: var(--line); color: var(--text); }
+:root[data-theme="dark"] .studio-app .lcd { background: var(--bg); border-color: var(--line-soft); }
+:root[data-theme="dark"] .studio-app .popover,
+:root[data-theme="dark"] .report,
+:root[data-theme="dark"] dialog,
+:root[data-theme="dark"] .modal { background: #16161d; border-color: var(--line); box-shadow: var(--elev-3); }
+:root[data-theme="dark"] .scrim { background: rgb(5 5 8 / 62%); backdrop-filter: blur(3px); }
+:root[data-theme="dark"] .studio-app .song.active { background: var(--accent-soft); border-color: #3a3170; box-shadow: inset 2px 0 0 var(--accent); }
+:root[data-theme="dark"] .studio-app .song:hover:not(.active) { background: var(--bg-2); }
+:root[data-theme="dark"] .guitar-study-row select { background: var(--bg); }
+:root[data-theme="dark"] ::selection { background: rgb(165 148 255 / 35%); }
+:root[data-theme="dark"] * { scrollbar-color: #2e2e3a transparent; }
+
+/* ---------------------------------------------------------------- icons */
+.icon { display: inline-block; flex: none; vertical-align: -0.18em; }
+.studio-app .pad .glyph { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.studio-app .pad .glyph .icon { width: 15px; height: 15px; }
+.options-toggle, .show-feedback, .focus-toggle, .io-slot.audio-slot, .close-feedback, .library-filters button {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.favorite-toggle { display: inline-flex; align-items: center; justify-content: center; }
+.favorite-toggle[aria-pressed="true"] { color: var(--bad); }
+.favorite-toggle:hover { color: var(--text); }
+
+/* Shortcut letters in button corners read as rendering glitches. They stay in
+   every tooltip and on the footer legend; the pads just show icon + word. */
+.studio-app .pad .keycap,
+.studio-app .zone-mode .keycap,
+.studio-app .mode-switch .keycap { display: none; }
+
+/* ------------------------------------------------------------ the hint */
+/* "Hold a key to play" is first-use help, not permanent furniture sitting on
+   top of the staff. It appears when the pointer is over the instrument and
+   never while a run is going. */
+.instrument-hover { opacity: 0; transform: translateY(-3px); transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+.roll-area:hover .instrument-hover, .guitar-workspace:hover .instrument-hover { opacity: 1; transform: none; }
+.studio-app.focused .instrument-hover { opacity: 0 !important; }
+
+/* ------------------------------------------------------------ live HUD */
+.roll-area { position: relative; }
+.live-hud {
+  position: absolute; top: 12px; right: 14px; z-index: 5;
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 8px 6px 6px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--bg-1) 82%, transparent);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--elev-2);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+  animation: hud-in var(--dur-base) var(--ease-out);
+}
+.hud-stat { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 8px; background: var(--bg-2); color: var(--text-dim); font: 600 13px var(--mono); font-variant-numeric: tabular-nums; }
+.hud-stat b { color: var(--text); font-weight: 650; }
+.hud-acc.good b, .hud-acc.good .icon { color: var(--good); }
+.hud-acc.ok b, .hud-acc.ok .icon { color: var(--warn); }
+.hud-acc.low b, .hud-acc.low .icon { color: var(--bad); }
+.hud-streak.hot { background: rgb(245 185 79 / 14%); }
+.hud-streak.hot .icon, .hud-streak.hot b { color: var(--warn); }
+.hud-pop { display: inline-block; animation: hud-pop var(--dur-base) var(--ease-spring); }
+.hud-progress { width: 64px; height: 4px; border-radius: 2px; background: var(--bg-3); overflow: hidden; margin-left: 4px; }
+.hud-progress i { display: block; height: 100%; background: var(--accent); transform-origin: left; transition: transform var(--dur-base) var(--ease-out); }
+@keyframes hud-in { from { opacity: 0; transform: translateY(-6px); } }
+@keyframes hud-pop { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
+
+/* ------------------------------------------------------------ focus mode */
+/* Focus now means focus: header chrome, stage toolbar, keyboard settings and
+   footer go, leaving the music, the transport and a way back out. */
+.studio-app.focus-view .topbar,
+.studio-app.focus-view .stage-toolbar,
+.studio-app.focus-view .instrument-controls,
+.studio-app.focus-view .minimap,
+.studio-app.focus-view .studio-footer,
+.studio-app.focus-view .studio-heading .eyebrow,
+.studio-app.focus-view .studio-heading p,
+.studio-app.focus-view .workspace-switch,
+.studio-app.focus-view .instrument-picker,
+.studio-app.focus-view .pane.right,
+.studio-app.focus-view .zone-sound .show-feedback { display: none !important; }
+.studio-app.focus-view { padding-top: 12px; grid-template-rows: minmax(0, 1fr); }
+.studio-app.focus-view .app-body { grid-template-columns: minmax(0, 1fr) !important; }
+.studio-app.focus-view .studio-header { min-height: 0 !important; padding-top: 12px; padding-bottom: 12px; }
+.studio-app.focus-view .studio-heading h2 { margin: 0; }
+.focus-toggle[aria-pressed="true"] { background: var(--accent-soft) !important; color: var(--accent) !important; border-color: var(--accent-dim) !important; }
+
+/* ------------------------------------------------------- library rows */
+.song { padding: 7px 9px; gap: 11px; align-items: center; }
+.song .song-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.song .song-body .name {
+  white-space: normal; overflow: hidden; text-overflow: clip;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  font-size: 14px; line-height: 1.3;
+}
+.song .song-body .meta { flex-wrap: wrap; row-gap: 4px; }
+.song .song-body .meta > .by { background: transparent; padding: 0; color: var(--text-dim); font-size: 12px; margin-right: 2px; }
+.song .song-body .song-description { margin-top: 0; }
+.piece-art {
+  position: relative; flex: none; display: grid; place-items: center; overflow: hidden;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--art-a), var(--art-b));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%), 0 2px 6px rgb(0 0 0 / 18%);
+}
+.piece-art svg { position: absolute; inset: 0; width: 100%; height: 100%; stroke: rgb(255 255 255 / 18%); stroke-width: 0.6; }
+.piece-art b { position: relative; color: #fff; font: 700 13px var(--sans); letter-spacing: 0.3px; text-shadow: 0 1px 2px rgb(0 0 0 / 30%); }
+.song:hover .piece-art { transform: scale(1.04); }
+.piece-art { transition: transform var(--dur-fast) var(--ease-out); }
+
+/* ------------------------------------------------------- empty states */
+.empty-state { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px; border: 1px dashed var(--line); border-radius: 12px; background: var(--bg-2); }
+.empty-state .empty-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
+.empty-state strong { font-size: 14px; }
+.empty-state p { margin: 0; color: var(--text-dim); font-size: 12px; line-height: 1.6; }
+
+/* ------------------------------------------------------- micro-motion */
+.studio-app .pad, .options-toggle, .show-feedback, .focus-toggle, .theme-toggle, .setup-trigger, .drawer-toggle, .song {
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.studio-app .pad:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+.studio-app .pane.left { transition: transform var(--dur-slow) var(--ease-out), box-shadow var(--dur-slow) var(--ease-out); }
+
+/* ------------------------------------------------------- responsive */
+/* Nothing may make the document wider than the phone. Wide pieces (the fret
+   grid, the transport row) scroll inside their own box instead. */
+html, body { max-width: 100%; overflow-x: hidden; }
+@media (max-width: 700px) {
+  .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
+  .studio-app .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .studio-app .topbar .saved-locally { display: none; }
+  .studio-app .topbar .setup-trigger { font-size: 0; gap: 0; padding: 0 10px; }
+  .studio-app .topbar .setup-trigger .connection-dot { width: 8px; height: 8px; }
+  .theme-toggle span { display: none; }
+  .studio-header { flex-wrap: wrap; padding: 16px !important; }
+  .studio-header-actions { flex-wrap: wrap; width: 100%; }
+  .studio-app .controls { flex-wrap: wrap; }
+  .studio-app .pads { flex-wrap: wrap; }
+  .studio-app .zone { min-width: 0; max-width: 100%; }
+  .studio-app .instrument-controls, .stage-toolbar { flex-wrap: wrap; }
+  .live-hud { top: 8px; right: 8px; }
+  .hud-progress { display: none; }
+}
+
+/* Recent notes in the This run panel have no timestamp column, so the
+   three-column grid squeezed the message into 42px and wrapped every word. */
+.event:not(:has(.t)) { grid-template-columns: 44px minmax(0, 1fr); align-items: center; padding-top: 6px; padding-bottom: 6px; }
+.event .msg strong { font-weight: 550; }
+
+/* ------------------------------------------------ sound needs a click */
+.sound-nudge {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 10px; padding: 10px 12px 10px 14px;
+  border-radius: 12px; border: 1px solid var(--accent-dim);
+  background: var(--accent-soft); color: var(--text); font-size: 13px; line-height: 1.5;
+  animation: hud-in var(--dur-base) var(--ease-out);
+}
+.sound-nudge .icon { color: var(--accent); }
+.sound-nudge span { flex: 1; min-width: 0; }
+.sound-nudge button { flex: none; }
+
+/* The piano has a dark performance surface in both interface themes. */
+.studio-app:not(.guitar-mode) { --left-hand: #ffb84d; --right-hand: #a591ff; }
+.playable-piano { background: #080710; }
+.playable-piano .instrument-hover { color: #cbc3dd; background: #151120e6; border-color: #30273d; font-size: 11px; }
+
+/* Unlocking audio on pointer-down must not move nearby click targets. */
+@media (min-width: 901px) {
+  .studio-app .topbar > .io-strip { width: 256px; max-width: 256px; flex: 0 0 256px; }
+  .studio-app .topbar .audio-slot { min-width: 0; max-width: 100%; }
+  .studio-app .topbar .audio-slot strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

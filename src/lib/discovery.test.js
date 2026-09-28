@@ -1,0 +1,33 @@
+import { describe,it,expect } from 'vitest';
+import { weeklyPractice,collectionEntries,pieceDetails,sharedLessonUrl,COLLECTIONS } from './discovery.js';
+import { lessonCanVisit,lessonOutcome } from './learning.js';
+import { GUITAR_STUDIES } from './guitar.js';
+import fs from 'node:fs';
+
+describe('discovery, habit and first-phrase safeguards',()=>{
+  it('uses real activity in the current local Monday–Sunday week, not visits or future data',()=>{
+    const week=weeklyPractice({'2026-09-20':{completedRuns:1},'2026-09-21':{seconds:179},'2026-09-22':{seconds:180},'2026-09-23':{completedRuns:1},'2026-09-25':{completedRuns:1}},3,'2026-09-24');
+    expect(week.count).toBe(2);expect(week.days[0].date).toBe('2026-09-21');expect(week.days[6].date).toBe('2026-09-27');expect(week.days[4].done).toBe(false);
+  });
+  it('handles the year boundary and normalizes unsupported weekly goals',()=>{
+    const week=weeklyPractice({},-1,'2027-01-01');expect(week.goal).toBe(3);expect(week.days[0].date).toBe('2026-12-28');expect(week.days[6].date).toBe('2027-01-03');
+    expect(weeklyPractice({},5).goal).toBe(5);
+  });
+  it('curates only existing entries for each instrument and leaves favorites in their original order',()=>{
+    const piano=JSON.parse(fs.readFileSync(new URL('../../public/songs/songs.json',import.meta.url)));
+    for(const [instrument,entries] of [['piano',piano],['guitar',GUITAR_STUDIES]])for(const c of COLLECTIONS[instrument])expect(collectionEntries(entries,instrument,c.id).map(e=>e.id)).toEqual(c.ids);
+    expect(collectionEntries(piano,'piano','favorites',['missing','twinkle-mini']).map(e=>e.id)).toEqual(['twinkle-mini']);
+  });
+  it('labels actual score length separately from a promised learning time',()=>{
+    expect(pieceDetails({id:'path-01-home-five-right',approxDuration:27.9,difficulty:1})).toMatchObject({length:'28s of music',needs:'No experience needed'});
+  });
+  it('shares only a lesson identifier and instrument, with query text encoded',()=>{
+    const url=new URL(sharedLessonUrl('guitar','x&score=100','https://example.org'));
+    expect([...url.searchParams.keys()]).toEqual(['instrument','lesson']);expect(url.searchParams.get('lesson')).toBe('x&score=100');
+  });
+  it('allows a quick first phrase only after a played note and never turns it into mastery',()=>{
+    expect(lessonCanVisit('note',{quick:true})).toBe(true);expect(lessonCanVisit('follow',{quick:true})).toBe(false);
+    expect(lessonCanVisit('follow',{quick:true,firstNoteDone:true})).toBe(true);expect(lessonCanVisit('check',{quick:true,firstNoteDone:true})).toBe(false);
+    expect(lessonOutcome({mode:'wait',rate:1,grade:{complete:true,stars:5}}).kind).toBe('guided');
+  });
+});

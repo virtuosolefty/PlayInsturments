@@ -1,0 +1,32 @@
+import { chromium } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+mkdirSync('review/desktop', { recursive: true });
+const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
+try {
+  const page = await browser.newPage({ viewport: { width: 1536, height: 960 } });
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.addInitScript(() => localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { onboarded: true, settingsVersion: 3 } })));
+  await page.goto('http://127.0.0.1:5187');
+  await page.locator('.piece-title').waitFor();
+  await page.screenshot({ path: 'review/desktop/piano-light.png' });
+  await page.getByRole('button', { name: '3D Stage', exact: true }).click();
+  await page.locator('.roll-gl canvas').first().waitFor();
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: 'review/desktop/piano-3d-light.png' });
+  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: 'review/desktop/piano-3d-dark.png' });
+  await page.getByRole('group', { name: 'Practice instrument' }).getByRole('button', { name: 'Guitar', exact: true }).click();
+  await page.locator('.guitar-stage canvas').waitFor();
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: 'review/desktop/guitar-3d-dark.png' });
+  await page.getByRole('button', { name: 'Switch to light theme' }).click();
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: 'review/desktop/guitar-3d-light.png' });
+  await page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name: 'Free play', exact: true }).click();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: 'review/desktop/guitar-free-play.png' });
+  await page.getByRole('button', { name: 'Instrument setup', exact: true }).click();
+  await page.screenshot({ path: 'review/desktop/setup.png' });
+  console.log(JSON.stringify({ errors }));
+} finally { await browser.close(); }

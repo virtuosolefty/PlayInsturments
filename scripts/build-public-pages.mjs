@@ -1,0 +1,32 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Static, readable entry pages also work without JavaScript. Set PUBLIC_SITE_URL
+// at release time to add the real canonical origin and a sitemap.
+const appShell=fs.readFileSync('dist/index.html','utf8');
+const basePath=process.env.GITHUB_PAGES==='true'?'/PlayInsturments/':'/';
+const origin=process.env.PUBLIC_SITE_URL ? new URL(process.env.PUBLIC_SITE_URL).origin : null;
+const href=route=>`${basePath}${route}`;
+const escape=text=>String(text).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const pages=[
+  ['','Practice Deck — play piano and guitar at your pace','Play your first melody, one note at a time. Explore piano and guitar on screen, follow short lessons, and save your progress.','Your first melody starts here.'],
+  ['welcome/','Meet Practice Deck — your music, your pace','A calm piano and guitar practice studio. Start on screen with no account, and build confidence one phrase at a time.','A little music. A little every day.'],
+  ['piano/','Learn your first piano notes — Practice Deck','Explore a virtual piano with three-dimensional keys, falling notes, guided lessons, and optional MIDI input.','Find your first piano notes.'],
+  ['guitar/','Explore guitar strings and chords — Practice Deck','Learn guitar note positions, Em and Am chord shapes, and original short melodies with an interactive on-screen fretboard.','Six strings. So many possibilities.'],
+  ['learn/first-melody/','Play your first melody — Practice Deck','Make a sound, follow a short phrase at your pace, then give it a rhythm. A guided introduction to piano and guitar.','From your first note to a phrase.'],
+];
+for(const [route,title,description,heading] of pages){
+  let html=appShell.replace(/<title>.*?<\/title>/,`<title>${escape(title)}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*/,`$1${escape(description)}`)
+    .replace(/(<meta property="og:title" content=")[^"]*/,`$1${escape(title)}`)
+    .replace(/(<meta property="og:description" content=")[^"]*/,`$1${escape(description)}`);
+  const image=`${origin??''}${href(`media/${route==='guitar/'?'guitar':'piano'}-studio.png`)}`;
+  html=html.replace('</head>',`<meta property="og:image" content="${escape(image)}" />\n${origin?`<link rel="canonical" href="${escape(origin+href(route))}" /><meta property="og:url" content="${escape(origin+href(route))}" />`:''}</head>`);
+  html=html.replace('<div id="root"></div>',`<div id="public-intro" class="welcome-page"><main style="max-width:960px;margin:80px auto;padding:24px"><a href="${href('')}">Practice Deck</a><h1>${escape(heading)}</h1><p>${escape(description)}</p><h2>Start with a small musical win</h2><ol><li>Find a key or string on the screen.</li><li>Follow a phrase. The notes wait for you.</li><li>Build a rhythm and return to your saved place.</li></ol><p>Use the on-screen instrument, computer keys for piano, or a MIDI controller. Microphone recognition is not supported. Your progress is stored in this browser; you can download a backup.</p><nav><a href="${href('piano/')}">Piano</a> · <a href="${href('guitar/')}">Guitar</a> · <a href="${href('learn/first-melody/')}">First melody</a> · <a href="${href('about-data/')}">Your data & compatibility</a></nav><noscript><p>Enable JavaScript to use the interactive instruments. The guide above is available without it.</p></noscript></main></div><div id="root"></div>`);
+  const target=path.join('dist',route,'index.html');fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,html);
+}
+if(origin){
+  fs.writeFileSync('dist/sitemap.xml',`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[...pages.map(p=>p[0]),'about-data/'].map(route=>`<url><loc>${escape(origin+href(route))}</loc></url>`).join('')}</urlset>`);
+  fs.writeFileSync('dist/robots.txt',`User-agent: *\nAllow: /\nSitemap: ${origin}${href('sitemap.xml')}\n`);
+}
+console.log(`Built ${pages.length} public pages${origin?' with canonical links and sitemap':'; canonical origin awaits PUBLIC_SITE_URL'}.`);

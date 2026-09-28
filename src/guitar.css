@@ -1,0 +1,112 @@
+/* Guitar workspace. Scoped to the instrument so piano layout stays independent. */
+.guitar-workspace, .chord-card { --guitar-root:#a36032; --guitar-played:#167b63; }
+.guitar-view-controls { gap:16px; padding:8px 16px; }
+.guitar-view-controls select { border-radius:6px; }
+.guitar-height-control { white-space:nowrap; }
+.guitar-height-control input { width:60px; min-width:0; accent-color:var(--accent); }
+.guitar-next { background:var(--bg-1); gap:14px; min-height:32px; }
+.guitar-next > span:first-child { font-size:9px; font-weight:650; letter-spacing:1.2px; }
+.guitar-next strong { font-weight:600; }
+.guitar-stage { isolation:isolate; border-block:1px solid var(--line-soft); background:radial-gradient(ellipse at 50% 45%,#faf5ec 5%,#eee9e0 70%,#e9e6e2); }
+:root[data-theme="dark"] .guitar-stage { background:radial-gradient(ellipse at 50% 45%,#34313a 0%,#24232c 65%,#202029); }
+.guitar-stage-top { position:absolute; inset:12px 18px auto; display:flex; align-items:center; justify-content:space-between; gap:18px; z-index:2; pointer-events:none; }
+.guitar-stage-top > div:first-child { display:flex; align-items:center; gap:10px; }
+.guitar-stage-top strong { font-size:13px; font-weight:650; }
+.guitar-stage-top span { color:var(--text-faint); font-size:11px; }
+.guitar-open-picks { display:flex; align-items:center; gap:4px; pointer-events:auto; }
+.guitar-open-picks > span { font-size:8px; letter-spacing:1px; margin-right:6px; }
+.guitar-open-picks button { min-width:30px; min-height:27px; padding:4px 5px; font:11px var(--mono); background:var(--bg-1); border:1px solid var(--line); border-radius:5px; }
+.guitar-open-picks button:hover { background:var(--accent-soft); border-color:var(--accent); }
+.guitar-open-picks button:active { transform:translateY(1px); background:var(--accent); color:var(--on-accent); }
+.guitar-position-label.string { background:#251d19; border:1px solid #b99d7340; border-radius:4px; padding:4px 5px; font-weight:500; box-shadow:0 1px 3px #0003; }
+.guitar-position-label.fret { color:var(--text-dim); font-family:var(--mono); font-weight:500; }
+.guitar-position-label.finger { font-weight:750; color:#30251c; text-shadow:none; }
+.guitar-position-label.finger.root { color:#3d2515; }
+.guitar-position-label.muted { color:#f2e8db; background:#2a211ce6; border:1px dashed #d1bda3; padding:2px 5px; border-radius:50%; }
+.guitar-string .chord.chord-root span { background:#e3ad77; color:#3d2515; border-color:#c58e58; }
+.guitar-stage-bottom { position:absolute; inset:auto 18px 10px; display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none; }
+.guitar-stage-legend { display:flex; align-items:center; gap:5px; color:var(--text-dim); font-size:10px; }
+.guitar-stage-legend i { width:7px; height:7px; border-radius:50%; background:#a36032; margin-left:9px; }
+.guitar-stage-legend i:first-child { margin-left:0; }
+.guitar-stage-legend i.played { background:#167b63; }
+.guitar-stage-legend i.next { background:transparent; border:1.5px solid var(--accent); width:8px; height:8px; }
+.guitar-stage-bottom .guitar-stage-hint { position:static; background:none; padding:0; font-size:11px; }
+.guitar-fret-controls { background:var(--bg-1); }
+.guitar-fret-controls > summary { padding:7px 16px; font-size:11px; }
+.guitar-chords { border-top:1px solid var(--line-soft); background:var(--bg-1); }
+.guitar-chords > span { color:var(--text-faint); }
+.chord-card-title { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.chord-card-title .eyebrow { font-size:9px; letter-spacing:1.4px; }
+.chord-voicing { font-size:10px; color:var(--text-faint); }
+.chord-card-heading { justify-content:flex-start; gap:14px; margin:17px 0; }
+.chord-card-heading h2 { font-size:42px; letter-spacing:-2px; line-height:1; margin:0; min-width:54px; }
+.chord-card-heading > div { display:flex; flex-direction:column; gap:5px; }
+.chord-card-heading strong { font-size:14px; font-weight:550; }
+.chord-card-heading > div > span { font-size:10px; color:var(--text-faint); }
+.chord-choices { grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; margin-bottom:16px; }
+.chord-choices button { min-height:34px; font-size:13px; border-radius:6px; }
+.chord-choices button[aria-pressed=true] { background:var(--accent); color:var(--on-accent); }
+.chord-visual { background:var(--bg); border:1px solid var(--line-soft); border-radius:10px; padding:8px; }
+.chord-label-modes { display:flex; padding:3px; background:var(--bg-2); border-radius:6px; gap:2px; }
+.chord-label-modes button { flex:1; border:0; background:none; min-height:27px; padding:4px 2px; font-size:11px; color:var(--text-dim); }
+.chord-label-modes button[aria-pressed=true] { background:var(--bg-1); color:var(--text); box-shadow:0 1px 4px #0001; border-radius:4px; }
+.chord-card .chord-diagram { height:205px; margin:0 auto; }
+.chord-diagram .diagram-fret-number { font:10px var(--mono); fill:var(--text-faint); }
+.chord-diagram .diagram-finger { font-size:13px; font-weight:600; }
+.chord-tones { display:flex; justify-content:center; gap:8px; padding-bottom:5px; }
+.chord-tones > span { display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:5px; padding:4px 7px; font-size:11px; background:var(--bg-1); }
+.chord-tones small { font-size:9px; color:var(--text-faint); }
+.chord-tones .root { border-color:#a3603260; }
+.chord-tones .root b { color:var(--guitar-root); }
+.chord-audition { margin:15px 0; }
+.chord-audition > span { display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-bottom:7px; }
+.chord-audition small { font-size:9px; color:var(--text-faint); }
+.chord-string-picks { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }
+.chord-string-picks button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; min-height:40px; border:1px solid var(--line); border-radius:6px; background:var(--bg-1); }
+.chord-string-picks b { font-size:13px; font-weight:600; }
+.chord-string-picks button:disabled { opacity:.4; border-style:dashed; }
+.chord-string-picks button.sounding { background:#167b63; color:#fff; border-color:#167b63; }
+.chord-string-picks button.sounding small { color:#ddfff4; }
+.chord-card .strum-actions { margin:0; gap:7px; }
+.chord-card .strum-actions button { flex:1; min-height:36px; font-size:12px; padding:6px; }
+.chord-dynamics { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
+.chord-dynamics label { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; font-size:10px; color:var(--text-dim); }
+.chord-dynamics output { font:10px var(--mono); }
+.chord-dynamics input { width:100%; min-width:0; height:16px; margin:0; accent-color:var(--accent); }
+.chord-card .hint { color:var(--text-faint); font-size:10px; line-height:1.7; margin:13px 0 0; }
+:root[data-theme="dark"] .chord-card, :root[data-theme="dark"] .guitar-workspace { --guitar-root:#ba7747; }
+
+@media(min-width:901px) {
+  .studio-app .guitar-workspace { overflow:auto; }
+  .guitar-view-controls { flex-wrap:nowrap; }
+  .guitar-view-controls .guitar-exercise { max-width:36%; }
+  .guitar-stage-top > div:first-child > span { display:none; }
+  .studio-app.free-play .guitar-stage-top > div:first-child > span { display:block; }
+  .studio-app .guitar-stage { min-height:180px; }
+  .studio-app.free-play .guitar-stage { min-height:290px; }
+  .studio-app .chord-card.section { padding:20px; }
+  /* Focus mode keeps the same controls in a compact horizontal workbench. */
+  .guitar-workspace > .chord-card { flex-shrink:0; display:grid; grid-template-columns:minmax(150px,1fr) 220px minmax(190px,1fr); grid-template-rows:auto auto auto; gap:8px 24px; padding:14px 24px; }
+  .guitar-workspace > .chord-card .chord-card-title { grid-column:1; grid-row:1; }
+  .guitar-workspace > .chord-card .chord-card-heading { grid-column:1; grid-row:2; margin:0; }
+  .guitar-workspace > .chord-card .chord-choices { grid-column:1; grid-row:3; margin:0; }
+  .guitar-workspace > .chord-card .chord-visual { grid-column:2; grid-row:1 / 4; }
+  .guitar-workspace > .chord-card .chord-diagram { height:125px; }
+  .guitar-workspace > .chord-card .chord-tones { display:none; }
+  .guitar-workspace > .chord-card .chord-audition { grid-column:3; grid-row:1; margin:0; }
+  .guitar-workspace > .chord-card .strum-actions { grid-column:3; grid-row:2; }
+  .guitar-workspace > .chord-card .chord-dynamics { grid-column:3; grid-row:3; margin:0; }
+}
+@media(min-width:901px) and (max-height:800px) {
+  .guitar-view-controls { padding-block:5px; gap:10px; }
+  .studio-app .guitar-stage { min-height:175px; }
+  .studio-app .chord-card.section { padding:16px 18px; }
+  .chord-card-heading { margin:12px 0; }
+  .chord-card-heading h2 { font-size:34px; }
+  .chord-choices { margin-bottom:10px; }
+  .studio-app .chord-card .chord-diagram { height:160px; }
+  .chord-audition { margin:10px 0; }
+  .chord-dynamics { margin-top:10px; }
+  .chord-card .hint { margin-top:9px; }
+  .studio-app .guitar-workspace > .chord-card .chord-diagram { height:108px; }
+}
