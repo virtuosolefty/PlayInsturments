@@ -49,10 +49,9 @@ export function weeklyPractice(days = {}, goal = 3, today = dayKey()) {
   });
   return { days: week, count: week.filter(day=>day.done).length, goal: [2,3,5].includes(+goal) ? +goal : 3 };
 }
-export function sharedLessonUrl(instrument, id, origin = window.location.origin) {
-  const url = new URL('/',origin);
+export function sharedLessonUrl(instrument, id, origin = window.location.origin, base = import.meta.env.BASE_URL) {
+  const url = new URL(base,origin);
   url.searchParams.set('instrument', instrument === 'guitar' ? 'guitar' : 'piano');
   url.searchParams.set('lesson',id);
   return url.href;
 }
-

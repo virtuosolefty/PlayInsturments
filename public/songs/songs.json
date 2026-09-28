@@ -1,0 +1,1680 @@
+[
+  {
+    "id": "c-major-scale",
+    "title": "C Major Scale — Two Octaves",
+    "composer": "Exercise",
+    "difficulty": 1,
+    "tags": [
+      "exercise",
+      "scales"
+    ],
+    "description": "Both hands in parallel motion. Aim for even timing before you chase speed.",
+    "bpm": 80,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": [
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      3,
+      4,
+      2,
+      1,
+      1,
+      2,
+      4,
+      3,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      5,
+      1
+    ],
+    "url": "/songs/c-major-scale.mid",
+    "noteCount": 60,
+    "range": [
+      48,
+      84
+    ],
+    "approxDuration": 24
+  },
+  {
+    "id": "c-major-arpeggios",
+    "title": "Triads & Arpeggios in C",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "chords"
+    ],
+    "description": "I–ii–IV–V–vi–I. Trains chord shapes and gives the theory checker real harmony to reason about.",
+    "bpm": 84,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/c-major-arpeggios.mid",
+    "noteCount": 102,
+    "range": [
+      41,
+      81
+    ],
+    "approxDuration": 17.1
+  },
+  {
+    "id": "twinkle",
+    "title": "Twinkle, Twinkle, Little Star",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody"
+    ],
+    "description": "The gentlest way to check your MPK Mini, your latency and your ears all at once.",
+    "bpm": 92,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/twinkle.mid",
+    "noteCount": 114,
+    "range": [
+      41,
+      69
+    ],
+    "approxDuration": 31.3
+  },
+  {
+    "id": "ode-to-joy",
+    "title": "Ode to Joy",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 2,
+    "tags": [
+      "classical",
+      "melody"
+    ],
+    "description": "Theme from the Ninth Symphony. Stepwise melody, block-chord left hand — a great first two-hand piece.",
+    "bpm": 100,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/ode-to-joy.mid",
+    "noteCount": 169,
+    "range": [
+      41,
+      67
+    ],
+    "approxDuration": 38.3
+  },
+  {
+    "id": "fur-elise",
+    "title": "Für Elise (opening)",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 3,
+    "tags": [
+      "classical",
+      "famous"
+    ],
+    "description": "The first period of WoO 59. Watch the E–D♯ semitone alternation; the checker will call out adjacent-key slips.",
+    "bpm": 68,
+    "timeSignature": [
+      3,
+      8
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/fur-elise.mid",
+    "noteCount": 49,
+    "range": [
+      40,
+      76
+    ],
+    "approxDuration": 19.7
+  },
+  {
+    "id": "bach-prelude-c",
+    "title": "Prelude in C, BWV 846 (bars 1–8)",
+    "composer": "J. S. Bach",
+    "difficulty": 3,
+    "tags": [
+      "classical",
+      "baroque"
+    ],
+    "description": "From The Well-Tempered Clavier. Pure broken chords, so the harmonic checker can name every chord you play over.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/bach-prelude-c.mid",
+    "noteCount": 128,
+    "range": [
+      47,
+      69
+    ],
+    "approxDuration": 26.7
+  },
+  {
+    "id": "canon-in-d",
+    "title": "Canon in D (practice arrangement)",
+    "composer": "Johann Pachelbel",
+    "difficulty": 3,
+    "tags": [
+      "classical",
+      "famous"
+    ],
+    "description": "The ground bass twice through: half-note melody first, then an eighth-note variation over the identical chords.",
+    "bpm": 66,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/canon-in-d.mid",
+    "noteCount": 112,
+    "range": [
+      38,
+      86
+    ],
+    "approxDuration": 58.1
+  },
+  {
+    "id": "moonlight-i",
+    "title": "Moonlight Sonata, mvt I (opening)",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 4,
+    "tags": [
+      "classical",
+      "famous"
+    ],
+    "description": "Op. 27 No. 2, bars 1–6. Even triplets under a singing top line; the timing report is brutally honest here.",
+    "bpm": 54,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/moonlight-i.mid",
+    "noteCount": 91,
+    "range": [
+      32,
+      69
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "five-finger-c",
+    "title": "Five-Finger Warm-up in C",
+    "composer": "Exercise",
+    "difficulty": 1,
+    "tags": [
+      "exercise",
+      "25-key"
+    ],
+    "description": "C–G under five fingers, hands an octave apart. Fits a 25-key controller exactly as written.",
+    "bpm": 76,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": [
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1
+    ],
+    "url": "/songs/five-finger-c.mid",
+    "noteCount": 54,
+    "range": [
+      48,
+      67
+    ],
+    "approxDuration": 23.6
+  },
+  {
+    "id": "twinkle-mini",
+    "title": "Twinkle (two-octave version)",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "25-key"
+    ],
+    "description": "The tune everyone knows, thinned to single bass notes so it fits a 25-key controller unaltered.",
+    "bpm": 92,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/twinkle-mini.mid",
+    "noteCount": 66,
+    "range": [
+      48,
+      69
+    ],
+    "approxDuration": 31.2
+  },
+  {
+    "id": "ode-to-joy-mini",
+    "title": "Ode to Joy (two-octave version)",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 2,
+    "tags": [
+      "classical",
+      "melody",
+      "25-key"
+    ],
+    "description": "The first eight bars over a walking bass instead of block chords — two hands inside two octaves.",
+    "bpm": 100,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/ode-to-joy-mini.mid",
+    "noteCount": 46,
+    "range": [
+      48,
+      67
+    ],
+    "approxDuration": 19.1
+  },
+  {
+    "id": "chord-shapes-c",
+    "title": "Chord Shapes in C (close position)",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "chords",
+      "25-key"
+    ],
+    "description": "I–vi–IV–V7–I–ii–V7–I with the right hand never leaving one position. Gives the harmony checker real chords on a mini keyboard.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": null,
+    "fingering": [
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      2,
+      5,
+      5,
+      1,
+      2,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      2,
+      5,
+      5,
+      1,
+      2,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5,
+      5,
+      1,
+      3,
+      5
+    ],
+    "url": "/songs/chord-shapes-c.mid",
+    "noteCount": 64,
+    "range": [
+      48,
+      69
+    ],
+    "approxDuration": 26.5
+  },
+  {
+    "id": "fur-elise-mini",
+    "title": "Für Elise (two-octave version, C minor)",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 3,
+    "tags": [
+      "classical",
+      "famous",
+      "25-key"
+    ],
+    "description": "The opening period transposed to C minor with the bass lifted — every interval of the original, inside a 25-key reach.",
+    "bpm": 68,
+    "timeSignature": [
+      3,
+      8
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/fur-elise-mini.mid",
+    "noteCount": 48,
+    "range": [
+      48,
+      67
+    ],
+    "approxDuration": 19.7
+  },
+  {
+    "id": "greensleeves",
+    "title": "Greensleeves (D minor)",
+    "composer": "Traditional",
+    "difficulty": 2,
+    "tags": [
+      "traditional",
+      "melody",
+      "25-key"
+    ],
+    "description": "Sixteenth-century English, moved to D minor so it fits two octaves. The raised leading note gives the harmony checker something to think about.",
+    "bpm": 108,
+    "timeSignature": [
+      6,
+      8
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/greensleeves.mid",
+    "noteCount": 38,
+    "range": [
+      48,
+      70
+    ],
+    "approxDuration": 22.1
+  },
+  {
+    "id": "scarborough-fair",
+    "title": "Scarborough Fair (D dorian)",
+    "composer": "Traditional",
+    "difficulty": 2,
+    "tags": [
+      "traditional",
+      "melody",
+      "25-key"
+    ],
+    "description": "Dorian mode — a minor tune with a major sixth in it. Slow, spacious, and unforgiving about even timing.",
+    "bpm": 96,
+    "timeSignature": [
+      3,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/scarborough-fair.mid",
+    "noteCount": 35,
+    "range": [
+      48,
+      71
+    ],
+    "approxDuration": 22.4
+  },
+  {
+    "id": "amazing-grace",
+    "title": "Amazing Grace",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "traditional",
+      "beginner",
+      "melody",
+      "25-key"
+    ],
+    "description": "Pentatonic throughout, so there is no wrong black key to hit — a gentle first piece in three-four.",
+    "bpm": 84,
+    "timeSignature": [
+      3,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/amazing-grace.mid",
+    "noteCount": 31,
+    "range": [
+      48,
+      69
+    ],
+    "approxDuration": 22
+  },
+  {
+    "id": "entertainer",
+    "title": "The Entertainer (opening strain)",
+    "composer": "Scott Joplin",
+    "difficulty": 3,
+    "tags": [
+      "ragtime",
+      "famous",
+      "25-key"
+    ],
+    "description": "Ragtime, thinned to a single-line right hand over an off-beat bass. Syncopation against a steady pulse — the timing report earns its keep here.",
+    "bpm": 92,
+    "timeSignature": [
+      2,
+      4
+    ],
+    "key": null,
+    "fingering": null,
+    "url": "/songs/entertainer.mid",
+    "noteCount": 32,
+    "range": [
+      60,
+      76
+    ],
+    "approxDuration": 11.7
+  },
+  {
+    "id": "beethoven-fifth",
+    "title": "Symphony No. 5 (opening motif)",
+    "composer": "Ludwig van Beethoven",
+    "difficulty": 1,
+    "tags": [
+      "classical",
+      "famous",
+      "25-key"
+    ],
+    "description": "Four notes, hands in octaves. The whole exercise is landing the three short ones evenly and holding the long one honestly.",
+    "bpm": 108,
+    "timeSignature": [
+      2,
+      4
+    ],
+    "key": [
+      "C",
+      "minor"
+    ],
+    "fingering": null,
+    "url": "/songs/beethoven-fifth.mid",
+    "noteCount": 32,
+    "range": [
+      50,
+      67
+    ],
+    "approxDuration": 11.8
+  },
+  {
+    "id": "path-01-home-five-right",
+    "title": "Home Five — Right Hand",
+    "composer": "Exercise",
+    "difficulty": 1,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Fingers 1–5 rest on C–G and stay there. Up 1-2-3-4-5, down 5-4-3-2-1, one note per beat. No finger leaves its key.",
+    "bpm": 60,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1
+    ],
+    "url": "/songs/path-01-home-five-right.mid",
+    "noteCount": 25,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 27.9
+  },
+  {
+    "id": "path-02-home-five-left",
+    "title": "Home Five — Left Hand",
+    "composer": "Exercise",
+    "difficulty": 1,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "The same shape in the weaker hand, fingers 5-4-3-2-1 on C–G. Expect it to lag the right by a tempo rung or two — closing that gap is the point.",
+    "bpm": 60,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "url": "/songs/path-02-home-five-left.mid",
+    "noteCount": 25,
+    "range": [
+      48,
+      55
+    ],
+    "approxDuration": 27.9
+  },
+  {
+    "id": "path-03-mirror-hands",
+    "title": "Mirror Hands",
+    "composer": "Exercise",
+    "difficulty": 1,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Both hands an octave apart. The pitches move in parallel while the finger numbers move in opposite directions — the standard first hands-together drill.",
+    "bpm": 60,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1
+    ],
+    "url": "/songs/path-03-mirror-hands.mid",
+    "noteCount": 50,
+    "range": [
+      48,
+      67
+    ],
+    "approxDuration": 27.9
+  },
+  {
+    "id": "path-04-finger-ladders",
+    "title": "Finger Ladders",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Alternating non-adjacent fingers: 2-4, then 3-5, then 2-5, then 1-3. Watch the evenness score — a dependent fourth finger shows up as a lumpy line, not a wrong note.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      2,
+      4,
+      2,
+      4,
+      2,
+      4,
+      2,
+      4,
+      3,
+      5,
+      3,
+      5,
+      3,
+      5,
+      3,
+      5,
+      2,
+      5,
+      2,
+      5,
+      2,
+      5,
+      2,
+      5,
+      1,
+      3,
+      1,
+      3,
+      1,
+      3,
+      1,
+      3
+    ],
+    "url": "/songs/path-04-finger-ladders.mid",
+    "noteCount": 32,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-05-long-and-short",
+    "title": "Long and Short",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "A bar of quarters, a bar of halves, a bar of eighths, a bar of both — all on one note, so only the rhythm is being judged. Turn the metronome on.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3
+    ],
+    "url": "/songs/path-05-long-and-short.mid",
+    "noteCount": 40,
+    "range": [
+      67,
+      67
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-06-the-anchor",
+    "title": "The Anchor",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Hold finger 5 down on G for the whole bar while 1-2-3 play underneath it. Then anchor the thumb on C and work 3-4-5. The held note must still be down when the bar ends.",
+    "bpm": 66,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      5,
+      2,
+      3,
+      1,
+      3,
+      4,
+      5,
+      1,
+      5,
+      2,
+      3,
+      1,
+      3,
+      4,
+      5,
+      1,
+      5,
+      2,
+      3,
+      1,
+      3,
+      4,
+      5,
+      1,
+      5,
+      2,
+      3,
+      1,
+      3,
+      4,
+      5
+    ],
+    "url": "/songs/path-06-the-anchor.mid",
+    "noteCount": 32,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 29
+  },
+  {
+    "id": "path-07-thumb-crossing",
+    "title": "Thumb Crossing",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "C-D-E with 1-2-3, then tuck the thumb under the third finger to reach F. Wrist level, elbow still. A bad tuck shows up as a late note on exactly that beat, every time.",
+    "bpm": 66,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      1
+    ],
+    "url": "/songs/path-07-thumb-crossing.mid",
+    "noteCount": 28,
+    "range": [
+      60,
+      65
+    ],
+    "approxDuration": 28.1
+  },
+  {
+    "id": "path-08-scale-right",
+    "title": "C Major, One Octave — Right Hand",
+    "composer": "Exercise",
+    "difficulty": 2,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "The benchmark. 1-2-3-1-2-3-4-5 up, 5-4-3-2-1-3-2-1 down. This exercise never changes, at this tempo, so every run of it is comparable with every other — that is what makes the progress chart honest.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      3,
+      2,
+      1
+    ],
+    "url": "/songs/path-08-scale-right.mid",
+    "noteCount": 30,
+    "range": [
+      60,
+      72
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-09-scale-together",
+    "title": "C Major, One Octave — Hands Together",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Both hands in parallel octaves, C3 to C5 — the full width of a 25-key controller, exactly. Each hand crosses its thumb at a different moment, which is the whole difficulty.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1,
+      5,
+      1,
+      4,
+      2,
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      3,
+      3,
+      2,
+      4,
+      1,
+      5,
+      2,
+      4,
+      3,
+      3,
+      1,
+      2,
+      2,
+      1,
+      3,
+      3,
+      4,
+      2,
+      5,
+      1
+    ],
+    "url": "/songs/path-09-scale-together.mid",
+    "noteCount": 60,
+    "range": [
+      48,
+      72
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-10-broken-triads",
+    "title": "Broken Triads",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "C, D minor, E minor, F — the same 1-3-5 shape walked up the scale. Up and back down each bar. Misfires cluster on the third finger; the wrong-note list will name them.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3,
+      1,
+      3,
+      5,
+      3
+    ],
+    "url": "/songs/path-10-broken-triads.mid",
+    "noteCount": 32,
+    "range": [
+      60,
+      72
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-11-block-chords",
+    "title": "I–IV–V–I",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "The harmonic spine of almost everything, in the left hand: C, F, G, C. All three notes of each chord must arrive together, or they score as separate events.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1,
+      5,
+      3,
+      1
+    ],
+    "url": "/songs/path-11-block-chords.mid",
+    "noteCount": 24,
+    "range": [
+      48,
+      62
+    ],
+    "approxDuration": 26.6
+  },
+  {
+    "id": "path-12-loud-and-soft",
+    "title": "Loud and Soft",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "The home five shape played quiet, medium, loud, then growing across the last pass. Graded gently on purpose — mini-keys have a coarse velocity curve, and this should measure your hand, not your hardware.",
+    "bpm": 76,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      4,
+      3,
+      2
+    ],
+    "url": "/songs/path-12-loud-and-soft.mid",
+    "noteCount": 32,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 25.2
+  },
+  {
+    "id": "path-13-steps-and-skips",
+    "title": "Steps and Skips",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Seconds and thirds, nothing else. Switch to the staff view and turn labels off — you are reading the distance between notes, not their names. No fingering is written, deliberately.",
+    "bpm": 72,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/path-13-steps-and-skips.mid",
+    "noteCount": 34,
+    "range": [
+      60,
+      71
+    ],
+    "approxDuration": 29.1
+  },
+  {
+    "id": "path-14-landmarks",
+    "title": "Landmark Notes",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "Bass F, middle C, treble G, treble C — the four anchors you read everything else from, then their neighbours. Half notes, so there is time to work it out. Bass clef is where beginners are always weakest.",
+    "bpm": 76,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/path-14-landmarks.mid",
+    "noteCount": 14,
+    "range": [
+      48,
+      72
+    ],
+    "approxDuration": 22
+  },
+  {
+    "id": "path-15-melody-and-hold",
+    "title": "Melody and Hold",
+    "composer": "Exercise",
+    "difficulty": 3,
+    "tags": [
+      "exercise",
+      "path",
+      "25-key"
+    ],
+    "description": "The Ode to Joy opening in the right hand over a held bass in the left. Two hands, two different jobs. Pass this and the piece it came from is yours.",
+    "bpm": 88,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      3,
+      3,
+      4,
+      5,
+      5,
+      5,
+      4,
+      3,
+      2,
+      5,
+      1,
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      2,
+      5,
+      3,
+      3,
+      4,
+      5,
+      5,
+      5,
+      4,
+      3,
+      2,
+      5,
+      1,
+      1,
+      2,
+      3,
+      1,
+      3,
+      2,
+      2
+    ],
+    "url": "/songs/path-15-melody-and-hold.mid",
+    "noteCount": 38,
+    "range": [
+      48,
+      67
+    ],
+    "approxDuration": 21.7
+  },
+  {
+    "id": "twinkle-musicxml",
+    "title": "Twinkle (MusicXML import)",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "musicxml"
+    ],
+    "description": "The same tune read from MusicXML instead of MIDI — two staves, block chords and a tie across the barline.",
+    "bpm": 92,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "url": "/songs/twinkle-musicxml.musicxml",
+    "noteCount": 32,
+    "range": [
+      41,
+      69
+    ],
+    "approxDuration": 13
+  },
+  {
+    "id": "amma-amma",
+    "title": "Amma Amma",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 4,
+    "tags": ["film-music", "anirudh-ravichander", "intermediate", "indian"],
+    "description": "Beautiful emotional piece from Maryan. A contemplative melody with rich harmonies — perfect for developing touch sensitivity and emotional expression.",
+    "bpm": 75,
+    "timeSignature": [4, 4],
+    "key": "D Major",
+    "url": "/songs/amma-amma-88key.mid",
+    "noteCount": 11,
+    "range": [59, 66],
+    "approxDuration": 11,
+    "keyboardVersions": {
+      "25-key": "/songs/amma-amma-25key.mid",
+      "49-key": "/songs/amma-amma-49key.mid",
+      "88-key": "/songs/amma-amma-88key.mid"
+    }
+  },
+  {
+    "id": "raga-of-revenge",
+    "title": "Raga of Revenge",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 2,
+    "tags": ["film-music", "anirudh-ravichander", "melody", "indian"],
+    "description": "The theme from DC (2026), as a single line in D minor. It sits inside a tenth and stays under one hand, so it fits any keyboard without folding — the tune on its own, with no accompaniment underneath it.",
+    "bpm": 100,
+    "timeSignature": null,
+    "key": ["D", "minor"],
+    "url": "/songs/raga-of-revenge.mid",
+    "noteCount": 90,
+    "range": [69, 79],
+    "approxDuration": 30.6
+  },
+  {
+    "id": "rowdy-baby",
+    "title": "Rowdy Baby",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 3,
+    "tags": ["film-music", "anirudh-ravichander", "upbeat", "indian"],
+    "description": "Catchy, energetic theme from Maari 2. Fun to play with distinctive rhythmic patterns and playful melodies — great for building confidence.",
+    "bpm": 120,
+    "timeSignature": [4, 4],
+    "key": "G Major",
+    "url": "/songs/rowdy-baby-88key.mid",
+    "noteCount": 10,
+    "range": [67, 72],
+    "approxDuration": 9,
+    "keyboardVersions": {
+      "25-key": "/songs/rowdy-baby-25key.mid",
+      "49-key": "/songs/rowdy-baby-49key.mid",
+      "88-key": "/songs/rowdy-baby-88key.mid"
+    }
+  },
+  {
+    "id": "kannazhaga",
+    "title": "Kannazhaga",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 4,
+    "tags": ["film-music", "anirudh-ravichander", "romantic", "indian"],
+    "description": "Enchanting romantic melody from VIP. Flowing passages with subtle dynamic variations — develops nuanced control and artistic expression.",
+    "bpm": 85,
+    "timeSignature": [4, 4],
+    "key": "E Major",
+    "url": "/songs/kannazhaga-88key.mid",
+    "noteCount": 10,
+    "range": [61, 68],
+    "approxDuration": 9,
+    "keyboardVersions": {
+      "25-key": "/songs/kannazhaga-25key.mid",
+      "49-key": "/songs/kannazhaga-49key.mid",
+      "88-key": "/songs/kannazhaga-88key.mid"
+    }
+  },
+  {
+    "id": "theevandi-theme",
+    "title": "Theevandi Theme",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 3,
+    "tags": ["film-music", "anirudh-ravichander", "folk", "indian"],
+    "description": "Spirited theme from Theevandi. Folk-influenced melody with traditional rhythmic elements — bridges classical and contemporary styles.",
+    "bpm": 110,
+    "timeSignature": [4, 4],
+    "key": "C Major",
+    "url": "/songs/theevandi-theme-88key.mid",
+    "noteCount": 10,
+    "range": [60, 71],
+    "approxDuration": 9,
+    "keyboardVersions": {
+      "25-key": "/songs/theevandi-theme-25key.mid",
+      "49-key": "/songs/theevandi-theme-49key.mid",
+      "88-key": "/songs/theevandi-theme-88key.mid"
+    }
+  },
+  {
+    "id": "anjathe-pookkal",
+    "title": "Anjathe Pookkal",
+    "composer": "Anirudh Ravichander",
+    "difficulty": 3,
+    "tags": ["film-music", "anirudh-ravichander", "devotional", "indian"],
+    "description": "Serene devotional piece from Natarang. Meditative quality with gentle ornamentation — excellent for mindful practice and breath control.",
+    "bpm": 70,
+    "timeSignature": [4, 4],
+    "key": "F Major",
+    "url": "/songs/anjathe-pookkal-88key.mid",
+    "noteCount": 9,
+    "range": [65, 72],
+    "approxDuration": 9,
+    "keyboardVersions": {
+      "25-key": "/songs/anjathe-pookkal-25key.mid",
+      "49-key": "/songs/anjathe-pookkal-49key.mid",
+      "88-key": "/songs/anjathe-pookkal-88key.mid"
+    }
+  }
+]

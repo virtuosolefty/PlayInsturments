@@ -164,14 +164,19 @@ export default function App({ startupSettings = {} }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch('/songs/songs.json');
+        const res = await fetch(`${import.meta.env.BASE_URL}songs/songs.json`);
         if (!res.ok) throw new Error(`songs.json returned ${res.status}`);
         const manifest = await res.json();
         if (cancelled) return;
-        setLibrary(manifest);
+        setLibrary(manifest.map(entry => ({
+          ...entry,
+          url: entry.url.startsWith('/songs/')
+            ? `${import.meta.env.BASE_URL}songs/${entry.url.slice('/songs/'.length)}`
+            : entry.url,
+        })));
       } catch (err) {
         setError(
-          `Could not load the bundled song library (${err.message}). Run "npm run songs" to generate it, then reload.`,
+          `Could not load the bundled song library (${err.message}). Reload the page or try again later.`,
         );
       }
     })();

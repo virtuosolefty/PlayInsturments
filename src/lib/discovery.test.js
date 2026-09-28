@@ -24,6 +24,8 @@ describe('discovery, habit and first-phrase safeguards',()=>{
   it('shares only a lesson identifier and instrument, with query text encoded',()=>{
     const url=new URL(sharedLessonUrl('guitar','x&score=100','https://example.org'));
     expect([...url.searchParams.keys()]).toEqual(['instrument','lesson']);expect(url.searchParams.get('lesson')).toBe('x&score=100');
+    expect(sharedLessonUrl('guitar','guitar-open-strings','https://example.org','/PlayInsturments/'))
+      .toBe('https://example.org/PlayInsturments/?instrument=guitar&lesson=guitar-open-strings');
   });
   it('allows a quick first phrase only after a played note and never turns it into mastery',()=>{
     expect(lessonCanVisit('note',{quick:true})).toBe(true);expect(lessonCanVisit('follow',{quick:true})).toBe(false);
