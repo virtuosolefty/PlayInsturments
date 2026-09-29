@@ -129,8 +129,8 @@ test('daily guided completion advances the saved queue and closes with a clear n
 test('short desktop layouts, themes and reduced motion preserve usable 3D instruments',async({page})=>{
   test.setTimeout(60_000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await seed(page,{renderer:'gl',learningView:'home'});await page.goto('/');
-  await page.screenshot({path:'review/learning/home-light.png'});
-  await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'review/learning/home-dark.png'});
+  await page.screenshot({path:'test-results/screens/learning/home-light.png'});
+  await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/learning/home-dark.png'});
   await page.setViewportSize({width:1280,height:720});
   await page.getByRole('button',{name:'Start my first lesson'}).click();
   await expect(page.locator('.roll-gl canvas').first()).toBeVisible();
@@ -139,12 +139,12 @@ test('short desktop layouts, themes and reduced motion preserve usable 3D instru
   }
   await page.emulateMedia({reducedMotion:'reduce'});
   expect(await page.locator('.lesson-transport button').first().evaluate(el=>getComputedStyle(el).transitionDuration)).toBe('0s');
-  await page.screenshot({path:'review/learning/piano-3d-dark-720.png'});
+  await page.screenshot({path:'test-results/screens/learning/piano-3d-dark-720.png'});
   await page.getByRole('group',{name:'Practice instrument'}).getByRole('button',{name:'Guitar',exact:true}).click();
   await page.getByRole('button',{name:'Start my first lesson'}).click();
   await expect(page.locator('.guitar-stage canvas')).toBeVisible();
   const guitar=await page.locator('.guitar-stage').boundingBox();expect(guitar.y+guitar.height).toBeLessThanOrEqual(720);
-  await page.screenshot({path:'review/learning/guitar-3d-dark-720.png'});expect(errors).toEqual([]);
+  await page.screenshot({path:'test-results/screens/learning/guitar-3d-dark-720.png'});expect(errors).toEqual([]);
 });
 
 test('listening completes only at the end, pauses safely, and does not create a grade',async({page})=>{

@@ -24,7 +24,7 @@ One library exposes piano pieces and guitar studies, with instrument filters, be
 
 ## Verification
 
-See `review/DESKTOP_VALIDATION.md` for the final automated checks and desktop screenshots. Mobile layout redesign was outside this update's scope. Physical MIDI hardware, acoustic input, cross-browser audio and long-duration device testing are not established by the automated Chromium checks.
+See [desktop validation](../validation/desktop-validation.md) for the final automated checks and desktop screenshots. Mobile layout redesign was outside this update's scope. Physical MIDI hardware, acoustic input, cross-browser audio and long-duration device testing are not established by the automated Chromium checks.
 
 ## Rendering references
 

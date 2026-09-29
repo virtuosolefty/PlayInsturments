@@ -16,16 +16,16 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 import '@fontsource-variable/inter/wght.css';
 import '@fontsource-variable/jetbrains-mono/wght.css';
 
-import './styles.css';
-import './studio.css';
-import './desktop.css';
-import './instruments.css';
-import './polish.css';
-import './guitar.css';
-import './practice-ux.css';
-import './learning.css';
-import './discovery.css';
-import './strings.css';
+import './styles/styles.css';
+import './styles/studio.css';
+import './styles/desktop.css';
+import './styles/instruments.css';
+import './styles/polish.css';
+import './styles/guitar.css';
+import './styles/practice-ux.css';
+import './styles/learning.css';
+import './styles/discovery.css';
+import './styles/strings.css';
 
 document.getElementById('public-intro')?.remove();
 createRoot(document.getElementById('root')).render(

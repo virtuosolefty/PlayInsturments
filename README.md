@@ -64,6 +64,24 @@ npm run test:e2e
 
 The application uses React, Vite, Tone.js, VexFlow, and Three.js.
 
+## Project structure
+
+```text
+.github/workflows/   GitHub Pages deployment
+docs/design/         UX reviews and design notes
+docs/validation/     Validation notes and reference screenshots
+e2e/                 Playwright tests (tests/, helpers/, pages/, fixtures/)
+e2e/config/          Focused Playwright suites (studio, guitar, reference piano)
+public/              Static files: songs, preview images, manifest
+scripts/             Build, song-generation and screenshot tools
+src/components/      React components
+src/hooks/           React hooks
+src/lib/             Instruments, audio, scoring and storage logic, with unit tests
+src/styles/          Stylesheets, loaded in order from src/main.jsx
+```
+
+Run a focused suite with `npm run test:studio`, or `npx playwright test --config e2e/config/guitar.config.js`.
+
 ## Privacy
 
 Practice history is stored locally in your browser. Shared lesson links contain only the selected instrument and lesson identifier; they do not include your scores or practice history.

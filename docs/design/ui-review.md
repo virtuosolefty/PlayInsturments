@@ -76,7 +76,7 @@ The design recommendation is to combine a clear instrument surface, useful small
 
 ## Verification and production limits
 
-See `review/VALIDATION.md` for the final checks. Screenshots are in `review/`.
+See [validation](../validation/validation.md) for the final checks. Screenshots are in `docs/validation/`.
 
 Before a public release, test physical MIDI piano/guitar devices, audio interfaces, Safari/Firefox fallback behavior, low-end graphics, screen readers and long sessions. Physical hardware and acoustic-guitar input were not validated in this review. The build still reports large audio/notation/Three.js chunks; measure startup, memory and interaction latency before further bundling changes. The original source also contains extensive production console logging and some older expected-failure browser tests that need maintenance.
 

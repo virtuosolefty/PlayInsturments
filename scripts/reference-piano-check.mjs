@@ -4,7 +4,7 @@ import { mkdirSync } from 'node:fs';
 
 const browser=await chromium.launch();
 try {
-  mkdirSync('review/reference-piano',{recursive:true});
+  mkdirSync('docs/validation/reference-piano',{recursive:true});
   const page=await browser.newPage({viewport:{width:1600,height:900}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>localStorage.setItem('piano-practice-coach:v1',JSON.stringify({version:1,songs:{},settings:{onboarded:true,settingsVersion:4,theme:'dark',renderer:'gl',pianoRange:'full',countInBars:0,pianoLabels:'octaves',pianoHeight:104,mode:'listen'}})));
@@ -18,18 +18,18 @@ try {
   await page.getByRole('button',{name:/^Play/}).first().click();
   await expect.poll(()=>page.evaluate(()=>window.__studioHeardSound)).toBe(true);
   await page.waitForTimeout(2750);
-  await page.screenshot({path:'review/reference-piano/three-playing.png'});
+  await page.screenshot({path:'docs/validation/reference-piano/three-playing.png'});
   await page.getByRole('button',{name:/^Pause/}).first().click();
   await page.waitForTimeout(180);
-  await page.screenshot({path:'review/reference-piano/three-paused.png'});
+  await page.screenshot({path:'docs/validation/reference-piano/three-paused.png'});
   await page.getByRole('button',{name:'Exit focus',exact:true}).click();
   await page.getByRole('button',{name:'2D Trainer',exact:true}).click();
   await page.getByRole('button',{name:/^Play/}).first().click();
   await page.waitForTimeout(1000);
-  await page.screenshot({path:'review/reference-piano/two-playing.png'});
+  await page.screenshot({path:'docs/validation/reference-piano/two-playing.png'});
   await page.getByRole('button',{name:/^Pause/}).first().click();
   await page.getByRole('button',{name:'Switch to light theme'}).click();
-  await page.screenshot({path:'review/reference-piano/light.png'});
+  await page.screenshot({path:'docs/validation/reference-piano/light.png'});
   expect(errors).toEqual([]);
   console.log(JSON.stringify({keys:88,sound:true,pageErrors:errors,focus:await grid.boundingBox()}));
 }finally{await browser.close();}
