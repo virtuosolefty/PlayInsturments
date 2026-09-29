@@ -25,6 +25,7 @@ import './guitar.css';
 import './practice-ux.css';
 import './learning.css';
 import './discovery.css';
+import './strings.css';
 
 document.getElementById('public-intro')?.remove();
 createRoot(document.getElementById('root')).render(

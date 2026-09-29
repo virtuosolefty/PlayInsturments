@@ -49,7 +49,7 @@ export default function Controls({
 
   const loopActive = !!settings.loop;
 
-  const viewAndHands = settings.practiceInstrument === 'guitar' ? null : (
+  const viewAndHands = settings.practiceInstrument && settings.practiceInstrument !== 'piano' ? null : (
     <>
       {/* Falling notes teach you when; a staff teaches you what. Both is the
           useful middle for anyone learning to read while still needing the
@@ -261,7 +261,7 @@ export default function Controls({
             <div className="popover-scrim" onClick={() => setOpen(false)} />
             <div className="popover" ref={optionsRef} role="dialog" aria-modal="true" aria-label="Practice settings" tabIndex={-1}>
               <div className="settings-heading"><strong>Practice settings</strong><button aria-label="Close practice settings" onClick={() => setOpen(false)}>×</button></div>
-              {settings.practiceInstrument !== 'guitar' && (
+              {(settings.practiceInstrument ?? 'piano') === 'piano' && (
                 <div className="popover-switches">
                   <span className="popover-label">View and hands</span>
                   {viewAndHands}
@@ -310,7 +310,7 @@ export default function Controls({
               {/* Fingering answers "how do I play this?", which nothing else in
                   the app addresses. Only one label fits on a note, so it is a
                   choice rather than an addition. */}
-              {settings.practiceInstrument !== 'guitar' && <><div className="field stacked">
+              {(settings.practiceInstrument ?? 'piano') === 'piano' && <><div className="field stacked">
                 <span>On each note</span>
                 <div className="fit-switch">
                   {[

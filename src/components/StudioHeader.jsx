@@ -2,9 +2,26 @@ import { useState } from 'react';
 import { useDialog } from '../hooks/useDialog.js';
 import Icon from './Icon.jsx';
 import { webglAvailable } from '../lib/webgl.js';
+import { INSTRUMENTS, instrumentInfo, isStringed, normalizeInstrument, stringKit } from '../lib/instruments.js';
 
-export function InstrumentIcon({ guitar = false }) {
-  return guitar ? (
+const BOWED_BODY = 'M9.3 9.4c-1.5.2-2.3 1.2-2.1 2.4.1.8.8 1.2.8 1.9 0 .6-.9 1.2-.9 2.5 0 2.1 1.9 3.6 4.9 3.6s4.9-1.5 4.9-3.6c0-1.3-.9-1.9-.9-2.5 0-.7.7-1.1.8-1.9.2-1.2-.6-2.2-2.1-2.4-1.1-.1-1.7.5-2.7.5s-1.6-.6-2.7-.5z';
+
+/** @param instrument 'piano' | 'guitar' | 'violin' | 'cello'; `guitar` is the older boolean form */
+export function InstrumentIcon({ guitar = false, instrument = guitar ? 'guitar' : 'piano' }) {
+  if (instrument === 'violin' || instrument === 'cello') {
+    const cello = instrument === 'cello';
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+        <g transform={cello ? 'translate(0 -1.2) scale(1)' : 'rotate(-28 12 12)'}>
+          <circle cx="12" cy="3.1" r="1.4" /><path d="M12 4.5v5" />
+          <path d={BOWED_BODY} /><path d="M10.2 13.4v2.3M13.8 13.4v2.3M10.7 16.9h2.6" />
+          {cello && <path d="M12 19.9v3" />}
+        </g>
+        {!cello && <path d="M4 20 20 6" strokeWidth="1.2" opacity=".7" />}
+      </svg>
+    );
+  }
+  return instrument === 'guitar' ? (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m14 10 6-6 2 2-6 6M18 4l2 2M20 2l2 2M10 9c-3-2-4 1-4 3-4 0-5 4-2 7s7 2 7-2c2 0 5-1 3-4"/><circle cx="9" cy="14" r="2"/><path d="m5 17 2 2"/></svg>
   ) : (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/><path d="M7 5h4v8H7zm6 0h4v8h-4z" fill="currentColor" stroke="none"/></svg>
@@ -12,7 +29,7 @@ export function InstrumentIcon({ guitar = false }) {
 }
 
 export default function StudioHeader({ score, settings, playing, onInstrumentChange, freePlay, onFreePlay, focus, onFocus }) {
-  const guitar = settings.practiceInstrument === 'guitar';
+  const current = normalizeInstrument(settings.practiceInstrument);
   return (
     <div className="studio-header">
       <div className="studio-heading">
@@ -22,10 +39,10 @@ export default function StudioHeader({ score, settings, playing, onInstrumentCha
       </div>
       <div className="studio-header-actions"><div className="workspace-switch" role="group" aria-label="Workspace"><button aria-pressed={!freePlay} onClick={() => onFreePlay(false)}>Learn</button><button aria-pressed={freePlay} onClick={() => onFreePlay(true)}>Free play</button></div>
       <div className="instrument-picker" role="group" aria-label="Practice instrument">
-        {['piano', 'guitar'].map(value => (
-          <button key={value} aria-pressed={(settings.practiceInstrument ?? 'piano') === value}
+        {INSTRUMENTS.map(value => (
+          <button key={value} aria-pressed={current === value} aria-label={instrumentInfo(value).label} title={`${instrumentInfo(value).label} · ${instrumentInfo(value).tagline}`}
             onClick={() => onInstrumentChange(value)}>
-            <InstrumentIcon guitar={value === 'guitar'} /><span>{value === 'piano' ? 'Piano' : 'Guitar'}</span>
+            <InstrumentIcon instrument={value} /><span>{instrumentInfo(value).label}</span>
           </button>
         ))}
       </div><button className="focus-toggle" aria-pressed={focus} onClick={onFocus} title={focus ? 'Show everything again (Esc)' : 'Hide panels and settings — just the music'}><Icon name={focus ? 'minimize' : 'focus'} size={14} />{focus ? 'Exit focus' : 'Focus'}</button></div>
@@ -33,19 +50,24 @@ export default function StudioHeader({ score, settings, playing, onInstrumentCha
   );
 }
 
-export function StageToolbar({ settings, setSettings, guitar, freePlay, children }) {
+export function StageToolbar({ settings, setSettings, instrument = 'piano', freePlay, children }) {
+  const stringed = isStringed(instrument), kit = stringKit(instrument);
+  const name = instrumentInfo(instrument).label.toUpperCase();
+  const caption = freePlay ? name : !stringed ? 'PIANO ROLL' : kit.bowed ? `${name} FINGERS` : 'GUITAR TAB';
+  const description = freePlay ? (kit?.bowed ? 'Press and hold a place to bow it' : 'Click a note or play your controller')
+    : !stringed ? 'Play as the notes reach the line' : kit.bowed ? 'Numbers show the finger to use' : 'Numbers show the fret to play';
   const [open, setOpen] = useState(false);
   const ref = useDialog({ open, onClose: () => setOpen(false) });
   const available = webglAvailable();
   const renderer = available ? settings.renderer : 'canvas';
   return (
     <div className="stage-toolbar">
-      <div className="stage-caption"><span className="stage-live-dot" />{freePlay ? (guitar ? 'GUITAR' : 'PIANO') : guitar ? 'GUITAR TAB' : 'PIANO ROLL'}<span className="stage-description">{freePlay ? 'Click a note or play your controller' : guitar ? 'Numbers show the fret to play' : 'Play as the notes reach the line'}</span></div>
+      <div className="stage-caption"><span className="stage-live-dot" />{caption}<span className="stage-description">{description}</span></div>
       <div className="popover-host instrument-settings-host">
       <button className="instrument-settings-toggle" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(v => !v)}><Icon name="sliders" size={14} /> Instrument settings</button>
       {open && <><div className="popover-scrim" onClick={() => setOpen(false)} /><div className="popover instrument-settings-panel" ref={ref} role="dialog" aria-modal="true" aria-label="Instrument settings" tabIndex={-1}>
       <div className="settings-heading"><strong>Instrument settings</strong><button aria-label="Close instrument settings" onClick={() => setOpen(false)}>×</button></div>
-      <p className="hint">Choose how your instrument looks and responds.</p><span className="settings-label">Appearance</span>
+      <p className="hint">{kit?.bowed ? `The ${kit.label.toLowerCase()} fingerboard is always drawn in 2D. Appearance applies to piano and guitar.` : 'Choose how your instrument looks and responds.'}</p><span className="settings-label">Appearance</span>
       <div className="stage-view-switch" role="group" aria-label="Stage appearance">
         {['canvas', 'gl'].map(value => <button key={value} aria-pressed={renderer === value}
           disabled={value === 'gl' && !available} title={value === 'gl' && !available ? '3D is unavailable on this browser. The 2D trainer is ready to use.' : undefined}

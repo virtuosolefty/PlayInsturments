@@ -3,6 +3,7 @@ import { LESSON_STEPS, lessonCanVisit, noteInstruction } from '../lib/learning.j
 import { GUITAR_CHORDS } from '../lib/guitar.js';
 import { useGuitarInput } from '../hooks/useGuitarInput.js';
 import { playInput } from '../lib/playInput.js';
+import { isStringed, stringKit } from '../lib/instruments.js';
 
 export function LessonBar({ learning, engine, onShowGuide }) {
   const { record, ready } = learning;
@@ -25,7 +26,9 @@ function LessonChords({ score, engine, step }) {
   return <div className="lesson-chords"><span className="eyebrow">{next ? 'NEXT CHORD' : 'CHORD SHAPE'} · {current.name}</span><div className="lesson-chord-fingers" aria-label={`${current.name} chord frets, low E to high E`}>{current.frets.map((fret,i) => <span key={i}><small>{['E','A','D','G','B','e'][i]}</small><b>{fret ?? '×'}</b></span>)}</div><p>0 = open · × = skip this string. Fingers: 1 index, 2 middle, 3 ring.</p><div>{names.map(name => <button key={name} onClick={() => { const chord=GUITAR_CHORDS.find(c=>c.name===name); silence(); pluck(chord.frets.flatMap((fret,string)=>fret===null?[]:[{string,fret}]),{spread:24,strength:.72}); }}>Strum {name}</button>)}</div></div>;
 }
 
-export default function LessonGuide({ learning, engine, score, guitar, onSetup, path }) {
+export default function LessonGuide({ learning, engine, score, instrument = 'piano', onSetup, path }) {
+  const guitar = instrument === 'guitar';
+  const kit = stringKit(instrument);
   const { record, outcome } = learning;
   const [tipOpen, setTipOpen] = useState(false);
   const heading = useRef(null);
@@ -35,14 +38,15 @@ export default function LessonGuide({ learning, engine, score, guitar, onSetup, 
     const pane = heading.current?.closest('.pane.right');
     if (pane) pane.scrollTop = 0;
   }, [record.step, learning.ready]);
-  useEffect(() => () => playInput.release('lesson-first-note'), []);
+  const firstNoteTimer = useRef(null);
+  useEffect(() => () => { clearTimeout(firstNoteTimer.current); playInput.release('lesson-first-note'); }, []);
   const first = score?.notes[0];
   const target = engine.sessionRef.current?.currentGate?.notes?.filter(n => n.status === 'pending')?.[0];
   const result = engine.lastResult;
   const passed = ['passed','mastered'].includes(outcome?.kind);
   const copy = {
     sound: ['Let’s make a sound.', 'Play a test note, then confirm you can hear it. This checks the selected sound output.'],
-    note: ['Your first note.', guitar ? 'Pluck the highlighted string. An open string needs no finger on a fret.' : 'Find this note on the keyboard. You can click a key, use your computer keys, or play a MIDI controller.'],
+    note: ['Your first note.', guitar ? 'Pluck the highlighted string. An open string needs no finger on a fret.' : kit?.bowed ? 'Bow the highlighted string. Press and hold near the bridge for an open string.' : 'Find this note on the keyboard. You can click a key, use your computer keys, or play a MIDI controller.'],
     listen: ['Hear the shape of it.', 'Press Listen to the phrase above. Watch where the notes land; you don’t need to play yet.'],
     follow: ['Find the notes. Take your time.', 'Press Play this step. The music waits until you play the next note or chord. Timing is not assessed here.'],
     practice: ['Give the phrase a rhythm.', 'Play at a comfortable speed. After the phrase, choose whether to repeat or raise the tempo a little.'],
@@ -54,10 +58,10 @@ export default function LessonGuide({ learning, engine, score, guitar, onSetup, 
     <h2 ref={heading} tabIndex={-1}>{copy[0]}</h2><p className="lesson-instruction">{copy[1]}</p>
     {!learning.ready && <div role={learning.error ? 'alert' : 'status'} className="lesson-load-state"><strong>{learning.error || 'Preparing your lesson…'}</strong>{learning.error && <><button onClick={learning.retry}>Retry lesson</button><button onClick={onSetup}>Check sound setup</button></>}</div>}
     {learning.ready && record.step === 'sound' && <div className="lesson-actions"><button className="primary" disabled={learning.testing} onClick={learning.sendTest}>{learning.testing ? 'Sending test note…' : 'Play a test note'}</button>{learning.testSent && <><p role="status">Test note sent. Did you hear it?</p><button className="primary" onClick={learning.confirmSound}>I heard it</button></>}<button onClick={onSetup}>No sound? Check setup</button></div>}
-    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,guitar)}</strong><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,guitar?{source:'guitar-screen',string:first.string,fret:first.fret}:{});setTimeout(()=>playInput.release('lesson-first-note'),400);}}>Play {first.name} on screen</button><small>Or play this note on the instrument below.</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
+    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,instrument)}</strong><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,isStringed(instrument)?{source:`${instrument}-screen`,string:first.string,fret:first.fret}:{});clearTimeout(firstNoteTimer.current);firstNoteTimer.current=setTimeout(()=>playInput.release('lesson-first-note'),kit?.bowed?900:400);}}>Play {first.name} on screen</button><small>Or play this note on the instrument below.</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
     {learning.noteHint && <p className="lesson-note-feedback" role="status">{learning.noteHint}</p>}
     {record.step === 'listen' && record.listened && <div className="lesson-actions"><p className="lesson-success">✓ Demonstration completed</p><button className="primary" onClick={() => learning.goStep('follow')}>Now find the notes →</button></div>}
-    {record.step === 'follow' && !record.followed && <div className="lesson-target"><span>NEXT NOTE</span><strong>{noteInstruction(target ?? first,guitar)}</strong><p>{engine.summary?.hit ?? 0} / {score?.noteCount ?? 0} notes found</p></div>}
+    {record.step === 'follow' && !record.followed && <div className="lesson-target"><span>NEXT NOTE</span><strong>{noteInstruction(target ?? first,instrument)}</strong><p>{engine.summary?.hit ?? 0} / {score?.noteCount ?? 0} notes found</p></div>}
     {['follow','practice','check'].includes(record.step) && guitar && score && <LessonChords score={score} engine={engine} step={record.step}/>}
     {record.step === 'practice' && <div className="lesson-tempo"><label htmlFor="lesson-speed">Comfortable tempo <b>{Math.round(record.rate*100)}%</b></label><input id="lesson-speed" aria-label="Lesson practice speed" type="range" min=".4" max="1" step=".05" value={record.rate} disabled={engine.playing} onChange={e=>learning.changeRate(+e.target.value)}/><small>Tempo means speed. Adjust it between attempts.</small></div>}
     {outcome && <div className="lesson-result" role="status"><span className="eyebrow">YOUR LAST ATTEMPT</span><h3>{outcome.title}</h3><p>{outcome.message}</p><details><summary>See the numbers</summary><p>{result.summary.hit} notes hit · {result.summary.missed} missed · {result.summary.wrongNotes} extra notes</p><p>{result.grade.complete ? `${result.grade.stars} / 5 stars` : 'Partial attempt'} · {Math.round(result.rate*100)}% speed</p></details></div>}
@@ -67,6 +71,6 @@ export default function LessonGuide({ learning, engine, score, guitar, onSetup, 
     {outcome&&!passed&&record.step==='check'&&<button className="lesson-easier" onClick={()=>learning.goStep('follow')}>Take your time with the notes again</button>}
     {!record.quick&&<details className="lesson-requirement"><summary>{path.state.exercises[score?.id]?.passed ? '✓ Check passed · how mastery works' : 'How the next milestone works'}</summary><p>3 stars at 100% speed passes this exercise. Master each exercise with 4 stars to open the next stage. Guided practice is saved separately.</p></details>}
     <button className="lesson-tip-toggle" aria-expanded={tipOpen} onClick={()=>setTipOpen(v=>!v)}>A little help with the terms {tipOpen ? '−' : '+'}</button>
-    {tipOpen && <p className="lesson-glossary">{guitar ? 'A fret is a space on the neck. String 1 is the thinnest, high E. Finger numbers describe your fretting hand. Use the on-screen guitar or MIDI input; this app does not listen through a microphone.' : 'C4 is middle C. Finger 1 is your thumb and 5 is your little finger. Notes name the pitch; tempo describes how fast the beat moves.'}</p>}
+    {tipOpen && <p className="lesson-glossary">{kit?.bowed ? `${kit.label} strings are numbered from the highest (1) to the lowest (4). Finger numbers describe your left hand: 1 index to 4 little finger; 0 is an open string. The tapes on the fingerboard mark first-position fingers. Use the on-screen fingerboard or MIDI input; this app does not listen through a microphone.` : guitar ? 'A fret is a space on the neck. String 1 is the thinnest, high E. Finger numbers describe your fretting hand. Use the on-screen guitar or MIDI input; this app does not listen through a microphone.' : 'C4 is middle C. Finger 1 is your thumb and 5 is your little finger. Notes name the pitch; tempo describes how fast the beat moves.'}</p>}
   </section>;
 }
