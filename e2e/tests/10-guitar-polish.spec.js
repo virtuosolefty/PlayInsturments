@@ -57,17 +57,17 @@ test('desktop light, dark, first-position and focus layouts stay usable', async 
     expect(footer.y+footer.height).toBeLessThanOrEqual(viewport.height);
     const hint=await page.locator('.chord-card .hint').boundingBox();
     expect(hint.y+hint.height).toBeLessThan(viewport.height);
-    await page.screenshot({path:`review/guitar-upgrade/light-${viewport.height}.png`});
+    await page.screenshot({path:`test-results/screens/guitar-upgrade/light-${viewport.height}.png`});
   }
   await page.getByRole('button',{name:'Switch to dark theme',exact:true}).click();
   await page.getByRole('combobox',{name:'Visible guitar frets'}).selectOption('5');
   await expect(page.locator('.guitar-position-label.fret')).toHaveCount(5);
   await page.getByRole('button',{name:'C',exact:true}).click();
   await page.getByRole('group',{name:'Chord labels'}).getByRole('button',{name:'Notes',exact:true}).click();
-  await page.screenshot({path:'review/guitar-upgrade/dark-first-position.png'});
+  await page.screenshot({path:'test-results/screens/guitar-upgrade/dark-first-position.png'});
   await page.getByRole('button',{name:'Focus',exact:true}).click();
   await expect(page.locator('.guitar-workspace > .chord-card')).toBeVisible();
-  await page.screenshot({path:'review/guitar-upgrade/focus.png'});
+  await page.screenshot({path:'test-results/screens/guitar-upgrade/focus.png'});
   await expect(page.getByRole('button',{name:'↓ Strum C',exact:true})).toBeInViewport();
 });
 

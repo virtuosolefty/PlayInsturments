@@ -14,7 +14,7 @@
     "shoot": "node scripts/shoot.mjs",
     "check:browser": "node scripts/check-browser.mjs",
     "test:e2e": "playwright test",
-    "test:studio": "playwright test --config playwright.studio.config.js e2e/tests/00-smoke.spec.js e2e/tests/01-core-flows.spec.js e2e/tests/06-studio-guitar.spec.js e2e/tests/07-desktop-studio.spec.js e2e/tests/08-instrument-interactions.spec.js",
+    "test:studio": "playwright test --config e2e/config/studio.config.js e2e/tests/00-smoke.spec.js e2e/tests/01-core-flows.spec.js e2e/tests/06-studio-guitar.spec.js e2e/tests/07-desktop-studio.spec.js e2e/tests/08-instrument-interactions.spec.js",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report"
   },

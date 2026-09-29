@@ -15,8 +15,8 @@ test('welcome explains inputs, defers the studio and allows choosing either inst
  await expect(page.getByRole('button',{name:'Try guitar'})).toBeVisible();
  await page.getByText('Do I need an instrument?').click();await expect(page.locator('.welcome-faq')).toContainText('Microphone recognition of acoustic instruments is not supported');
  await page.getByRole('button',{name:'Switch to dark theme'}).click();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
- await page.screenshot({path:'review/retention/welcome-dark.png',fullPage:true,animations:'disabled'});
- await page.getByRole('button',{name:'Switch to light theme'}).click();await page.screenshot({path:'review/retention/welcome-light.png',fullPage:true,animations:'disabled'});
+ await page.screenshot({path:'test-results/screens/retention/welcome-dark.png',fullPage:true,animations:'disabled'});
+ await page.getByRole('button',{name:'Switch to light theme'}).click();await page.screenshot({path:'test-results/screens/retention/welcome-light.png',fullPage:true,animations:'disabled'});
 });
 
 for(const instrument of ['piano','guitar'])test(`quick ${instrument} starts with a real audible note and resumes without autoplay`,async({page})=>{
@@ -104,8 +104,8 @@ test('download and restore preserve learning settings and require explicit repla
 
 test('home keeps all actions reachable in both themes and at desktop zoom',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await seed(page);await page.goto('/');
- await expect(page.locator('.next-lesson-card h3')).toHaveText('Home Five — Right Hand');await page.screenshot({path:'review/retention/home-light.png',fullPage:true,animations:'disabled'});
- await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'review/retention/home-dark.png',fullPage:true,animations:'disabled'});
+ await expect(page.locator('.next-lesson-card h3')).toHaveText('Home Five — Right Hand');await page.screenshot({path:'test-results/screens/retention/home-light.png',fullPage:true,animations:'disabled'});
+ await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/retention/home-dark.png',fullPage:true,animations:'disabled'});
  await page.setViewportSize({width:800,height:600});await page.emulateMedia({reducedMotion:'reduce'});
  await page.getByRole('button',{name:'Download progress backup'}).scrollIntoViewIfNeeded();await expect(page.getByRole('button',{name:'Download progress backup'})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);expect(errors).toEqual([]);

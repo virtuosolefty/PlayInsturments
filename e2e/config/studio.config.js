@@ -1,15 +1,22 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from '@playwright/test';
-import base from './playwright.config.js';
+import base from '../../playwright.config.js';
+
+// Focused suites live here; relative paths in a config resolve from its own
+// folder, so everything below is anchored to the repository root.
+export const root = fileURLToPath(new URL('../../', import.meta.url));
 
 // Isolated port: never run the review against somebody else's dev server.
 export default defineConfig({
   ...base,
+  testDir: `${root}e2e`,
   retries: 0,
   reporter: [['list']],
-  outputDir: 'test-results/studio',
+  outputDir: `${root}test-results/studio`,
   use: { ...base.use, baseURL: 'http://127.0.0.1:5187' },
   webServer: {
     command: 'node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5187 --strictPort --open false',
+    cwd: root,
     url: 'http://127.0.0.1:5187', reuseExistingServer: !process.env.CI, timeout: 60_000,
   },
 });
