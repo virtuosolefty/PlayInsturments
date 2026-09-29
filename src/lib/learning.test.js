@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings } from './learning.js';
+import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings, noteInstruction } from './learning.js';
 import { pathState, dailySet, STAGES } from './path.js';
 import { GUITAR_PATH_STAGES, GUITAR_STUDIES } from './guitar.js';
 const run = (stars=4, mode='practice',rate=1) => ({stars,mode,rate});
@@ -48,3 +48,20 @@ describe('beginner learning rules', () => {
     expect(lessonSettings('follow',.65)).toMatchObject({mode:'wait',rate:.65});
   });
 });
+
+describe('note instructions for each instrument', () => {
+  it('names the fret for guitar and keeps the old boolean form working', () => {
+    const note = { name: 'B3', string: 4, fret: 0, finger: 0 };
+    expect(noteInstruction(note, 'guitar')).toBe('B3 · string 2 · open (no finger)');
+    expect(noteInstruction({ ...note, fret: 2, finger: 2, name: 'C#4' }, true)).toBe('C#4 · string 2 · fret 2 · finger 2');
+  });
+  it('names the string and finger for violin and cello', () => {
+    expect(noteInstruction({ name: 'B4', string: 2, fret: 2, finger: 1 }, 'violin')).toBe('B4 · A string · finger 1');
+    expect(noteInstruction({ name: 'C2', string: 0, fret: 0, finger: 0 }, 'cello')).toBe('C2 · C string · open (no finger)');
+  });
+  it('keeps piano instructions short', () => {
+    expect(noteInstruction({ name: 'C4', finger: 1 }, 'piano')).toBe('C4 · finger 1');
+    expect(noteInstruction({ name: 'C4' }, false)).toBe('C4');
+  });
+});
+

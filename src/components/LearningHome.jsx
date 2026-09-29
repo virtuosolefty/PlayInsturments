@@ -1,4 +1,5 @@
 import { InstrumentIcon } from './StudioHeader.jsx';
+import { INSTRUMENTS, instrumentInfo } from '../lib/instruments.js';
 import { dayKey } from '../lib/streaks.js';
 import { useEffect, useRef } from 'react';
 import { useState } from 'react';
@@ -47,7 +48,7 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
     <div className="learning-home-inner">
       <header className="learning-home-heading">
         <div><span className="eyebrow">{resume?'WELCOME BACK':'YOUR NEXT SMALL STEP'}</span><h2 id="learning-home-title" ref={heading} tabIndex={-1}>{resume?'A little more music today.':'A clear path to your first song.'}</h2><p>{resume?`Pick up ${current.title} where you left off. Your place is waiting.`:'Find your notes, play a phrase, and make it your own.'}</p></div>
-        <div className="learning-instruments" role="group" aria-label="Learning instrument">{['piano','guitar'].map(value => <button key={value} aria-pressed={instrument === value} onClick={() => onInstrument(value)}><InstrumentIcon guitar={value === 'guitar'}/>{value === 'piano' ? 'Piano' : 'Guitar'}</button>)}</div>
+        <div className="learning-instruments" role="group" aria-label="Learning instrument">{INSTRUMENTS.map(value => <button key={value} aria-pressed={instrument === value} onClick={() => onInstrument(value)}><InstrumentIcon instrument={value}/>{instrumentInfo(value).label}</button>)}</div>
       </header>
       {dailyComplete && <div className="daily-finished" role="status"><strong>Today’s practice is complete.</strong><span>You worked through {record.daily.ids.length} {record.daily.ids.length === 1 ? 'piece' : 'pieces'}. Your next lesson is ready whenever you are.</span></div>}
       <div className="learning-home-grid">

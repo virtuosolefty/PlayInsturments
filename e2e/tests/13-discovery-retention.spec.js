@@ -13,7 +13,7 @@ test('welcome explains inputs, defers the studio and allows choosing either inst
  expect(requests.some(url=>/src\/App.jsx|src\/lib\/audio.js|three/.test(url))).toBe(false);
  await page.getByRole('group',{name:'Preview instrument'}).getByRole('button',{name:'Guitar'}).click();
  await expect(page.getByRole('button',{name:'Try guitar'})).toBeVisible();
- await page.getByText('Do I need an instrument?').click();await expect(page.locator('.welcome-faq')).toContainText('microphone recognition are not supported');
+ await page.getByText('Do I need an instrument?').click();await expect(page.locator('.welcome-faq')).toContainText('Microphone recognition of acoustic instruments is not supported');
  await page.getByRole('button',{name:'Switch to dark theme'}).click();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
  await page.screenshot({path:'review/retention/welcome-dark.png',fullPage:true,animations:'disabled'});
  await page.getByRole('button',{name:'Switch to light theme'}).click();await page.screenshot({path:'review/retention/welcome-light.png',fullPage:true,animations:'disabled'});

@@ -10,7 +10,7 @@ import {
 } from '../lib/path.js';
 import { dayKey, streakFrom } from '../lib/streaks.js';
 import { getAllSongEntries } from '../lib/storage.js';
-import { GUITAR_PATH_STAGES, GUITAR_STUDIES } from '../lib/guitar.js';
+import { stringKit } from '../lib/instruments.js';
 
 /**
  * Everything the Path tab shows, derived in one pass.
@@ -27,8 +27,9 @@ export function usePathData(library, days, version, instrument = 'piano') {
   return useMemo(() => {
     const entries = getAllSongEntries();
     const sessionsFor = (id) => entries[id]?.sessions ?? [];
-    const guitar = instrument === 'guitar';
-    const state = pathState(sessionsFor, guitar ? GUITAR_PATH_STAGES : undefined);
+    const kit = stringKit(instrument);
+    const guitar = !!kit;
+    const state = pathState(sessionsFor, kit ? kit.pathStages : undefined);
     const today = dayKey();
     const streak = streakFrom(days, today);
     const benchEntry = entries[BENCHMARK_ID];
@@ -36,7 +37,7 @@ export function usePathData(library, days, version, instrument = 'piano') {
     return {
       state,
       streak,
-      set: dailySet(state, { dayKey: today, library: guitar ? GUITAR_STUDIES : library }),
+      set: dailySet(state, { dayKey: today, library: kit ? kit.studies : library }),
       progress: dailyProgress(days, today),
       benchmark: guitar ? null : benchmarkTrend(benchEntry?.sessions ?? []),
       decay: guitar ? null : troubleDecay(benchEntry?.troubleMap ?? {}, benchEntry?.totalRuns ?? 0),

@@ -7,7 +7,8 @@ import StudioLibrary from './components/StudioLibrary.jsx';
 import { setRollTheme } from './lib/rollPaint.js';
 import StudioHeader, { StageToolbar } from './components/StudioHeader.jsx';
 import GuitarWorkspace from './components/GuitarWorkspace.jsx';
-import { GUITAR_STUDIES } from './lib/guitar.js';
+import BowedWorkspace from './components/BowedWorkspace.jsx';
+import { instrumentForStudy, instrumentInfo, isStringed, normalizeInstrument, stringKit, studyIdFor } from './lib/instruments.js';
 import Controls from './components/Controls.jsx';
 import PianoRoll from './components/PianoRoll.jsx';
 import Minimap from './components/Minimap.jsx';
@@ -77,7 +78,11 @@ export default function App({ startupSettings = {} }) {
   // Centralized app state (replaces 7 scattered useState calls)
   const appData = useAppData(startupSettings);
   const { settings, setSettings, days, refreshVersion, storageFailure } = appData;
-  const guitar = settings.practiceInstrument === 'guitar';
+  const instrument = normalizeInstrument(settings.practiceInstrument);
+  const stringed = isStringed(instrument);
+  const kit = stringKit(instrument);
+  const guitar = instrument === 'guitar';
+  const studyId = studyIdFor(settings, instrument);
   const theme = settings.theme === 'dark' ? 'dark' : 'light';
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -95,7 +100,7 @@ export default function App({ startupSettings = {} }) {
   const [setupOpen, setSetupOpen] = useState(false);
   const [requestedTab, setRequestedTab] = useState(null);
   const [libraryInstrument, setLibraryInstrument] = useState(settings.practiceInstrument ?? 'piano');
-  useEffect(() => { audio.setInstrumentType(guitar ? 'guitar' : 'piano'); }, [guitar]);
+  useEffect(() => { audio.setInstrumentType(instrument); }, [instrument]);
 
   // UI state (not data-related, stays local)
   const [library, setLibrary] = useState([]);
@@ -130,7 +135,7 @@ export default function App({ startupSettings = {} }) {
   const [error, setError] = useState(null);
   const storageProblem = !!storageFailure;
   useEffect(() => { playInput.error = e => setError(`Could not play this note: ${e.message}`); return () => { playInput.clear(); playInput.error = () => {}; }; }, []);
-  useEffect(() => { playInput.clear(); }, [guitar, freePlay, settings.renderer, settings.pianoRange, settings.typingOctave]);
+  useEffect(() => { playInput.clear(); }, [instrument, freePlay, settings.renderer, settings.pianoRange, settings.typingOctave]);
 
   const acceptImportedScore = useCallback(loaded => {
     setRawScore(loaded);
@@ -219,13 +224,13 @@ export default function App({ startupSettings = {} }) {
   /* ------------------------------------------------- the score you practise */
   const score = useMemo(
     () =>
-      guitar ? (GUITAR_STUDIES.find(s => s.id === settings.guitarStudyId) ?? GUITAR_STUDIES[0]) : arrangeScore(rawScore, {
+      stringed ? kit.studies.find(s => s.id === studyId) : arrangeScore(rawScore, {
         window: keyWindow,
         fit: settings.fit,
         hands: settings.hands,
         transpose: settings.transpose,
       }),
-    [guitar, settings.guitarStudyId, rawScore, keyWindow, settings.fit, settings.hands, settings.transpose],
+    [stringed, kit, studyId, rawScore, keyWindow, settings.fit, settings.hands, settings.transpose],
   );
 
   const engineSettings = useMemo(
@@ -244,7 +249,12 @@ export default function App({ startupSettings = {} }) {
   const stageEngine = freePlay ? { ...engine, sessionRef: { current: null } } : engine;
   const changeWorkspace = value => { learning.leave(); setFreePlay(value); };
   const openSetup = () => { preview.stop(); engine.actions.pause(); setSetupOpen(true); };
-  const selectGuitarStudy = guitarStudyId => { engine.actions.pause(); engine.clearLastResult(); setFreePlay(false); setSettings(s => ({ ...s, learningView: 'studio', practiceInstrument: 'guitar', guitarStudyId, loop: null })); };
+  const selectStudy = id => {
+    const owner = stringKit(instrumentForStudy(id));
+    if (!owner) return;
+    engine.actions.pause(); engine.clearLastResult(); setFreePlay(false);
+    setSettings(s => ({ ...s, learningView: 'studio', practiceInstrument: owner.id, [owner.studyKey]: id, loop: null }));
+  };
   playingRef.current = engine.playing;
 
   /* --------------------------------- follow the controller's octave buttons */
@@ -272,11 +282,11 @@ export default function App({ startupSettings = {} }) {
   const starsBySong = best.stars;
   const starRates = best.rates;
   const suggested = useMemo(
-    () => guitar ? null : suggestNext(library, starsBySong, score?.id),
-    [guitar, library, starsBySong, score?.id],
+    () => stringed ? null : suggestNext(library, starsBySong, score?.id),
+    [stringed, library, starsBySong, score?.id],
   );
 
-  const path = usePathData(library, days, refreshVersion, guitar ? 'guitar' : 'piano');
+  const path = usePathData(library, days, refreshVersion, instrument);
 
   const narrow = useMediaQuery(NARROW_QUERY);
 
@@ -366,18 +376,18 @@ export default function App({ startupSettings = {} }) {
 
   const prepareLearning = useCallback(() => { scoreLoadToken.current++; setFreePlay(false); setFocus(false); setLibraryOpen(false); }, []);
   const learning = useLearningFlow({ settings, setSettings, library, path, score, engine, onScore: setRawScore, onLeaveFreePlay: prepareLearning, testSound });
-  const preview = useScorePreview({ active: learning.homeOpen, instrument: guitar?'guitar':'piano', instrumentSource:settings.instrumentSource, midiOutputId:settings.midiOutputId });
+  const preview = useScorePreview({ active: learning.homeOpen, instrument, instrumentSource:settings.instrumentSource, midiOutputId:settings.midiOutputId });
   const intentHandled = useRef(false);
   useEffect(()=>{
     const intent=settings.startIntent;
     if(!intent || intentHandled.current || !library.length)return;
     intentHandled.current=true;
     setSettings(s=>({...s,startIntent:null}));
-    const id=intent.kind==='quick'?FIRST_LESSON[guitar?'guitar':'piano']:intent.lessonId;
+    const id=intent.kind==='quick'?FIRST_LESSON[instrument]:intent.lessonId;
     const entry=learning.entries.find(item=>item.id===id);
     if(!entry){setError('This shared lesson is not in the library. Choose a piece below to get started.');return;}
     if(intent.kind==='quick')learning.startLesson(id,null,{quick:true});
-    else if(guitar)selectGuitarStudy(id);else selectPianoSong(entry);
+    else if(stringed)selectStudy(id);else selectPianoSong(entry);
   },[settings.startIntent,library.length,learning.entries]);
   const toggleFavorite=id=>setSettings(s=>({...s,favoritePieces:(s.favoritePieces??[]).includes(id)?s.favoritePieces.filter(f=>f!==id):[...(s.favoritePieces??[]),id]}));
   const openProgress=()=>{learning.leave();setLibraryOpen(true);setRequestedTab({id:'progress',at:Date.now()});};
@@ -541,7 +551,7 @@ export default function App({ startupSettings = {} }) {
   // Setup chrome recedes while you play. Opacity only — collapsing any of it
   // would reflow the toolbar at the exact moment you are trying to hit a note.
   return (
-    <div className={`app studio-app ${guitar ? 'guitar-mode' : 'piano-mode'} ${learning.active ? 'guided-lesson' : ''} ${engine.playing ? 'focused' : ''} ${focus ? 'focus-view' : ''} ${freePlay ? 'free-play' : ''}`}>
+    <div className={`app studio-app ${stringed ? 'guitar-mode' : 'piano-mode'} ${instrument}-mode ${learning.active ? 'guided-lesson' : ''} ${engine.playing ? 'focused' : ''} ${focus ? 'focus-view' : ''} ${freePlay ? 'free-play' : ''}`}>
       <a className="skip-link" href="#practice-stage">Skip to practice</a>
       <TopBar onLearn={learning.openHome} learningHome={learning.homeOpen} theme={theme} onToggleTheme={() => setSettings(s => ({ ...s, theme: theme === 'light' ? 'dark' : 'light' }))} onSetup={openSetup} onProgress={openProgress}
         midiState={midiState}
@@ -553,8 +563,8 @@ export default function App({ startupSettings = {} }) {
         onStartAudio={startAudio}
         score={score}
         libraryOpen={libraryOpen}
-        onToggleLibrary={() => { if (learning.homeOpen) learning.leave(); setLibraryInstrument(guitar ? 'guitar' : 'piano'); if (!libraryOpen) setRequestedTab({ id: 'songs', at: Date.now() }); setLibraryOpen((open) => !open); }}
-        profile={guitar ? null : profile}
+        onToggleLibrary={() => { if (learning.homeOpen) learning.leave(); setLibraryInstrument(instrument); if (!libraryOpen) setRequestedTab({ id: 'songs', at: Date.now() }); setLibraryOpen((open) => !open); }}
+        profile={stringed ? null : profile}
         window={keyWindow}
         onLeaveDrill={leaveDrill}
         latencyMs={settings.inputLatencyMs}
@@ -571,7 +581,7 @@ export default function App({ startupSettings = {} }) {
         </div>
       )}
 
-      {learning.homeOpen ? <LearningHome learning={learning} path={path} storageProblem={storageProblem} instrument={guitar ? 'guitar' : 'piano'} days={days} settings={settings} setSettings={setSettings} preview={preview} onPick={guitar?entry=>selectGuitarStudy(entry.id):selectPianoSong} onFavorite={toggleFavorite} onBackup={openProgress} onInstrument={changeInstrument} onExplore={() => changeWorkspace(true)} onLibrary={() => { learning.leave(); setLibraryInstrument(guitar ? 'guitar' : 'piano'); setLibraryOpen(true); setRequestedTab({ id: 'songs', at: Date.now() }); }} /> : <div
+      {learning.homeOpen ? <LearningHome learning={learning} path={path} storageProblem={storageProblem} instrument={instrument} days={days} settings={settings} setSettings={setSettings} preview={preview} onPick={stringed?entry=>selectStudy(entry.id):selectPianoSong} onFavorite={toggleFavorite} onBackup={openProgress} onInstrument={changeInstrument} onExplore={() => changeWorkspace(true)} onLibrary={() => { learning.leave(); setLibraryInstrument(instrument); setLibraryOpen(true); setRequestedTab({ id: 'songs', at: Date.now() }); }} /> : <div
         className={`app-body ${libraryOpen ? 'library-open' : ''} ${
           feedbackOpen ? 'feedback-open' : ''
         }`}
@@ -585,10 +595,10 @@ export default function App({ startupSettings = {} }) {
           <Drawer onClose={() => setLibraryOpen(false)} requestedTab={requestedTab}
             songs={
               <>
-              <StudioLibrary instrument={libraryInstrument} onInstrument={setLibraryInstrument} onPickGuitar={selectGuitarStudy}
+              <StudioLibrary instrument={libraryInstrument} onInstrument={setLibraryInstrument} onPickStudy={selectStudy}
                 favorites={settings.favoritePieces ?? []} onFavorite={id => setSettings(s => ({ ...s, favoritePieces: (s.favoritePieces ?? []).includes(id) ? s.favoritePieces.filter(f => f !== id) : [...(s.favoritePieces ?? []), id] }))}
                 dailySet={path.set} dailyProgress={path.progress} onPlan={() => setRequestedTab({ id: 'path', at: Date.now() })}
-                recentId={libraryInstrument === 'guitar' ? settings.guitarStudyId : settings.lastPianoId}
+                recentId={isStringed(libraryInstrument) ? studyIdFor(settings, libraryInstrument) : settings.lastPianoId}
 
                 library={library}
                 localScores={localScores}
@@ -604,15 +614,15 @@ export default function App({ startupSettings = {} }) {
               </>
             }
             path={
-              <><LearningSummary learning={learning} state={path.state} onOpen={learning.openHome}/><PathTab guitar={guitar}
+              <><LearningSummary learning={learning} state={path.state} onOpen={learning.openHome}/><PathTab guitar={stringed}
                 state={path.state}
                 set={path.set}
                 dailyProgress={path.progress}
-                library={guitar ? GUITAR_STUDIES : library}
+                library={stringed ? kit.studies : library}
                 days={days}
                 goalMinutes={settings.dailyGoalMinutes}
                 onGoalChange={(dailyGoalMinutes) => setSettings((s) => ({ ...s, dailyGoalMinutes }))}
-                onPick={guitar ? entry => selectGuitarStudy(entry.id) : selectPianoSong}
+                onPick={stringed ? entry => selectStudy(entry.id) : selectPianoSong}
                 benchmark={path.benchmark}
                 decay={path.decay}
                 badges={path.badges}
@@ -624,9 +634,9 @@ export default function App({ startupSettings = {} }) {
                 days={days}
                 goalMinutes={settings.dailyGoalMinutes}
                 onGoalChange={(dailyGoalMinutes) => setSettings((s) => ({ ...s, dailyGoalMinutes }))}
-                library={guitar ? GUITAR_STUDIES : library}
+                library={stringed ? kit.studies : library}
                 starsBySong={starsBySong}
-                onPick={guitar ? entry => selectGuitarStudy(entry.id) : selectPianoSong}
+                onPick={stringed ? entry => selectStudy(entry.id) : selectPianoSong}
                 onRestored={refreshAfterRestore}
               /></>
             }
@@ -681,8 +691,8 @@ export default function App({ startupSettings = {} }) {
             onToggleLoop={toggleLoop}
           />}
 
-          <StageToolbar settings={settings} setSettings={setSettings} guitar={guitar} freePlay={freePlay}>
-            {!guitar && <InstrumentControls settings={settings} setSettings={setSettings} sustain={sustain} onSustain={value => playInput.sustain(value)} />}
+          <StageToolbar settings={settings} setSettings={setSettings} instrument={instrument} freePlay={freePlay}>
+            {!stringed && <InstrumentControls settings={settings} setSettings={setSettings} sustain={sustain} onSustain={value => playInput.sustain(value)} />}
           </StageToolbar>
 
           {!freePlay && !learning.active && <Minimap theme={theme}
@@ -697,7 +707,7 @@ export default function App({ startupSettings = {} }) {
           {/* Everything that floats over the notes lives in here, so it is
               positioned against the roll rather than the whole pane — anchoring
               to the pane puts the wait hint on top of the toolbar. */}
-          {!freePlay && !guitar && settings.view !== 'roll' && (
+          {!freePlay && !stringed && settings.view !== 'roll' && (
             /* Engraving is the most intricate thing here and the only part
                using a third-party renderer. Its own boundary, so a piece
                VexFlow cannot set costs you the stave and not the session. */
@@ -714,7 +724,7 @@ export default function App({ startupSettings = {} }) {
             </ErrorBoundary>
           )}
 
-          <div id="practice-stage" tabIndex={-1} className={`roll-area ${!freePlay && !guitar && settings.view === 'staff' ? 'hidden-roll' : ''}`}>
+          <div id="practice-stage" tabIndex={-1} className={`roll-area ${!freePlay && !stringed && settings.view === 'staff' ? 'hidden-roll' : ''}`}>
           {/* Two renderers, one geometry. rollGeometry.js decides where every
               note belongs and both of these read it, so the GPU roll cannot
               drift away from the canvas one on the thing that matters.
@@ -724,8 +734,10 @@ export default function App({ startupSettings = {} }) {
               the test suite keeps exercising a real renderer — and the one
               that is currently at full feature parity. */}
           {guitar ? <GuitarWorkspace score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
-            onStudy={selectGuitarStudy}
+            onStudy={selectStudy}
             inspector={focus ? null : chordInspector} onError={setError} onContextLost={why => { setSettings(s => ({ ...s, renderer: 'canvas' })); setError(`Switched to 2D Trainer — ${why}.`); }}
+          /> : stringed ? <BowedWorkspace key={instrument} instrument={instrument} score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
+            onStudy={selectStudy} inspector={focus ? null : chordInspector}
           /> : useGL ? (
             <Suspense fallback={<div className="roll-gl" />}>
               <RollGL theme={theme}
@@ -824,7 +836,7 @@ export default function App({ startupSettings = {} }) {
             </div>
           )}
           </div>
-          <footer className="studio-footer"><span><i />{guitar ? `Standard tuning · ${settings.guitarFrets ?? 12} frets` : 'Your music. Your pace.'}</span>{freePlay ? <span>Explore freely · no score recorded</span> : learning.active ? <span><kbd>Space</kbd> play / pause · Your lesson is saved automatically</span> : <span><kbd>Space</kbd> play / pause <span className="footer-detail">· <kbd>1</kbd> listen <kbd>2</kbd> practice <kbd>3</kbd> wait</span></span>}</footer>
+          <footer className="studio-footer"><span><i />{guitar ? `Standard tuning · ${settings.guitarFrets ?? 12} frets` : stringed ? `${kit.label} · ${instrumentInfo(instrument).detail}` : 'Your music. Your pace.'}</span>{freePlay ? <span>Explore freely · no score recorded</span> : learning.active ? <span><kbd>Space</kbd> play / pause · Your lesson is saved automatically</span> : <span><kbd>Space</kbd> play / pause <span className="footer-detail">· <kbd>1</kbd> listen <kbd>2</kbd> practice <kbd>3</kbd> wait</span></span>}</footer>
         </main>
 
         {feedbackOpen && narrow && (
@@ -833,12 +845,12 @@ export default function App({ startupSettings = {} }) {
 
         <aside className="pane right" aria-label={learning.active ? 'Lesson guide' : 'This run'}>
           {narrow && <button className="close-feedback" onClick={() => setFeedbackOpen(false)} aria-label={learning.active ? 'Close lesson guide' : 'Close this run panel'}><Icon name="close" size={14} /> Close</button>}
-          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} guitar={guitar} onSetup={openSetup} path={path}/> : freePlay && guitar ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><span className="eyebrow">NO SCORE. JUST SOUND.</span><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">{guitar ? 'Choose a chord below the fretboard, then strum. The numbered dots show which fingers to use.' : 'Click the keys or play your MIDI controller. A–J on your computer keyboard covers the middle-C octave.'}</div><button onClick={openSetup}>Check instrument setup</button><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
+          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} instrument={instrument} onSetup={openSetup} path={path}/> : freePlay && stringed ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><span className="eyebrow">NO SCORE. JUST SOUND.</span><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">{guitar ? 'Choose a chord below the fretboard, then strum. The numbered dots show which fingers to use.' : 'Click the keys or play your MIDI controller. A–J on your computer keyboard covers the middle-C octave.'}</div><button onClick={openSetup}>Check instrument setup</button><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
             <>
               <PiecePanel
                 score={score}
                 history={history}
-                assessment={guitar ? null : assessment}
+                assessment={stringed ? null : assessment}
                 mode={settings.mode} rate={settings.rate} loop={settings.loop} onHear={hearOrTry} onWait={() => setSettings(s => ({ ...s, mode: MODES.WAIT }))}
                 bestStars={score ? (starsBySong[score.id] ?? 0) : 0}
                 bestStarsRate={score ? (starRates[score.id] ?? 1) : 1}
@@ -857,7 +869,7 @@ export default function App({ startupSettings = {} }) {
                   onPractiseSpot={practiseSpot}
                   onHearSpot={hearSpot}
                   onClear={clearHistory}
-                  onBuildDrill={guitar ? null : buildDrill}
+                  onBuildDrill={stringed ? null : buildDrill}
                 />
               )}
             </>
@@ -873,7 +885,7 @@ export default function App({ startupSettings = {} }) {
                   onPractiseSpot={practiseSpot}
                   onHearSpot={hearSpot}
                   onClear={clearHistory}
-                  onBuildDrill={guitar ? null : buildDrill}
+                  onBuildDrill={stringed ? null : buildDrill}
                 />
               )}
             </>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { GUITAR_STUDIES } from '../lib/guitar.js';
+import { isStringed, normalizeInstrument, stringKit } from '../lib/instruments.js';
 import { loadScoreFromUrl } from '../lib/score.js';
 import { midiInput } from '../lib/midiInput.js';
 import { dayKey } from '../lib/streaks.js';
@@ -8,7 +8,7 @@ import { learningRecord, lessonSettings, recommendedLesson, lessonOutcome, comfo
 
 const scores = new Map();
 function loadLesson(entry) {
-  if (entry.instrument === 'guitar') return Promise.resolve(entry);
+  if (isStringed(entry.instrument)) return Promise.resolve(entry);
   if (!scores.has(entry.id)) scores.set(entry.id, loadScoreFromUrl(entry.url, entry)
     .then(score => ({ ...score, composer: entry.composer, description: entry.description }))
     .catch(error => { scores.delete(entry.id); throw error; }));
@@ -18,8 +18,9 @@ function loadLesson(entry) {
 /** Orchestrates the existing transport and matcher. Guided completion is kept
  * separately from engine grades; it can never award stars or unlock a gate. */
 export function useLearningFlow({ settings, setSettings, library, path, score, engine, onScore, onLeaveFreePlay, testSound }) {
-  const instrument = settings.practiceInstrument === 'guitar' ? 'guitar' : 'piano';
-  const entries = instrument === 'guitar' ? GUITAR_STUDIES : library;
+  const instrument = normalizeInstrument(settings.practiceInstrument);
+  const kit = stringKit(instrument);
+  const entries = kit ? kit.studies : library;
   const record = learningRecord(settings.learning?.[instrument]);
   const recommendedId = recommendedLesson(path.state);
   const lesson = entries.find(e => e.id === record.lessonId) ?? entries.find(e => e.id === recommendedId);
@@ -74,10 +75,10 @@ export function useLearningFlow({ settings, setSettings, library, path, score, e
     };
     setSettings(s => ({ ...s, ...lessonSettings(step, next.rate), learningView: 'lesson', onboarded: true,
       lastPianoId: instrument === 'piano' ? id : s.lastPianoId,
-      guitarStudyId: instrument === 'guitar' ? id : s.guitarStudyId,
+      ...(kit ? { [kit.studyKey]: id } : {}),
       learning: { ...s.learning, [instrument]: next },
     }));
-  }, [entries, instrument, halt, onLeaveFreePlay, setSettings]);
+  }, [entries, instrument, kit, halt, onLeaveFreePlay, setSettings]);
 
   // An explicit loading boundary prevents starting the previous piece while
   // the next score is downloading. Cancellation protects instrument switches.
@@ -87,21 +88,21 @@ export function useLearningFlow({ settings, setSettings, library, path, score, e
     let cancelled = false;
     setLoading(true); setError(null); setTestSent(false); setNoteHint('');
     halt();
-    const stageAsset = settings.renderer === 'gl' && webglAvailable()
+    const stageAsset = settings.renderer === 'gl' && webglAvailable() && !kit?.bowed
       ? instrument === 'guitar' ? import('../components/GuitarStage.jsx') : import('../components/RollGL.jsx')
       : Promise.resolve();
     Promise.all([loadLesson(lesson), stageAsset]).then(([loaded]) => {
       if (cancelled || token !== generation.current) return;
       if (instrument === 'piano') onScore(loaded);
       setSettings(s => ({ ...s, ...lessonSettings(latest.current.record.step, latest.current.record.rate),
-        guitarStudyId: instrument === 'guitar' ? lesson.id : s.guitarStudyId }));
+        ...(kit ? { [kit.studyKey]: lesson.id } : {}) }));
       setLoading(false);
     }).catch(err => {
       if (cancelled || token !== generation.current) return;
       setLoading(false); setError(`The lesson could not load. ${err.message}`);
     });
     return () => { cancelled = true; if (token === generation.current) generation.current++; };
-  }, [active, lesson?.id, instrument, settings.renderer, retry, halt, onScore, setSettings]);
+  }, [active, lesson?.id, instrument, kit, settings.renderer, retry, halt, onScore, setSettings]);
 
   // Cache the next authored exercise without changing the live score or clock.
   useEffect(() => {

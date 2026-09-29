@@ -1,6 +1,6 @@
 import { addDays, dayKey, dayCounts } from './streaks.js';
 
-export const FIRST_LESSON = { piano: 'path-01-home-five-right', guitar: 'guitar-open-strings' };
+export const FIRST_LESSON = { piano: 'path-01-home-five-right', guitar: 'guitar-open-strings', violin: 'violin-open-strings', cello: 'cello-open-strings' };
 export const COLLECTIONS = {
   piano: [
     { id: 'first', title: 'First melodies', description: 'Familiar tunes, in manageable arrangements.', ids: ['twinkle-mini', 'amazing-grace', 'beethoven-fifth'] },
@@ -11,6 +11,16 @@ export const COLLECTIONS = {
     { id: 'first', title: 'Your first guitar notes', description: 'Start with open strings and a short original tune.', ids: ['guitar-open-strings', 'guitar-first-frets', 'guitar-first-song'] },
     { id: 'chords', title: 'Two chords, more possibilities', description: 'Learn Em and Am, then bring them together.', ids: ['guitar-first-em', 'guitar-first-am', 'guitar-chord-changes'] },
     { id: 'short', title: 'Make your picking flow', description: 'Explore a scale or a new picking pattern.', ids: ['guitar-c-major', 'guitar-e-minor-pentatonic', 'guitar-a-minor'] },
+  ],
+  violin: [
+    { id: 'first', title: 'Your first violin notes', description: 'Bow the open strings, then place your first fingers.', ids: ['violin-open-strings', 'violin-a-string-fingers', 'violin-e-string'] },
+    { id: 'short', title: 'Your first scales', description: 'One finger pattern, two strings, a whole octave.', ids: ['violin-d-major', 'violin-g-major'] },
+    { id: 'tune', title: 'A tune to share', description: 'Twinkle, Twinkle on the A and E strings.', ids: ['violin-twinkle'] },
+  ],
+  cello: [
+    { id: 'first', title: 'Your first cello notes', description: 'Bow the open strings, then find your first fingers.', ids: ['cello-open-strings', 'cello-d-string-fingers', 'cello-g-string'] },
+    { id: 'short', title: 'Your first scales', description: 'Low and warm: C major and D major.', ids: ['cello-c-major', 'cello-d-major'] },
+    { id: 'tune', title: 'A tune to share', description: 'Twinkle, Twinkle on the D and A strings.', ids: ['cello-twinkle'] },
   ],
 };
 const SKILLS = {
@@ -27,11 +37,23 @@ const SKILLS = {
   'guitar-first-am': ['Make an Am chord', 'Frets 1 and 2'],
   'guitar-chord-changes': ['Move smoothly between Em and Am', 'Know both chord shapes'],
   'guitar-first-song': ['Play Morning steps, an original tune', 'Open strings and frets 1–3'],
+  'violin-open-strings': ['Bow all four open strings evenly', 'No experience needed'],
+  'violin-a-string-fingers': ['Place fingers 1, 2 and 3 on the A string', 'Bow the open strings'],
+  'violin-e-string': ['Reach your fourth finger on the E string', 'Fingers 1–3 on the A string'],
+  'violin-d-major': ['Play your first one-octave scale', 'The first-finger pattern'],
+  'violin-g-major': ['Carry the pattern to the low strings', 'D major scale'],
+  'violin-twinkle': ['Play Twinkle, Twinkle', 'Fingers 1–3 on A and E'],
+  'cello-open-strings': ['Bow all four open strings evenly', 'No experience needed'],
+  'cello-d-string-fingers': ['Place fingers 1, 3 and 4 on the D string', 'Bow the open strings'],
+  'cello-g-string': ['Use the same frame on the G string', 'Fingers on the D string'],
+  'cello-c-major': ['Play C major from the lowest string', 'The first-position frame'],
+  'cello-d-major': ['Play D major on the upper strings', 'C major scale'],
+  'cello-twinkle': ['Play Twinkle, Twinkle', 'Fingers on D and A'],
 };
 export function pieceDetails(entry) {
   if (!entry) return { skill: '', needs: '', level: '', length: '' };
-  const [skill, needs] = SKILLS[entry.id] ?? [entry.description, entry.instrument === 'guitar' ? 'Comfortable finding strings and frets' : 'Comfortable finding notes on the keyboard'];
-  const difficulty = entry.difficulty ?? (['guitar-chord-changes','guitar-a-minor','guitar-chromatic'].includes(entry.id) ? 2 : 1);
+  const [skill, needs] = SKILLS[entry.id] ?? [entry.description, entry.instrument === 'guitar' ? 'Comfortable finding strings and frets' : entry.instrument === 'violin' || entry.instrument === 'cello' ? 'Comfortable bowing the open strings' : 'Comfortable finding notes on the keyboard'];
+  const difficulty = entry.difficulty ?? (['guitar-chord-changes','guitar-a-minor','guitar-chromatic','violin-g-major','violin-twinkle','cello-d-major','cello-twinkle'].includes(entry.id) ? 2 : 1);
   const seconds = Math.ceil(entry.approxDuration ?? entry.duration ?? 0);
   return { skill, needs, level: difficulty === 1 ? 'First steps' : difficulty === 2 ? 'Building confidence' : 'A new challenge', length: seconds ? `${seconds}s of music` : 'Short study' };
 }
@@ -51,7 +73,7 @@ export function weeklyPractice(days = {}, goal = 3, today = dayKey()) {
 }
 export function sharedLessonUrl(instrument, id, origin = window.location.origin, base = import.meta.env.BASE_URL) {
   const url = new URL(base,origin);
-  url.searchParams.set('instrument', instrument === 'guitar' ? 'guitar' : 'piano');
+  url.searchParams.set('instrument', ['guitar', 'violin', 'cello'].includes(instrument) ? instrument : 'piano');
   url.searchParams.set('lesson',id);
   return url.href;
 }

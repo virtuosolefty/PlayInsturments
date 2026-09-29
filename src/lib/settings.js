@@ -93,7 +93,7 @@ export function migrateSettings(saved) {
     ...rest,
     // Open the requested dimensional piano redesign once on upgrade. A later
     // choice of 2D is retained by the version check above. Keep guitar choices.
-    renderer: rest.practiceInstrument === 'guitar'
+    renderer: ['guitar', 'violin', 'cello'].includes(rest.practiceInstrument)
       ? (rest.renderer === 'gl' || rest.renderer === 'gl-perspective' ? 'gl' : 'canvas')
       : 'gl',
     pianoHeight: rest.pianoHeight == null || rest.pianoHeight === 164 ? 104 : rest.pianoHeight,

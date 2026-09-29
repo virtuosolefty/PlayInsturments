@@ -71,6 +71,8 @@ vi.mock('tone', () => {
     NoiseSynth: class NoiseSynth extends Node {},
     MetalSynth: class MetalSynth extends Node {},
     MembraneSynth: class MembraneSynth extends Node {},
+    Filter: class Filter extends Node {},
+    Vibrato: class Vibrato extends Node {},
   };
 });
 
@@ -114,6 +116,31 @@ describe('instrument selection', () => {
     expect(audio.instrument).toBe(guitarVoice);
     expect(audio.sourceLabel).toBe('Guitar · synthesized');
     expect(lateInstrument.dispose).toHaveBeenCalledOnce();
+  });
+  it('gives the violin and cello their own bowed voices', async () => {
+    audio._loadPromise = null;
+    audio.setInstrumentType('violin');
+    await audio.start();
+    expect(audio.sourceLabel).toBe('Violin · synthesized');
+    audio.setInstrumentType('cello');
+    expect(audio.instrumentType).toBe('cello');
+    expect(audio.sourceLabel).toBe('Cello · synthesized');
+  });
+  it('treats an unknown instrument as the piano', () => {
+    audio.setInstrumentType('guitar');
+    audio.setInstrumentType('theremin');
+    expect(audio.instrumentType).toBe('piano');
+  });
+  it('disposes the whole bowed signal chain, not only the synth', async () => {
+    audio._loadPromise = null;
+    audio.setInstrumentType('violin');
+    await audio.start();
+    const voice = audio.instrument;
+    const parts = voice._chain;
+    expect(parts.length).toBeGreaterThan(0);
+    const spies = parts.map(part => vi.spyOn(part, 'dispose'));
+    voice.dispose();
+    spies.forEach(spy => expect(spy).toHaveBeenCalledOnce());
   });
 });
 

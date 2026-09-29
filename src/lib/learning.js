@@ -1,4 +1,5 @@
 import { atTempo, PASS_STARS, MASTER_STARS } from './path.js';
+import { bowedStringName } from './bowed.js';
 
 export const LESSON_STEPS = [
   { id: 'sound', label: 'Sound' }, { id: 'note', label: 'First note' },
@@ -49,8 +50,14 @@ export function lessonCanVisit(step, record) {
   return !!record.practised;
 }
 
-export function noteInstruction(note, guitar) {
+/** @param instrument an instrument id; `true` still means guitar for older callers */
+export function noteInstruction(note, instrument) {
   if (!note) return 'Preparing your first note…';
-  if (guitar) return `${note.name} · string ${6 - note.string} · ${note.fret === 0 ? 'open (no finger)' : `fret ${note.fret} · finger ${note.finger}`}`;
+  const id = instrument === true ? 'guitar' : instrument;
+  if (id === 'guitar') return `${note.name} · string ${6 - note.string} · ${note.fret === 0 ? 'open (no finger)' : `fret ${note.fret} · finger ${note.finger}`}`;
+  if (id === 'violin' || id === 'cello') {
+    const string = bowedStringName(id, note.string).note;
+    return `${note.name} · ${string} string · ${note.fret === 0 ? 'open (no finger)' : `finger ${note.finger}`}`;
+  }
   return `${note.name}${note.finger ? ` · finger ${note.finger}` : ''}`;
 }

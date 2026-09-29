@@ -1,6 +1,6 @@
 # Practice Deck
 
-Practice Deck is a browser-based piano and guitar practice studio. Play on the screen, use computer keys for piano, or connect a MIDI controller. Follow falling notes, learn short guided phrases, and keep your progress in your browser.
+Practice Deck is a browser-based piano, guitar, violin and cello practice studio. Play on the screen, use computer keys for piano, or connect a MIDI controller. Follow falling notes, learn short guided phrases, and keep your progress in your browser.
 
 ## Use it online
 
@@ -32,8 +32,8 @@ npm run preview
 
 ## Getting started
 
-1. Choose Piano or Guitar on the welcome page.
-2. Select **Try piano** or **Try guitar** to play a short guided phrase.
+1. Choose Piano, Guitar, Violin or Cello on the welcome page.
+2. Select **Try piano**, **Try guitar**, **Try violin** or **Try cello** to play a short guided phrase.
 3. Click **Enable sound** when the browser asks you to start audio.
 4. Use the on-screen instrument, computer keyboard for piano, or a MIDI controller.
 5. Return to the learning home to continue your saved lesson, explore pieces, or download a progress backup.
@@ -43,7 +43,8 @@ Your results and settings stay in the current browser. There is no account or cl
 ## What works
 
 - Piano: on-screen keys, computer keyboard, and Web MIDI input.
-- Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input.
+- Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input. The 3D view shows the headstock and acoustic body; the 2D trainer is a rosewood fretboard with true fret spacing.
+- Violin and cello: a drawn fingerboard with finger tapes. Press and hold a place to bow it, drag along a string to slide, or bow near the bridge for an open string (keyboard: arrows, then hold Enter or Space). Six first-position lessons each, a finger chart in Learn mode, and a scale explorer in Free play.
 - Light and dark themes, guided lessons, practice feedback, favourites, and local backups.
 - Three-dimensional piano and guitar views with a simpler 2D trainer option.
 
