@@ -8,6 +8,7 @@ import { GUITAR_CHORDS, GUITAR_COLORS, GUITAR_STUDIES, GUITAR_TUNING, guitarMidi
 import { noteName } from '../lib/theory.js';
 import { useGuitarInput } from '../hooks/useGuitarInput.js';
 import { webglAvailable } from '../lib/webgl.js';
+import { normalizeStageQuality } from '../lib/stage/quality.js';
 
 const GuitarStage = lazy(() => import('./GuitarStage.jsx'));
 const STRING_ORDER = [5, 4, 3, 2, 1, 0];
@@ -24,7 +25,7 @@ export default function GuitarWorkspace({ score, engine, settings, setSettings, 
   const [chord, setChord] = useState(GUITAR_CHORDS[0]);
   const leftHanded = !!settings.guitarLeftHanded;
   const { pluck, silence, activePositions } = useGuitarInput();
-  useEffect(() => { silence(); }, [score.id, engine.playing, settings.guitarFrets, settings.renderer, silence]);
+  useEffect(() => { silence(); }, [score.id, engine.playing, settings.guitarFrets, settings.renderer, settings.stageQuality, silence]);
   const [focusPosition,setFocusPosition]=useState({string:0,fret:0});
   const [navActive,setNavActive]=useState(false);
   const maxFret=settings.guitarFrets??12;
@@ -52,7 +53,7 @@ export default function GuitarWorkspace({ score, engine, settings, setSettings, 
         </select></label>}<label>Frets<select aria-label="Visible guitar frets" value={maxFret} onChange={e=>{setFocusPosition({string:0,fret:0});setSettings(s=>({...s,guitarFrets:+e.target.value}));}}><option value="5">0–5 · first position</option><option value="12">0–12 · full neck</option></select></label><label>Text<select aria-label="Instrument label size" value={settings.instrumentLabelSize??14} onChange={e=>setSettings(s=>({...s,instrumentLabelSize:+e.target.value}))}><option value="14">Standard</option><option value="18">Large</option></select></label>{!freePlay && stage && <label className="guitar-height-control">Neck height<input aria-label="Fretboard height" type="range" min="180" max="300" step="5" value={settings.guitarHeight??230} onChange={e=>setSettings(s=>({...s,guitarHeight:+e.target.value}))}/></label>}<label className="guitar-left-toggle"><input type="checkbox" aria-label="Left-handed" checked={leftHanded} onChange={e=>setSettings(s=>({...s,guitarLeftHanded:e.target.checked}))}/>Left-handed</label></div>
       
       {stage && <Suspense fallback={<div className="guitar-stage-loading">Preparing your fretboard…</div>}>
-        <GuitarStage engine={engine} score={score} onPluck={pick} activePositions={activePositions} maxFret={maxFret} labelSize={settings.instrumentLabelSize??14} labelMode={settings.guitarLabels??'fingers'} focusPosition={navActive?focusPosition:null} onContextLost={onContextLost} leftHanded={leftHanded} theme={settings.theme} chord={freePlay ? chord : null} />
+        <GuitarStage engine={engine} score={score} onPluck={pick} activePositions={activePositions} maxFret={maxFret} labelSize={settings.instrumentLabelSize??14} labelMode={settings.guitarLabels??'fingers'} focusPosition={navActive?focusPosition:null} onContextLost={onContextLost} leftHanded={leftHanded} theme={settings.theme} quality={normalizeStageQuality(settings.stageQuality)} chord={freePlay ? chord : null} view={freePlay ? 'freePlay' : 'lesson'} />
       </Suspense>}
       <details className={`guitar-fret-controls ${stage ? 'with-stage' : ''}`} open={!stage} key={stage ? 'stage' : 'trainer'}>
       <summary>Show fret buttons · keyboard accessible</summary>

@@ -32,6 +32,12 @@
 .shortcut-list dt { width: 94px; flex-shrink: 0; }
 .shortcut-list dd { margin: 0; }
 .shortcut-list kbd { background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; }
+/* The CC BY credits for the downloaded 3D instruments. */
+.model-credits { margin: 18px 0 16px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.model-credits h3 { margin: 0 0 8px; font-size: 14px; }
+.model-credits ul { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.6; color: var(--text-dim); }
+.model-credits li + li { margin-top: 4px; }
+.model-credits a { color: var(--accent); }
 .report-replay-hint { padding: 0 24px; color: var(--text-dim); font-size: 13px; }
 .report-next button { white-space: normal; min-height: 40px; max-width: 190px; }
 .drawer-heading { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; padding: 12px 24px 4px; font-size: 15px; }
@@ -130,6 +136,25 @@
   .studio-app.guitar-mode .passage-timeline .timeline-bars { display: none; }
   .studio-app.guitar-mode .roll-area { min-height: 0; }
   .studio-app .live-feedback p, .studio-app .coaching-cue p { font-size: 14px; line-height: 1.7; }
+}
+/* 901–1099px: the top bar has to fit on one line, and here it ran past the window (59px at 1024, 182px at 901), cutting
+   off the theme switch. The brand's name goes first, as styles.css intends, the gaps tighten, and the sound strip may
+   shrink. The strip keeps its 256px basis, so its width follows the space left, not what it says: switching sound on
+   still moves nothing (see polish.css). */
+@media (min-width: 901px) and (max-width: 1099px) {
+  .studio-app .topbar { gap: 6px; }
+  .studio-app .topbar .brand h1 { display: none; }
+  .studio-app .topbar > .io-strip { flex: 0 1 256px; min-width: 150px; }
+  /* "No sound?" opens the same setup as Instrument setup beside it; dropping it leaves room for a longer
+     "Controller connected" and for a drill's back button. */
+  .studio-app .topbar .sound-help { display: none; }
+}
+/* Up to 1099px the header's buttons (learn or free play, the instrument picker, focus) take 520–600px of the row,
+   which left the piece title a sliver — 1px wide at 901px, 23px at 701px — with its text running under the buttons.
+   Where the title would get less than 160px, the buttons move to a line of their own. */
+@media (max-width: 1099px) {
+  .studio-header { flex-wrap: wrap; }
+  .studio-heading { flex: 1 1 160px; }
 }
 @media (min-width: 901px) and (max-width: 1400px) {
   .saved-locally { display: none; }

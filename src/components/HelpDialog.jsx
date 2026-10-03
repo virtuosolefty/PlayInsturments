@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useDialog } from '../hooks/useDialog.js';
+import { MODEL_CREDITS } from '../lib/modelCredits.js';
 
 const SHORTCUTS = [
   ['Space', 'Play or pause'], ['0', 'Stop and save the run'], ['1', 'Listen mode'], ['2', 'Practice mode'], ['3', 'Wait for me'],
@@ -17,6 +18,12 @@ export default function HelpDialog({ onClose }) {
     <dl className="shortcut-list">{shown.map(([key, label]) => <div key={key}><dt><kbd>{key}</kbd></dt><dd>{label}</dd></div>)}</dl>
     {!shown.length && <p role="status">No shortcuts match that search.</p>}
     <p className="hint">In a passage loop, focus either boundary and use the arrow keys to move it by one bar. Home and End move it to its limit.</p>
+    <section className="model-credits" aria-labelledby="model-credits-title">
+      <h3 id="model-credits-title">3D instruments</h3>
+      <ul>{MODEL_CREDITS.map(credit => <li key={credit.instrument}>
+        <a href={credit.source} target="_blank" rel="noopener noreferrer">“{credit.title}”</a> by <a href={credit.authorUrl} target="_blank" rel="noopener noreferrer">{credit.author}</a>, licensed under <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer">{credit.license}</a>. Changed: {credit.changes}.
+      </li>)}</ul>
+    </section>
     <button onClick={onClose}>Done</button>
   </section></div>;
 }

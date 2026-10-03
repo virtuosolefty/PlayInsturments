@@ -1,0 +1,113 @@
+import { test, expect } from '@playwright/test';
+
+/**
+ * The downloaded violin and cello on the full stage: lessons lay them across
+ * the stage with tapes and finger numbers (concepts V3, C3); free play shows
+ * them whole (V1, C1) and swings in close to play. The light stage, and any
+ * stage whose model cannot be loaded, keeps the 2D fingerboard.
+ *
+ * Headless Chromium draws the full stage in software at a frame or two a
+ * second, so the full-stage tests are marked slow.
+ */
+
+const stage = page => page.locator('.bowed-stage-3d');
+const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
+const labels = (page, kind) => stage(page).locator(`.guitar-position-label${kind ? `.${kind}` : ''}`);
+const closeUp = page => page.getByRole('button', { name: 'Close-up', exact: true });
+const notes = page => page.evaluate(() => window.__notes.map(m => `${m.type}:${m.midi}`));
+
+async function open(page, instrument, stageQuality) {
+  await page.addInitScript(([inst, quality]) => {
+    localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: inst, countInBars: 0, stageQuality: quality } }));
+  }, [instrument, stageQuality]);
+  await page.goto('/');
+  await expect(page.locator('.bowed-workspace')).toBeVisible({ timeout: 60_000 });
+  await page.evaluate(async () => { window.__notes = []; (await import('/src/lib/midiInput.js')).midiInput.onMessage(m => window.__notes.push(m)); });
+}
+
+function collectErrors(page) {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority|Failed to load resource.*404/.test(message.text())) errors.push(message.text()); });
+  return errors;
+}
+
+test('on the full stage the violin is the downloaded model, mapped for lessons and whole in free play', async ({ page }) => {
+  test.slow();
+  const errors = collectErrors(page);
+  await open(page, 'violin', 'full');
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'violin', { timeout: 60_000 });
+  // V3: string names, highest first down the edge, and a number over each first-position tape.
+  await expect(labels(page, 'string')).toHaveText(['G', 'D', 'A', 'E'], { timeout: 30_000 });
+  await expect(labels(page, 'tape')).toHaveText(['1', '2', '3', '4']);
+  // The open G is the lesson's first note.
+  await expect(stage(page)).toHaveAttribute('data-target-positions', '1');
+
+  await workspace(page, 'Free play');
+  await expect(closeUp(page)).toHaveAttribute('aria-pressed', 'false', { timeout: 30_000 });
+  await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
+  await closeUp(page).click();
+  // The D major scale's eight places, labelled with their fingers.
+  await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
+  expect(errors).toEqual([]);
+});
+
+test('pressing a place on the 3D neck bows it until release', async ({ page }) => {
+  test.slow();
+  await open(page, 'violin', 'full');
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'violin', { timeout: 60_000 });
+  const tape = await labels(page, 'tape').getByText('1', { exact: true }).boundingBox();
+  await expect(labels(page, 'tape')).toHaveCount(4, { timeout: 30_000 });
+  const box = await stage(page).boundingBox(), hint = stage(page).locator('.guitar-stage-hint');
+  // Feel down the first tape for the A string, as a player would, by the hint under the stage.
+  let found = false;
+  for (let y = box.y + 20; y < box.y + box.height - 30 && !found; y += 2) {
+    await page.mouse.move(tape.x + tape.width / 2, y);
+    found = (await hint.textContent()).startsWith('A string · finger 1');
+  }
+  expect(found).toBe(true);
+  await page.mouse.down();
+  await expect.poll(() => notes(page), { timeout: 30_000 }).toEqual(['noteon:71']);
+  await expect(stage(page)).toHaveAttribute('data-held-positions', '1', { timeout: 30_000 });
+  await page.mouse.up();
+  await expect.poll(() => notes(page), { timeout: 30_000 }).toEqual(['noteon:71', 'noteoff:71']);
+});
+
+test('the light stage keeps the 2D fingerboard for the violin and the cello', async ({ page }) => {
+  await open(page, 'violin', 'light');
+  await expect(page.getByRole('group', { name: 'Playable violin fingerboard' })).toBeVisible();
+  await expect(stage(page)).toHaveCount(0);
+  await page.getByRole('group', { name: 'Practice instrument' }).getByRole('button', { name: 'Cello', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'Playable cello fingerboard' })).toBeVisible();
+  await expect(stage(page)).toHaveCount(0);
+  const asked = await page.evaluate(() => performance.getEntriesByType('resource').some(entry => /\/models\/(violin|cello)\./.test(entry.name)));
+  expect(asked).toBe(false);
+});
+
+test('a cello that cannot be loaded gives way to the 2D fingerboard', async ({ page }) => {
+  test.slow();
+  const errors = collectErrors(page);
+  await page.route('**/models/cello.glb', route => route.fulfill({ status: 404, body: '' }));
+  await open(page, 'cello', 'full');
+  await expect(page.getByRole('group', { name: 'Playable cello fingerboard' })).toBeVisible({ timeout: 60_000 });
+  await expect(stage(page)).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('under the 3D stage the 2D finger buttons stay one click away for keyboard players', async ({ page }) => {
+  test.slow();
+  await open(page, 'cello', 'full');
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'cello', { timeout: 60_000 });
+  await page.getByText('Show finger buttons · keyboard accessible').click();
+  const start = page.locator('.bowed-finger-controls .bowed-zone[tabindex="0"]');
+  await start.focus();
+  await page.keyboard.press('Home');
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('ArrowRight');
+  // The roving tab stop has moved two places up the string, to the first finger.
+  await expect(start).toHaveAttribute('aria-label', /finger 1/);
+  await page.keyboard.down('Enter');
+  await expect.poll(() => notes(page), { timeout: 30_000 }).toHaveLength(1);
+  await page.keyboard.up('Enter');
+  await expect.poll(() => notes(page), { timeout: 30_000 }).toHaveLength(2);
+});

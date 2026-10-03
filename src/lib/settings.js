@@ -58,6 +58,13 @@ export const DEFAULT_SETTINGS = {
    * Canvas remains available for linear timing and as the WebGL fallback.
    */
   renderer: 'gl',
+  /**
+   * 'auto', 'full' or 'light': how much the 3D string stage draws.
+   *
+   * Auto gives a real GPU reflections and lacquer and gives software rendering
+   * the lighter stage; see stage/quality.js. The other two override the guess.
+   */
+  stageQuality: 'auto',
   keyboardId: AUTO_PROFILE,
   fit: FIT_MODES.FOLD,
   hands: HAND_FILTERS.BOTH,

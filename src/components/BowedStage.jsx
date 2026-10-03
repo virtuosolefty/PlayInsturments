@@ -9,6 +9,9 @@ const STRING_TONE = {
   violin: { colors: ['#b9b6b0', '#cfccc6', '#dedbd5', '#eeece8'], gauge: [3.4, 2.8, 2.3, 1.5] },
   cello: { colors: ['#aeaaa2', '#c3bfb7', '#d3d0c9', '#e3e1dc'], gauge: [4.6, 3.9, 3.2, 2.6] },
 };
+// Which strings are wound (cross-hatched), and the silk wrap beside the tailpiece, G/C → E/A.
+const WOUND = { violin: [true, true, true, false], cello: [true, true, true, true] };
+const SILK = ['#d4503f', '#3f86c9', '#e2b13a', '#58ad68'];
 const KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
 
 /** The bow, crossing the strings near the bridge while any string sounds. */
@@ -128,10 +131,15 @@ export default function BowedStage({ kit, engine, maxFret, labelMode = 'fingers'
         {Array.from({ length: kit.tuning.length }, (_, s) => {
           const ring = sounding.some(p => p.string === s);
           const x1 = layout.nutX, x2 = layout.bridgeX, x3 = layout.bridgeX + 64;
-          const points = `${x1},${layout.stringY(s, x1)} ${x2},${layout.stringY(s, x2)} ${x3},${VIEW.cy + ((kit.tuning.length - 1) / 2 - s) * 24}`;
-          return <g key={s}>
-            <polyline className="bowed-string-shadow" fill="none" strokeWidth={tone.gauge[s]} points={points} transform="translate(0 2.5)" />
-            <polyline className={`bowed-string ${ring ? 'sounding' : ''}`} fill="none" stroke={tone.colors[s]} strokeWidth={tone.gauge[s]} points={points} />
+          const y3 = VIEW.cy + ((kit.tuning.length - 1) / 2 - s) * 24, y2 = layout.stringY(s, x2), g = tone.gauge[s];
+          const points = `${x1},${layout.stringY(s, x1)} ${x2},${y2} ${x3},${y3}`;
+          const wrap = t => `${x2 + (x3 - x2) * t},${y2 + (y3 - y2) * t}`;
+          return <g key={s} className={`bowed-string-set ${ring ? 'sounding' : ''}`}>
+            <polyline className="bowed-string-shadow" fill="none" strokeWidth={g} points={points} transform="translate(0 2.5)" />
+            <polyline className={`bowed-string ${ring ? 'sounding' : ''}`} fill="none" stroke={tone.colors[s]} strokeWidth={g} points={points} />
+            {(WOUND[kit.id] ?? WOUND.violin)[s] && <polyline className="bowed-string-wind" fill="none" strokeWidth={g} points={points} />}
+            <polyline className="bowed-string-glint" fill="none" strokeWidth={Math.max(0.7, g * 0.28)} points={points} transform={`translate(0 ${-g * 0.22})`} />
+            <polyline className="bowed-string-silk" fill="none" stroke={SILK[s]} strokeWidth={g + 0.8} points={`${wrap(0.5)} ${wrap(0.68)}`} />
           </g>;
         })}
         {sounding.length > 0 && <Bow x={(layout.bow.x0 + layout.bow.x1) / 2} />}

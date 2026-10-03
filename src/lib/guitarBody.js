@@ -1,12 +1,13 @@
-import { CanvasTexture, CylinderGeometry, ExtrudeGeometry, Group, Mesh, MeshStandardMaterial, SRGBColorSpace, Shape, SphereGeometry } from 'three';
+import { CanvasTexture, CircleGeometry, CylinderGeometry, ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, SRGBColorSpace, Shape, SphereGeometry } from 'three';
 
 /**
  * The parts of the 3D guitar that frame the playable neck: a 3+3 headstock
  * with tuners and an acoustic body (spruce top, rosette, soundhole,
- * tortoiseshell pickguard). Decorative only — the fret hit boxes, feedback
- * and audio path live in GuitarStage and are untouched by any of this.
+ * tortoiseshell pickguard). Decorative only — the click targets and markers
+ * are built in guitarRig.js, feedback is painted by GuitarStage, and the audio
+ * path is untouched by any of this.
  *
- * Everything here is built in real proportions; GuitarStage squashes the neck
+ * Everything here is built in real proportions; guitarRig.js squashes the neck
  * across its width, so these parts sit in a group that undoes that squash.
  */
 
@@ -48,10 +49,50 @@ function traceHeadstock(path) {
   path.closePath();
 }
 
-/** A flat shape extruded downward, so its top face sits at `top`. */
+// The headstock texture covers this rectangle of shape coordinates, at `unit` pixels per unit.
+const HEAD = { x0: -9, w: 3, h: 4, unit: 120 };
+
+/** Headstock face: lacquered rosewood veneer, cream binding, pearl inlay, truss-rod cover. */
+function paintHeadstock() {
+  const { x0, w, h, unit } = HEAD;
+  const canvas = document.createElement('canvas'); canvas.width = w * unit; canvas.height = h * unit;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(unit, 0, 0, -unit, -x0 * unit, (h * unit) / 2);
+  const base = ctx.createLinearGradient(x0, 0, x0 + w, 0);
+  base.addColorStop(0, '#4a2a1c'); base.addColorStop(0.55, '#3a2117'); base.addColorStop(1, '#2a1710');
+  ctx.fillStyle = base; ctx.fillRect(x0, -h / 2, w, h);
+  for (let i = 0; i < 70; i++) {
+    const y = -1.9 + i * 0.055;
+    ctx.strokeStyle = `rgba(190, 125, 80, ${0.05 + (i % 4) * 0.025})`; ctx.lineWidth = 0.008 + (i % 3) * 0.008;
+    ctx.beginPath(); ctx.moveTo(x0, y); ctx.bezierCurveTo(x0 + 1, y + 0.02, x0 + 2, y - 0.02, x0 + w, y + 0.01); ctx.stroke();
+  }
+  ctx.save(); ctx.beginPath(); traceHeadstock(ctx); ctx.clip();
+  const edge = (width, color) => { ctx.beginPath(); traceHeadstock(ctx); ctx.lineWidth = width; ctx.strokeStyle = color; ctx.stroke(); };
+  edge(0.34, '#150c08'); edge(0.22, '#efe2c4'); edge(0.14, '#150c08');
+  ctx.restore();
+  // Truss-rod cover just past the nut.
+  ctx.beginPath(); ctx.moveTo(-6.3, 0.34); ctx.lineTo(-6.78, 0.26); ctx.lineTo(-6.78, -0.26); ctx.lineTo(-6.3, -0.34); ctx.closePath();
+  ctx.fillStyle = '#17100c'; ctx.fill(); ctx.lineWidth = 0.035; ctx.strokeStyle = '#efe2c4'; ctx.stroke();
+  // Pearl inlay: a tall diamond with a small one above and below.
+  const pearl = ctx.createLinearGradient(-8.2, 0.6, -7.2, -0.6);
+  pearl.addColorStop(0, '#fbf7ee'); pearl.addColorStop(0.45, '#bfe2da'); pearl.addColorStop(0.75, '#b3a2e2'); pearl.addColorStop(1, '#f1e8d8');
+  const diamond = (cx, hx, hy) => { ctx.beginPath(); ctx.moveTo(cx - hx, 0); ctx.lineTo(cx, hy); ctx.lineTo(cx + hx, 0); ctx.lineTo(cx, -hy); ctx.closePath(); ctx.fillStyle = pearl; ctx.fill(); ctx.lineWidth = 0.03; ctx.strokeStyle = '#150c08'; ctx.stroke(); };
+  diamond(-7.55, 0.4, 0.26);
+  diamond(-8.12, 0.14, 0.14);
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.repeat.set(1 / w, 1 / h);
+  texture.offset.set(-x0 / w, 0.5);
+  return texture;
+}
+
+const BEVEL = 0.03;
+const BODY_TOP = -0.03; // the spruce top sits just below the fretboard
+
+/** A flat shape extruded downward from `top`; its bevelled top face ends up `BEVEL` above that. */
 function slab(trace, depth, top) {
   const shape = new Shape(); trace(shape);
-  const geometry = new ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 1, curveSegments: 24 });
+  const geometry = new ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: BEVEL, bevelSegments: 1, curveSegments: 24 });
   geometry.rotateX(Math.PI / 2);
   geometry.translate(0, top, 0);
   return geometry;
@@ -110,7 +151,7 @@ function paintTop(x0) {
   }
   // A soft amber burst toward the edge, then binding and purfling.
   ctx.save(); ctx.beginPath(); traceBody(ctx, x0); ctx.clip();
-  for (let i = 10; i >= 0; i--) { ctx.beginPath(); traceBody(ctx, x0); ctx.lineWidth = 0.2 + i * 0.16; ctx.strokeStyle = 'rgba(122, 64, 22, 0.075)'; ctx.stroke(); }
+  for (let i = 10; i >= 0; i--) { ctx.beginPath(); traceBody(ctx, x0); ctx.lineWidth = 0.2 + i * 0.22; ctx.strokeStyle = 'rgba(122, 56, 16, 0.1)'; ctx.stroke(); }
   ctx.beginPath(); traceBody(ctx, x0); ctx.lineWidth = 0.36; ctx.strokeStyle = '#1f120b'; ctx.stroke();
   ctx.beginPath(); traceBody(ctx, x0); ctx.lineWidth = 0.28; ctx.strokeStyle = '#efe2c4'; ctx.stroke();
   ctx.restore();
@@ -124,13 +165,17 @@ function paintTop(x0) {
 }
 
 /**
- * @param {(color: string, props?: object) => import('three').Material} mat material factory that GuitarStage disposes
- * @param {{ geometries: Set, materials: Set, textures: Set }} owned resources GuitarStage disposes on unmount
+ * @param {(color: string, props?: object) => import('three').Material} mat material factory whose products the stage disposes
+ * @param {{ geometries: Set, materials: Set, textures: Set }} owned resources the stage disposes when it closes
+ * @param {{ lacquered?: boolean }} [finish] gloss lacquer on the large surfaces; full tier only
  */
-export function buildGuitarFrame(mat, owned) {
-  // The large surfaces use the standard material: a clearcoat over this much
-  // of the screen is costly on software GL and adds little at this distance.
-  const plain = (color, props = {}) => { const m = new MeshStandardMaterial({ color, ...props }); owned.materials.add(m); return m; };
+export function buildGuitarFrame(mat, owned, { lacquered = false } = {}) {
+  // Without lacquer the large surfaces use the standard material: a clearcoat
+  // over this much of the screen is costly on software GL. With it, the body
+  // and headstock reflect the studio the way a polished finish does.
+  const plain = lacquered
+    ? (color, props = {}) => mat(color, { clearcoat: 0.6, clearcoatRoughness: 0.12, ...props })
+    : (color, props = {}) => { const m = new MeshStandardMaterial({ color, ...props }); owned.materials.add(m); return m; };
   const frame = new Group();
   const add = (geometry, material, x = 0, y = 0, z = 0) => {
     owned.geometries.add(geometry);
@@ -139,9 +184,16 @@ export function buildGuitarFrame(mat, owned) {
   const top = paintTop(BODY_START); owned.textures.add(top);
   const spruce = plain('#ffffff', { map: top, roughness: 0.36 });
   const sides = plain('#4b2716', { roughness: 0.4 });
-  add(slab(traceBody, 0.46, -0.06), [spruce, sides]);
+  add(slab(traceBody, 0.46, BODY_TOP - BEVEL), [spruce, sides]);
+  // The soundhole is painted on the top, so under lacquer it would shine like the wood around it.
+  if (lacquered) {
+    const hole = new CircleGeometry(SOUNDHOLE.r, 48); hole.rotateX(-Math.PI / 2);
+    const dark = new MeshBasicMaterial({ color: '#0a0604', polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }); owned.materials.add(dark);
+    const disc = add(hole, dark, SOUNDHOLE.x, BODY_TOP + 0.004, 0); disc.castShadow = false;
+  }
 
-  const veneer = plain('#18110e', { roughness: 0.28 });
+  const head = paintHeadstock(); owned.textures.add(head);
+  const veneer = plain('#ffffff', { map: head, roughness: 0.3 });
   add(slab(traceHeadstock, 0.22, 0.02), [veneer, plain('#6d4a2c', { roughness: 0.55 })]);
 
   const chrome = mat('#e2e1e6', { metalness: 0.85, roughness: 0.2 });
