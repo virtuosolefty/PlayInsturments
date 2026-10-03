@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import BowCard from './BowCard.jsx';
 import BowedStage from './BowedStage.jsx';
@@ -6,13 +6,26 @@ import StringTab from './StringTab.jsx';
 import { bowedReach } from '../lib/bowed.js';
 import { stringKit } from '../lib/instruments.js';
 import { noteInstruction } from '../lib/learning.js';
+import { normalizeStageQuality, STAGE_TIERS } from '../lib/stage/quality.js';
+import { stageTierHere, webglAvailable } from '../lib/webgl.js';
 import { useStringInput } from '../hooks/useGuitarInput.js';
 
-/** The violin and cello studio: finger chart, fingerboard and scale explorer. */
+const BowedStage3D = lazy(() => import('./BowedStage3D.jsx'));
+
+/**
+ * The violin and cello studio: finger chart, fingerboard and scale explorer.
+ *
+ * On the 3D Stage at full detail the instrument is the downloaded model
+ * (BowedStage3D.jsx); otherwise, and whenever the model or the graphics give
+ * out, it is the 2D fingerboard (BowedStage.jsx). Under the 3D stage the 2D
+ * fingerboard stays one click away for keyboard players.
+ */
 export default function BowedWorkspace({ instrument, score, engine, settings, setSettings, onStudy, freePlay, onFreePlay, inspector }) {
   const kit = stringKit(instrument);
   const { bow, lift, silence, activePositions } = useStringInput(instrument);
   const [scale, setScale] = useState(kit.scales[0]);
+  // Set when the 3D stage could not show the instrument; this workspace then keeps to the 2D fingerboard.
+  const [flat, setFlat] = useState(false);
   const [, refresh] = useState(0);
   const live = useRef(null);
   live.current = { engine, activePositions };
@@ -30,14 +43,22 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
   }, []);
   const reach = bowedReach(instrument);
   const maxFret = settings.bowedRange === 'octave' ? 12 : reach;
-  useEffect(() => { silence(); }, [score.id, engine.playing, maxFret, silence]);
+  const quality = normalizeStageQuality(settings.stageQuality);
+  useEffect(() => { silence(); }, [score.id, engine.playing, maxFret, settings.renderer, quality, silence]);
   const strength = settings.bowPressure ?? 0.7;
   const play = position => bow(position, strength);
   const now = Math.max(0, engine.songTime);
   const next = freePlay ? null : (engine.sessionRef.current?.targets ?? score.notes).find(n => n.status !== 'hit' && n.time >= now - 0.1);
   const labelMode = settings.bowedLabels ?? 'fingers';
   const labelSize = settings.instrumentLabelSize ?? 14;
+  const solid = !flat && settings.renderer === 'gl' && webglAvailable() && stageTierHere(quality) === STAGE_TIERS.FULL;
   const card = <BowCard kit={kit} scale={scale} onScale={setScale} onBow={play} onLift={lift} silence={silence} settings={settings} setSettings={setSettings} activePositions={activePositions} />;
+  const stage = { kit, engine, maxFret, labelMode, labelSize, target: next, selection: freePlay ? scale.positions : null, activePositions, onBow: play, onLift: lift };
+  const giveUp = why => {
+    console.warn(`[stage] the 3D ${kit.label.toLowerCase()} is unavailable, showing the 2D fingerboard:`, why);
+    silence();
+    setFlat(true);
+  };
   return (
     <section className={`guitar-workspace bowed-workspace ${instrument}-workspace`} aria-label={`${kit.label} studio`}>
       {!freePlay && <StringTab instrument={instrument} theme={settings.theme} score={score} engine={engine} pps={settings.pps} />}
@@ -54,8 +75,15 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
         </select></label>
         <label>Text<select aria-label="Instrument label size" value={labelSize} onChange={e => setSettings(s => ({ ...s, instrumentLabelSize: +e.target.value }))}><option value="14">Standard</option><option value="18">Large</option></select></label>
       </div>
-      <BowedStage kit={kit} engine={engine} maxFret={maxFret} labelMode={labelMode} labelSize={labelSize} target={next} selection={freePlay ? scale.positions : null}
-        activePositions={activePositions} onBow={play} onLift={lift} />
+      {solid ? <>
+        <Suspense fallback={<div className="guitar-stage-loading">Preparing your {kit.label.toLowerCase()}…</div>}>
+          <BowedStage3D {...stage} theme={settings.theme} quality={quality} view={freePlay ? 'freePlay' : 'lesson'} onUnavailable={giveUp} />
+        </Suspense>
+        <details className="guitar-fret-controls with-stage bowed-finger-controls">
+          <summary>Show finger buttons · keyboard accessible</summary>
+          <BowedStage {...stage} />
+        </details>
+      </> : <BowedStage {...stage} />}
       {freePlay ? (inspector ? createPortal(card, inspector) : card)
         : <div className="guitar-chords"><button onClick={onFreePlay}>Explore scales in Free play →</button><span>Tapes mark first-position fingers · Outline: next note · Filled: played</span></div>}
     </section>

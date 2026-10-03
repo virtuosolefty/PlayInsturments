@@ -13,10 +13,21 @@ import { exportHistory } from '../lib/storage.js';
  *
  * Class component because that is the only thing React lets catch this.
  */
+/** How many components of the failing branch the development card names, innermost first. */
+const WHERE_DEPTH = 5;
+
+/** The innermost components of a React component stack, as "Inner › Outer"; '' when there is none. */
+export function failedIn(componentStack) {
+  const names = String(componentStack ?? '').split('\n')
+    .map(line => line.trim().match(/^at ([\w$.]+)|^([\w$.]+)@/))
+    .filter(Boolean).map(match => match[1] ?? match[2]).filter(name => /^[A-Z]/.test(name));
+  return names.slice(0, WHERE_DEPTH).join(' › ');
+}
+
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { error: null };
+    this.state = { error: null, where: '' };
   }
 
   static getDerivedStateFromError(error) {
@@ -25,6 +36,8 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('[boundary] render failed:', error, info?.componentStack);
+    // In development the card also says where it broke, so a screenshot of it is enough to find the bug.
+    if (import.meta.env?.DEV) this.setState({ where: failedIn(info?.componentStack) });
   }
 
   saveBackup = () => {
@@ -62,6 +75,7 @@ export default class ErrorBoundary extends Component {
             save a copy before reloading, and nothing is lost either way.
           </p>
           <pre className="boundary-detail">{String(error?.message ?? error)}</pre>
+          {this.state.where && <p className="boundary-where">In {this.state.where}</p>}
           <div className="boundary-actions">
             <button className="primary" onClick={this.saveBackup}>
               Save a backup

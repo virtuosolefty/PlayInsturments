@@ -110,3 +110,24 @@
   .chord-card .hint { margin-top:9px; }
   .studio-app .guitar-workspace > .chord-card .chord-diagram { height:108px; }
 }
+
+/* Tablets and phones. There is no side column below 901px, so in free play the chord explorer sits under the stage
+   (App passes no inspector when narrow). The stage takes a height in proportion to its width, room for the neck and
+   both of its bars, instead of the 165px strip lessons use; and no more than under half the screen's height, so on a
+   phone held sideways it does not run taller than the screen. (The dvh line wins where it is understood.) */
+@media(max-width:900px) {
+  .studio-app.free-play .guitar-stage {
+    height:clamp(200px, min(58vw, 45vh), 480px); height:clamp(200px, min(58vw, 45dvh), 480px); min-height:200px;
+  }
+}
+/* Phones: the stage's own top bar keeps to the chord name and six compact open-string buttons, and wraps rather
+   than running off the stage. */
+@media(max-width:700px) {
+  .guitar-stage-top { inset:10px 12px auto; flex-wrap:wrap; gap:6px 10px; }
+  .studio-app.free-play .guitar-stage-top > div:first-child > span, .guitar-open-picks > span { display:none; }
+  .guitar-open-picks { flex-wrap:wrap; }
+  .guitar-open-picks button { min-width:28px; min-height:28px; padding:3px 4px; }
+  /* Under the stage the chord and scale explorers read top to bottom; three columns left the last one 54px wide.
+     The violin and cello workspaces carry the guitar-workspace class too, so this covers their explorer. */
+  .guitar-workspace > .chord-card { grid-template-columns:minmax(0, 1fr); }
+}

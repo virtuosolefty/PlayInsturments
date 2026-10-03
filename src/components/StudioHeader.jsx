@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { useDialog } from '../hooks/useDialog.js';
 import Icon from './Icon.jsx';
-import { webglAvailable } from '../lib/webgl.js';
+import { stageTierHere, webglAvailable, webglRendererName } from '../lib/webgl.js';
 import { INSTRUMENTS, instrumentInfo, isStringed, normalizeInstrument, stringKit } from '../lib/instruments.js';
+import { explainStageDetail, normalizeStageQuality, STAGE_QUALITIES } from '../lib/stage/quality.js';
 
+const QUALITY_CHOICES = {
+  auto: { label: 'Auto', title: 'Full detail on a graphics card, light on software rendering' },
+  full: { label: 'Full', title: 'The 3D models of the guitar, violin and cello, with reflections and a lacquered finish' },
+  light: { label: 'Light', title: 'The simpler built-in guitar and the 2D violin and cello, for older computers' },
+};
 const BOWED_BODY = 'M9.3 9.4c-1.5.2-2.3 1.2-2.1 2.4.1.8.8 1.2.8 1.9 0 .6-.9 1.2-.9 2.5 0 2.1 1.9 3.6 4.9 3.6s4.9-1.5 4.9-3.6c0-1.3-.9-1.9-.9-2.5 0-.7.7-1.1.8-1.9.2-1.2-.6-2.2-2.1-2.4-1.1-.1-1.7.5-2.7.5s-1.6-.6-2.7-.5z';
 
 /** @param instrument 'piano' | 'guitar' | 'violin' | 'cello'; `guitar` is the older boolean form */
@@ -60,6 +66,7 @@ export function StageToolbar({ settings, setSettings, instrument = 'piano', free
   const ref = useDialog({ open, onClose: () => setOpen(false) });
   const available = webglAvailable();
   const renderer = available ? settings.renderer : 'canvas';
+  const quality = normalizeStageQuality(settings.stageQuality);
   return (
     <div className="stage-toolbar">
       <div className="stage-caption"><span className="stage-live-dot" />{caption}<span className="stage-description">{description}</span></div>
@@ -67,12 +74,18 @@ export function StageToolbar({ settings, setSettings, instrument = 'piano', free
       <button className="instrument-settings-toggle" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(v => !v)}><Icon name="sliders" size={14} /> Instrument settings</button>
       {open && <><div className="popover-scrim" onClick={() => setOpen(false)} /><div className="popover instrument-settings-panel" ref={ref} role="dialog" aria-modal="true" aria-label="Instrument settings" tabIndex={-1}>
       <div className="settings-heading"><strong>Instrument settings</strong><button aria-label="Close instrument settings" onClick={() => setOpen(false)}>×</button></div>
-      <p className="hint">{kit?.bowed ? `The ${kit.label.toLowerCase()} fingerboard is always drawn in 2D. Appearance applies to piano and guitar.` : 'Choose how your instrument looks and responds.'}</p><span className="settings-label">Appearance</span>
+      <p className="hint">{kit?.bowed ? `On the 3D Stage at full detail the ${kit.label.toLowerCase()} is a 3D model; at light detail it keeps the 2D fingerboard.` : 'Choose how your instrument looks and responds.'}</p><span className="settings-label">Appearance</span>
       <div className="stage-view-switch" role="group" aria-label="Stage appearance">
         {['canvas', 'gl'].map(value => <button key={value} aria-pressed={renderer === value}
           disabled={value === 'gl' && !available} title={value === 'gl' && !available ? '3D is unavailable on this browser. The 2D trainer is ready to use.' : undefined}
           onClick={() => setSettings(s => ({ ...s, renderer: value }))}>{value === 'gl' ? '3D Stage' : '2D Trainer'}</button>)}
       </div>
+      {renderer === 'gl' && stringed && <><span className="settings-label">3D detail</span>
+      <div className="stage-view-switch" role="group" aria-label="3D detail">
+        {STAGE_QUALITIES.map(value => <button key={value} aria-pressed={quality === value} title={QUALITY_CHOICES[value]?.title}
+          onClick={() => setSettings(s => ({ ...s, stageQuality: value }))}>{QUALITY_CHOICES[value]?.label ?? value}</button>)}
+      </div>
+      <p className="hint stage-detail-note" role="status">{explainStageDetail({ quality, tier: stageTierHere(quality), rendererName: webglRendererName() })}</p></>}
       {children}
       </div></>}
       </div>

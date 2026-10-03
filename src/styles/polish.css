@@ -253,10 +253,26 @@
 /* Nothing may make the document wider than the phone. Wide pieces (the fret
    grid, the transport row) scroll inside their own box instead. */
 html, body { max-width: 100%; overflow-x: hidden; }
-@media (max-width: 700px) {
-  .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
+/* Up to tablet width the top bar's buttons do not fit on one line. Before this
+   rule they stayed on one line from 701 to 900 px and pushed the whole studio
+   past the window; now the bar takes a second line instead. */
+@media (max-width: 900px) {
   .studio-app .topbar { flex-wrap: wrap; row-gap: 8px; }
   .studio-app .topbar .saved-locally { display: none; }
+}
+/* A phone held sideways has a few hundred pixels of height, and every line of chrome comes out of the workspace:
+   with the top bar on two lines it was left 14px. Here the top bar keeps to one line and scrolls sideways, and the
+   header drops its eyebrow and description. */
+@media (max-width: 900px) and (max-height: 520px) {
+  /* The fade at the right edge says there is more to scroll to, since the scrollbar is hidden. */
+  .studio-app .topbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  .studio-app .topbar::-webkit-scrollbar { display: none; }
+  .studio-app .topbar > * { flex-shrink: 0; }
+  .studio-app .studio-heading .eyebrow, .studio-app .studio-heading p { display: none; }
+  .studio-app .studio-header { padding-block: 8px !important; }
+}
+@media (max-width: 700px) {
+  .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
   .studio-app .topbar .setup-trigger { font-size: 0; gap: 0; padding: 0 10px; }
   .studio-app .topbar .setup-trigger .connection-dot { width: 8px; height: 8px; }
   .theme-toggle span { display: none; }

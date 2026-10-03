@@ -733,11 +733,13 @@ export default function App({ startupSettings = {} }) {
               that cannot lose a graphics context, the one jsdom can run — so
               the test suite keeps exercising a real renderer — and the one
               that is currently at full feature parity. */}
+          {/* The chord and scale explorers go in the side column; on a narrow screen that column is a slide-over that
+              free play has no button to open, so there they stay inline under the stage. */}
           {guitar ? <GuitarWorkspace score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
             onStudy={selectStudy}
-            inspector={focus ? null : chordInspector} onError={setError} onContextLost={why => { setSettings(s => ({ ...s, renderer: 'canvas' })); setError(`Switched to 2D Trainer — ${why}.`); }}
+            inspector={focus || narrow ? null : chordInspector} onError={setError} onContextLost={why => { setSettings(s => ({ ...s, renderer: 'canvas' })); setError(`Switched to 2D Trainer — ${why}.`); }}
           /> : stringed ? <BowedWorkspace key={instrument} instrument={instrument} score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
-            onStudy={selectStudy} inspector={focus ? null : chordInspector}
+            onStudy={selectStudy} inspector={focus || narrow ? null : chordInspector}
           /> : useGL ? (
             <Suspense fallback={<div className="roll-gl" />}>
               <RollGL theme={theme}

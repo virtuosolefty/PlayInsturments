@@ -17,3 +17,11 @@ shots/
 /playwright-report/
 /test-results/
 /blob-report/
+
+# Downloaded 3D models before preparation; only the prepared files in public/models ship
+models-src/
+
+# Local safety copies, assistant scratch output and local tool settings
+backups/
+Claude outputs/
+.claude/

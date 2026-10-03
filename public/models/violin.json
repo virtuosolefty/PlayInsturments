@@ -1,0 +1,130 @@
+{
+  "name": "violin",
+  "credit": {
+    "title": "Violin",
+    "author": "Voldepreuss",
+    "authorUrl": "https://sketchfab.com/Voldepreuss",
+    "source": "https://sketchfab.com/3d-models/violin-0162dea1b1044cd281c57af5e5fc2046",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Violin\" (https://sketchfab.com/3d-models/violin-0162dea1b1044cd281c57af5e5fc2046) by Voldepreuss (https://sketchfab.com/Voldepreuss), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: the strings between nut and bridge replaced, scaled and re-encoded for Practice Deck."
+  },
+  "nutX": -6.05,
+  "scaleLength": 24.1,
+  "strings": [
+    {
+      "nut": [
+        -6.0821,
+        -0.0499,
+        0.5582
+      ],
+      "bridge": [
+        18.0499,
+        2.9539,
+        1.3128
+      ],
+      "radius": 0.0423
+    },
+    {
+      "nut": [
+        -6.0388,
+        0.0307,
+        0.1965
+      ],
+      "bridge": [
+        18.0501,
+        3.2126,
+        0.4794
+      ],
+      "radius": 0.0327
+    },
+    {
+      "nut": [
+        -6.0391,
+        0.032,
+        -0.2244
+      ],
+      "bridge": [
+        18.05,
+        3.2139,
+        -0.4333
+      ],
+      "radius": 0.0254
+    },
+    {
+      "nut": [
+        -6.0399,
+        -0.0129,
+        -0.5304
+      ],
+      "bridge": [
+        18.0501,
+        2.9489,
+        -1.2706
+      ],
+      "radius": 0.0148
+    }
+  ],
+  "bounds": {
+    "min": [
+      -12.1954,
+      -3.7433,
+      -7.3336
+    ],
+    "max": [
+      29.5803,
+      3.2719,
+      7.3835
+    ]
+  },
+  "parts": {
+    "body": {
+      "min": [
+        -12.1954,
+        -3.7433,
+        -7.3336
+      ],
+      "max": [
+        29.1466,
+        2.4291,
+        7.3835
+      ]
+    },
+    "bridge": {
+      "min": [
+        17.9807,
+        0.9195,
+        -1.7773
+      ],
+      "max": [
+        18.1382,
+        3.2719,
+        1.8272
+      ]
+    },
+    "fittings": {
+      "min": [
+        -9.7928,
+        -3.5254,
+        -3.0536
+      ],
+      "max": [
+        29.5803,
+        2.4598,
+        6.0658
+      ]
+    },
+    "stringEnds": {
+      "min": [
+        -9.7355,
+        -3.0738,
+        -1.2839
+      ],
+      "max": [
+        22.053,
+        3.2495,
+        1.3538
+      ]
+    }
+  }
+}

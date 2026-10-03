@@ -17,5 +17,5 @@ export default defineConfig({
     host: 'localhost',
   },
   build: { outDir: 'dist', sourcemap: true },
-  test: { environment: 'node', include: ['src/**/*.test.{js,jsx}'], maxWorkers: 2, minWorkers: 1, testTimeout: 15000 },
+  test: { environment: 'node', include: ['src/**/*.test.{js,jsx}', 'scripts/**/*.test.mjs'], maxWorkers: 2, minWorkers: 1, testTimeout: 15000 },
 });

@@ -43,10 +43,10 @@ Your results and settings stay in the current browser. There is no account or cl
 ## What works
 
 - Piano: on-screen keys, computer keyboard, and Web MIDI input.
-- Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input. The 3D view shows the headstock and acoustic body; the 2D trainer is a rosewood fretboard with true fret spacing.
-- Violin and cello: a drawn fingerboard with finger tapes. Press and hold a place to bow it, drag along a string to slide, or bow near the bridge for an open string (keyboard: arrows, then hold Enter or Space). Six first-position lessons each, a finger chart in Learn mode, and a scale explorer in Free play.
+- Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input. On the 3D stage at full detail it is a 3D model of an acoustic guitar: lessons show the neck straight across, free play shows the whole guitar, which you can turn by dragging, and **Close-up** swings in to play it. The 2D trainer is a rosewood fretboard with true fret spacing.
+- Violin and cello: on the 3D stage at full detail, 3D models with finger tapes, numbered finger markers and a bow that plays the sounding string; in free play the violin is shown at three-quarters and the cello stands on its endpin. Otherwise, a drawn fingerboard with finger tapes. Press and hold a place to bow it, drag along a string to slide, or bow near the bridge for an open string (keyboard: arrows, then hold Enter or Space). Six first-position lessons each, a finger chart in Learn mode, and a scale explorer in Free play.
 - Light and dark themes, guided lessons, practice feedback, favourites, and local backups.
-- Three-dimensional piano and guitar views with a simpler 2D trainer option.
+- Three-dimensional piano, guitar, violin and cello views with a simpler 2D trainer option. **Instrument settings → 3D detail** chooses Full (the 3D models), Light (the simpler built-in guitar and 2D violin and cello) or Auto, and says which is in use.
 
 For the best MIDI experience, use a current Chromium-based browser such as Chrome or Edge. Firefox and Safari can still use the on-screen instruments, but do not provide Web MIDI support. Microphone or acoustic-instrument recognition is not included.
 
@@ -77,10 +77,19 @@ scripts/             Build, song-generation and screenshot tools
 src/components/      React components
 src/hooks/           React hooks
 src/lib/             Instruments, audio, scoring and storage logic, with unit tests
+src/lib/stage/       The 3D string stage: studio, framing, turning, model loading
 src/styles/          Stylesheets, loaded in order from src/main.jsx
+public/models/       The prepared 3D guitar, violin and cello (see CREDITS.md)
+scripts/models/      Prepares downloaded models: node scripts/models/prepare.mjs
 ```
 
+How each feature works, the code layout and the test suite are described in [docs/developer-notes.md](docs/developer-notes.md); the plan for the 3D string instruments is [docs/design/strings-3d-plan.md](docs/design/strings-3d-plan.md).
+
 Run a focused suite with `npm run test:studio`, or `npx playwright test --config e2e/config/guitar.config.js`.
+
+## Credits
+
+The 3D guitar, violin and cello are free models from Sketchfab, used under the Creative Commons Attribution 4.0 licence. Their authors are credited in [CREDITS.md](CREDITS.md) and in the app under **Help**.
 
 ## Privacy
 

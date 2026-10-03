@@ -91,6 +91,19 @@ describe('ErrorBoundary', () => {
     expect(container.querySelector('.boundary')).toBeNull();
   });
 
+  it('names the component that failed, in development, so a screenshot is enough to find it', () => {
+    const Panel = () => <Boom />;
+    render(
+      <ErrorBoundary>
+        <Panel />
+      </ErrorBoundary>,
+    );
+    const where = container.querySelector('.boundary-where');
+    expect(where).toBeTruthy();
+    expect(where.textContent).toMatch(/Boom/);
+    expect(where.textContent).toMatch(/Panel/);
+  });
+
   it('reports the failure to the console for whoever has to fix it', () => {
     render(
       <ErrorBoundary>
