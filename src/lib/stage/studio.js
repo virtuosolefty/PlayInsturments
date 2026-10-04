@@ -222,6 +222,20 @@ function furnish(el, renderer, { daylight, quality }) {
     currentPose: () => lastPose,
 
     /**
+     * Gets `object` ready to draw before it is first shown: compiles its
+     * shaders for this scene's lights and environment, and uploads its
+     * textures. The frame that first shows it then has neither to wait for.
+     */
+    prepare(object) {
+      renderer.compile(object, camera, scene);
+      object.traverse(node => {
+        for (const material of [node.material ?? []].flat()) {
+          for (const value of Object.values(material)) if (value?.isTexture) renderer.initTexture(value);
+        }
+      });
+    },
+
+    /**
      * How far the view may turn on this stage: `view.turn`, shrunk so every
      * point of `keep` stays on screen and within `bounds`. Null where the view
      * cannot be turned, or while the stage has no size.

@@ -89,11 +89,25 @@ Screenshots in [stage-views/](stage-views):
 
 | | |
 | --- | --- |
-| Guitar | `guitar-learn-dark.png`, `guitar-whole-dark.png`, `guitar-learn-phone-dark.png`, `guitar-learn-phone-light.png` |
+| Guitar | `guitar-learn-dark.png`, `guitar-whole-dark.png`, `guitar-learn-phone-dark.png`, `guitar-learn-phone-light.png`, `guitar-learn-phone-360-turned-dark.png` (turned, with Reset view as its icon), `guitar-model-failed-dark.png` (the model blocked) |
 | Violin and cello | `violin-learn-dark.png`, `violin-learn-phone-dark.png`, `cello-learn-phone-light.png`, `cello-whole-dark.png` |
 | Piano lesson | `piano-next-note-dark.png`, `piano-next-note-light.png`, `piano-first-note-dark.png` |
 
 The screenshots listed earlier, under Screenshots, show revision 6: there the lesson and the close-up used the downloaded guitar.
+
+### Code review of revision 7
+
+A review found no critical problems. It ran the unit tests and specs 10 and 15 to 19, and probed the stages in a browser, counting WebGL objects through repeated switches and stops; nothing leaked. It found these, all now fixed:
+
+- **High: phones.** The two-way switch was wider than the Close-up button it replaced. At 390 px Reset view was pushed off the stage, and at 360 px the switch itself was cut off. On a phone the second button now says "Whole" and Reset view is its icon, and the bar takes a second line on the narrowest phones rather than cut a button off. Measured: at 390 and 360 px everything fits on one line with 12 px to spare. A new test in spec 18 turns the view at both widths and checks.
+- **The first switch to Whole instrument stalled** for 0.6 to 1.2 s while the model's shaders compiled and its textures uploaded. The model is now readied while Learn shows; the worst frame on the first switch was 83, 33 and 17 ms in three runs.
+- **Loading and failure were silent, and focus was lost.** While the model is on its way the stage says "Preparing the 3D guitar…"; if it cannot be loaded, the stage says so and the switch stays, so focus stays on it, and Whole instrument tries again.
+- **The new loading logic had no unit tests.** It moved to `src/lib/guitarViews.js` with twelve tests; the switch, Reset view, the labels and `useStageView` have their own.
+- Smaller: free play now always reopens on Learn; a stage rebuilt in the Whole instrument view waits for the model, with no labels, instead of flashing the drawn guitar; two dead branches in the runner went.
+
+Not changed: the stage's "Learn" button shares its word with the header's Learn | Free play switch. The stage's buttons sit in a group named "Stage view", which tells them apart for assistive technology, and the words are the ones asked for.
+
+After the fixes: `npm test` passes 930 tests across 64 files. Browser specs 10 and 15 to 19 pass, 34 of 34, with the two new phone tests; 08, 12, 13 and 14 pass, 33 of 33.
 
 ## Known limits
 

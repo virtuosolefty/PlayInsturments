@@ -78,8 +78,25 @@
 .stage-view-toggle button:first-child { border-start-end-radius:0; border-end-end-radius:0; }
 .stage-view-toggle button:last-child { border-start-start-radius:0; border-end-start-radius:0; margin-inline-start:-1px; }
 .stage-view-toggle button[aria-pressed="true"], .stage-view-toggle button[aria-pressed="true"]:hover { background:var(--accent); border-color:var(--accent); color:var(--on-accent); position:relative; }
-/* On a phone there is room for the legend and one more thing: while the view is turned, that is the way back. */
-@media (max-width:600px) { .guitar-reset-view + .guitar-stage-hint, .stage-view-toggle ~ .guitar-stage-hint { display:none; } }
+/* Reset view's icon, shown where the button shrinks to it. */
+.guitar-reset-view .reset-icon { display:none; width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+/* On a phone the legend, the view switch and Reset view share one line: the switch says "Whole", Reset view is its
+   icon, and the hint gives way. The narrowest phones give the bar a second line rather than cut a button off. */
+@media (max-width:600px) {
+  .guitar-stage-bottom { inset:auto 12px 10px; gap:8px; flex-wrap:wrap; }
+  .guitar-stage-end { margin-inline-start:auto; }
+  .guitar-reset-view, .stage-view-toggle button { padding:5px 8px; }
+  .stage-view-toggle .stage-view-more, .guitar-reset-view .reset-text { display:none; }
+  .guitar-reset-view .reset-icon { display:block; }
+  .guitar-reset-view + .guitar-stage-hint, .stage-view-toggle ~ .guitar-stage-hint { display:none; }
+}
+/* What the stage is waiting for, or could not do, in the middle of the stage, readable over the instrument. */
+.stage-status {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; max-width:calc(100% - 32px);
+  padding:6px 12px; border-radius:999px; background:color-mix(in srgb,var(--bg-1) 90%,transparent);
+  color:var(--text); font-size:12px; line-height:1.4; text-align:center; pointer-events:none;
+}
+.stage-status:empty { display:none; }
 /* In free play a sideways drag on the guitar turns it, so the browser must leave sideways drags alone. Up-and-down
    swipes still scroll — on a phone the stage fills most of the scrolling area — and pinching still zooms. Lessons
    keep normal touch behaviour. */

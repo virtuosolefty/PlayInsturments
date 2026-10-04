@@ -3,19 +3,24 @@ import { GUITAR_TUNING } from '../lib/guitar.js';
 import { guitarFeedback } from '../lib/instrumentView.js';
 import { noteName } from '../lib/theory.js';
 import { chordFullName, chordTone } from '../lib/guitarPresentation.js';
+import { useStageView } from '../hooks/useStageView.js';
 import { buildGuitarRig } from '../lib/guitarRig.js';
-import { buildModelGuitarRig } from '../lib/guitarModelRig.js';
 import { dotLook, hoverText, stageLabels } from '../lib/guitarStageView.js';
-import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
+import { guitarViews } from '../lib/guitarViews.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
-import { createStudio, disposeResources } from '../lib/stage/studio.js';
+import { createStudio } from '../lib/stage/studio.js';
+import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
 import StageViewSwitch from './StageViewSwitch.jsx';
 
 const NO_POSITIONS = new Map();
 /** After this long a plucked string's swing is too small to see, so the stage stops redrawing for it. */
 const SWING_MS = 2500;
+/** A stage rebuilt in the Whole instrument view waits this long for the model before showing the drawn guitar. */
+const MODEL_WAIT_MS = 1500;
+/** How long the note that the 3D guitar could not be loaded stays up. */
+const NOTICE_MS = 6000;
 
 const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
 
@@ -138,54 +143,25 @@ function watchPointer(canvas, run, hover, { onHover, onPluck, onLost }) {
 }
 
 /**
- * The two guitars free play switches between: the one built in code for the
- * Learn view (lessons use it too), where its wider strings are easier to play,
- * and the downloaded model for the Whole instrument view, which only it can
- * show. The model is fetched the first time free play opens on the full tier,
- * and kept on hand, so switching back and forth is immediate.
+ * When the downloaded guitar the player asked for could not be loaded: puts
+ * the stage back on Learn and says so for a while. A model that failed while
+ * nobody was waiting for it says nothing.
+ *
+ * @returns {[string, () => void]} the notice, and a way to clear it
  */
-function guitarViews(run, { drawn, full, maxFret, latest, onState, onShow, onBroken }) {
-  let model = null, loading = false, failed = false, abandoned = false, modelShown = false;
-  const wantsWhole = () => latest.current.view === 'freePlay' && latest.current.stageView === 'whole';
-  const show = () => {
-    const next = wantsWhole() && model ? model : drawn;
-    if (run.rig === next) return;
-    onShow();
-    if (next === model) modelShown = true;
-    try { run.show(next); } catch (error) { onBroken(error.message); }
-  };
-  const giveUp = why => {
-    if (why) console.warn('[stage] the downloaded guitar could not be set up, keeping the drawn one:', why);
-    loading = false; failed = true;
-    onState('failed');
-  };
-  const load = () => {
-    if (!full || model || loading || failed) return;
-    loading = true;
-    onState('loading');
-    loadInstrumentModel('guitar').then(loaded => {
-      if (abandoned) { if (loaded) disposeResources(collectResources(loaded.scene)); return; }
-      if (!loaded) { giveUp(); return; }
-      const owned = newOwned();
-      try {
-        model = { ...buildModelGuitarRig({ owned, maxFret, model: loaded, lacquered: true }), owned, maxFret, model: 'guitar' };
-      } catch (error) {
-        disposeResources(owned);
-        disposeResources(collectResources(loaded.scene));
-        giveUp(error.message);
-        return;
-      }
-      loading = false;
-      onState('ready');
-      show();
-    });
-  };
-  return {
-    /** Shows the guitar the current view wants, fetching the model the first time free play opens. */
-    apply() { if (latest.current.view === 'freePlay') load(); show(); },
-    /** A model that never went on stage is not the runner's to dispose. */
-    stop() { abandoned = true; if (model && !modelShown) disposeResources(model.owned); },
-  };
+function useModelNotice(modelState, latest, setStageView) {
+  const [notice, setNotice] = useState('');
+  useEffect(() => {
+    if (modelState !== 'failed' || latest.current.stageView !== 'whole') return;
+    setStageView('learn');
+    setNotice('The 3D guitar could not be loaded. Choose Whole instrument to try again.');
+  }, [modelState, latest, setStageView]);
+  useEffect(() => {
+    if (!notice) return undefined;
+    const timer = setTimeout(() => setNotice(''), NOTICE_MS);
+    return () => clearTimeout(timer);
+  }, [notice]);
+  return [notice, () => setNotice('')];
 }
 
 export default function GuitarStage({ engine, score, onPluck, onContextLost, leftHanded, theme = 'light', quality = 'auto', chord = null, activePositions, maxFret = 12, labelSize = 14, labelMode = 'fingers', focusPosition = null, view = 'lesson' }) {
@@ -200,13 +176,21 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
   // Keeps Reset view in place while it has keyboard focus, so focus is not dropped when the view comes back.
   const [resetFocused, setResetFocused] = useState(false);
   // Free play's view: Learn (the guitar built in code, close up) or the whole downloaded guitar.
-  const [stageView, setStageView] = useState('learn');
+  const [stageView, setStageView] = useStageView(view);
   // The downloaded guitar: 'unavailable' on the light tier, otherwise 'idle', 'loading', 'ready' or 'failed'.
   const [modelState, setModelState] = useState('unavailable');
   const views = useRef(null);
   latest.current = { engine, score, onPluck, onContextLost, leftHanded, flip: leftHanded ? -1 : 1, chord, activePositions, focusPosition, labelMode, labelSize, view, stageView, closeUp: stageView !== 'whole' };
-  const offersWhole = view === 'freePlay' && !['unavailable', 'failed'].includes(modelState);
+  const [notice, clearNotice] = useModelNotice(modelState, latest, setStageView);
+  // The switch stays after a failed download, so focus is not lost and Whole instrument can try again.
+  const offersWhole = view === 'freePlay' && modelState !== 'unavailable';
   const wholeGuitar = offersWhole && stageView === 'whole';
+  const status = wholeGuitar && ['idle', 'loading'].includes(modelState) ? 'Preparing the 3D guitar…' : notice;
+  const chooseView = value => {
+    clearNotice();
+    if (value === 'whole') views.current?.retry();
+    setStageView(value);
+  };
   const resetView = event => {
     // A pointer click needs no lingering focus; a key press (detail 0) keeps it here.
     if (event.detail > 0) event.currentTarget.blur();
@@ -229,7 +213,9 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
     const full = studio.tier === STAGE_TIERS.FULL;
     setModelState(full ? 'idle' : 'unavailable');
     const pointed = { place: null };
-    const run = runStage(el, studio, { latest, maxFret, hooks: guitarHooks(el, latest, pointed), setLabels, setTurned, setTurnable, controls, rig: first });
+    // Rebuilt in the Whole instrument view (the theme or the frets changed), the stage waits for the model rather than flash the drawn guitar.
+    const hold = full && latest.current.view === 'freePlay' && latest.current.stageView === 'whole' ? MODEL_WAIT_MS : 0;
+    const run = runStage(el, studio, { latest, maxFret, hooks: guitarHooks(el, latest, pointed), setLabels, setTurned, setTurnable, controls, rig: first, hold });
     const unwatch = watchPointer(studio.renderer.domElement, run, pointed, {
       onHover: setHover, onPluck: place => latest.current.onPluck(place), onLost: why => latest.current.onContextLost(why),
     });
@@ -237,16 +223,17 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
       console.warn('[stage] a guitar could not go on stage, falling back to the 2D trainer:', why);
       latest.current.onContextLost(why);
     };
-    views.current = guitarViews(run, { drawn: first, full, maxFret, latest, onState: setModelState, onShow: () => { pointed.place = null; setHover(''); }, onBroken: broken });
-    views.current.apply();
-    return () => { views.current?.stop(); views.current = null; unwatch(); run.stop(); };
+    const switcher = guitarViews(run, { drawn: first, full, maxFret, latest, onState: setModelState, onShow: () => { pointed.place = null; setHover(''); }, onBroken: broken });
+    views.current = switcher;
+    switcher.apply();
+    return () => { switcher.stop(); if (views.current === switcher) views.current = null; unwatch(); run.stop(); };
   }, [theme, maxFret, quality]);
   // Entering free play fetches the model; choosing a view puts its guitar on stage.
   useEffect(() => { views.current?.apply(); }, [view, stageView]);
-  useEffect(() => { if (modelState === 'failed') setStageView('learn'); }, [modelState]);
   return <div className="guitar-stage" ref={host} role="group" aria-label="Three-dimensional guitar fretboard" data-view={view}>
     <div className="guitar-stage-top"><div><strong>{chord ? chordFullName(chord) : 'Fretboard'}</strong><span>{chord ? 'Open-position voicing' : 'Standard tuning · E A D G B E'}</span></div>{chord && <div className="guitar-open-picks" role="group" aria-label="Play open strings"><span>OPEN STRINGS</span>{[0,1,2,3,4,5].map(s=><button key={s} aria-label={'Play open string '+(6-s)+': '+noteName(GUITAR_TUNING[s])} onClick={()=>onPluck({string:s,fret:0})}>{noteName(GUITAR_TUNING[s])}</button>)}</div>}</div>
     <StageLabels labels={labels} labelSize={labelSize} />
-    <div className="guitar-stage-bottom"><span className="guitar-stage-legend">{chord && <><i className="root"/>Root </>}<i className="played"/>Played <i className="next"/>{chord?'Hover':'Next note'}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={wholeGuitar ? 'whole' : 'learn'} onChange={setStageView} />}{turnable && (turned || resetFocused) && <button type="button" className="guitar-reset-view" aria-disabled={!turned} onFocus={() => setResetFocused(true)} onBlur={() => setResetFocused(false)} onClick={resetView}>Reset view</button>}<span className="guitar-stage-hint">{hover||(wholeGuitar?(modelState==='ready'?'Drag to turn · Learn to play the frets':'Preparing the 3D guitar…'):turnable?'Click between frets to play · drag to turn':'Click between frets to play · ○ open string')}</span></span></div>
+    <div className="stage-status" role="status">{status}</div>
+    <div className="guitar-stage-bottom"><span className="guitar-stage-legend">{chord && <><i className="root"/>Root </>}<i className="played"/>Played <i className="next"/>{chord?'Hover':'Next note'}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={wholeGuitar ? 'whole' : 'learn'} onChange={chooseView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint">{hover||(wholeGuitar?'Drag to turn · Learn to play the frets':turnable?'Click between frets to play · drag to turn':'Click between frets to play · ○ open string')}</span></span></div>
   </div>;
 }

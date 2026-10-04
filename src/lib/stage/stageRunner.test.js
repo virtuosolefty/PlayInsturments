@@ -35,6 +35,7 @@ function fakeStudio() {
     fitGround: box => { studio.grounds.push(box); },
     refreshShadow: vi.fn(),
     resetGround: vi.fn(),
+    prepare: vi.fn(),
     dispose: vi.fn(),
   };
   return studio;
@@ -108,6 +109,18 @@ describe('holding the stage for a model on its way', () => {
     pump(1);
     expect(studio.renders).toBe(1);
     expect(el.dataset.stageModel).toBe('violin');
+    run.stop();
+  });
+
+  it('labels nothing while it holds the stage, and labels the instrument once it shows', () => {
+    const el = stageElement(), studio = fakeStudio(), setLabels = vi.fn();
+    const latest = { current: { view: 'lesson', closeUp: false, flip: 1 } };
+    const hooks = { paint: () => ({ changed: false, relabel: false }), labels: () => [{ kind: 'string', text: 'E2' }] };
+    const run = runStage(el, studio, { latest, maxFret: 12, hooks, setLabels, setTurned: vi.fn(), setTurnable: vi.fn(), controls: { current: null }, rig: rig(), hold: 1500 });
+    pump(10);
+    expect(setLabels.mock.calls.every(([labels]) => labels.length === 0)).toBe(true);
+    pump(100);
+    expect(setLabels).toHaveBeenLastCalledWith([{ kind: 'string', text: 'E2' }]);
     run.stop();
   });
 
@@ -200,6 +213,16 @@ describe('looking after the stage', () => {
     const { run } = open({ first });
     run.swap(rig());
     expect(geometry.dispose).toHaveBeenCalled();
+    run.stop();
+  });
+
+  it('readies an instrument to draw without putting it on stage', () => {
+    const model = rig({ showcase: SHOWCASE, model: 'guitar' });
+    const { studio, run, el } = open();
+    run.prepare(model);
+    expect(studio.prepare).toHaveBeenCalledWith(model.instrument);
+    expect(studio.scene.add).not.toHaveBeenCalledWith(model.instrument);
+    expect(el.dataset.stageModel).toBe('drawn');
     run.stop();
   });
 
