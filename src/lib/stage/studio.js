@@ -148,6 +148,11 @@ function furnish(el, renderer, { daylight, quality }) {
   const key = addLights(scene, look, daylight);
   if (environment) { scene.environment = environment.texture; scene.environmentIntensity = look.environment; }
   const floor = addFloor(scene, owned, daylight);
+  // The floor and shadow as the guitar built in code needs them, to go back to after a model has moved them.
+  const groundAsBuilt = {
+    floor: { position: floor.position.clone(), scale: floor.scale.clone() },
+    key: { position: key.position.clone(), target: key.target.position.clone(), shadow: Object.fromEntries(['left', 'right', 'top', 'bottom', 'near', 'far'].map(side => [side, key.shadow.camera[side]])) },
+  };
   const ray = new Raycaster(), pointer = new Vector2(), point = new Vector3();
 
   // A whole-model shot is solved iteratively, so its pose is kept per shot until the stage's shape, bars or hand change.
@@ -217,6 +222,20 @@ function furnish(el, renderer, { daylight, quality }) {
     currentPose: () => lastPose,
 
     /**
+     * Gets `object` ready to draw before it is first shown: compiles its
+     * shaders for this scene's lights and environment, and uploads its
+     * textures. The frame that first shows it then has neither to wait for.
+     */
+    prepare(object) {
+      renderer.compile(object, camera, scene);
+      object.traverse(node => {
+        for (const material of [node.material ?? []].flat()) {
+          for (const value of Object.values(material)) if (value?.isTexture) renderer.initTexture(value);
+        }
+      });
+    },
+
+    /**
      * How far the view may turn on this stage: `view.turn`, shrunk so every
      * point of `keep` stays on screen and within `bounds`. Null where the view
      * cannot be turned, or while the stage has no size.
@@ -233,6 +252,18 @@ function furnish(el, renderer, { daylight, quality }) {
     /** Lays the floor and fits the shadow under an instrument whose bounds are `box`; until called, they suit the guitar built in code. */
     fitGround(box) {
       fitGround({ floor, key }, box);
+      renderer.shadowMap.needsUpdate = true;
+    },
+
+    /** Puts the floor and shadow back as they were built, for an instrument that does not fit its own (the guitar built in code). */
+    resetGround() {
+      floor.position.copy(groundAsBuilt.floor.position);
+      floor.scale.copy(groundAsBuilt.floor.scale);
+      key.position.copy(groundAsBuilt.key.position);
+      key.target.position.copy(groundAsBuilt.key.target);
+      key.target.updateMatrixWorld();
+      Object.assign(key.shadow.camera, groundAsBuilt.key.shadow);
+      key.shadow.camera.updateProjectionMatrix();
       renderer.shadowMap.needsUpdate = true;
     },
 

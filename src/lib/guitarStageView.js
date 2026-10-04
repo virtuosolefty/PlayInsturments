@@ -38,6 +38,10 @@ export function dotLook(state, { verdict, root = false } = {}) {
 export const STRING_LABEL_INSET = 28;
 /** String names are drawn no larger than this, whatever the chosen text size. */
 export const STRING_FONT_MAX = 13;
+/** A string name moved further than this off its string, to make room, gets a leader back to it. */
+const LEADER_AFTER = 3;
+/** Leaders start this far clear of the name. */
+const LEADER_GAP = 4;
 /** Fret numbers worth keeping when they cannot all fit: the first, the octave and the inlay frets, in that order. */
 const FRET_PRIORITY = [1, 12, 5, 7, 3, 9];
 const EPSILON = 1e-9;
@@ -104,18 +108,41 @@ function fittingFrets(frets, fontSize) {
 }
 
 /**
- * The string names, spread apart where the strings are too close together at
- * the nut for their names to fit, and kept inside `band` (stage pixels clear of
- * the chord name above and the legend below) when one is given.
+ * The leader from beside a string name at (x, y) to its string at the nut, or
+ * null where none is wanted: the name is level with its string, the string
+ * did not project, or its nut is behind the name (the instrument turned far
+ * round), where a leader would run back through the name.
  */
-function spreadStrings(strings, fontSize, band) {
-  const order = strings.map((label, i) => i).sort((a, b) => strings[a].y - strings[b].y);
-  const gap = Math.min(fontSize, STRING_FONT_MAX) + 2;
-  const spread = spreadApart(order.map(i => strings[i].y), gap);
+function leaderFor({ text, number, y: level, to }, { x, y, size, toward }) {
+  if (Math.abs(y - level) <= LEADER_AFTER || !Number.isFinite(to?.x) || !Number.isFinite(to?.y)) return null;
+  const fromX = x + toward * (labelWidth(`${number} ${text}`, size) / 2 + LEADER_GAP);
+  if ((to.x - fromX) * toward <= 0) return null;
+  return { from: { x: fromX, y }, to: { x: to.x, y: to.y } };
+}
+
+/**
+ * The string names in a column at the stage's edge: spread apart where the
+ * strings are too close together at the nut for their names to fit, kept
+ * inside `band` (stage pixels clear of the bars above and below) when one is
+ * given, and tied back to their strings by a leader where that moved them off.
+ *
+ * @param {{ text: string, number: number, y: number, to: { x: number, y: number } }[]} names
+ *   each name level with its string (`y`), and where that string leaves the nut (`to`)
+ * @param {object} column
+ * @param {number} column.x the column's centre
+ * @param {number} column.fontSize the chosen text size; names are drawn no larger than STRING_FONT_MAX
+ * @param {{ top: number, bottom: number }|null} [column.band]
+ * @param {1|-1} [column.toward] which way the strings lie from the names: 1 to the right
+ * @returns {object[]} the names, placed, each with its `leader` ({ from, to } or null)
+ */
+export function stringColumn(names, { x, fontSize, band = null, toward = 1 }) {
+  const size = Math.min(fontSize, STRING_FONT_MAX), gap = size + 2;
+  const order = names.map((_, i) => i).sort((a, b) => names[a].y - names[b].y);
+  const spread = spreadApart(order.map(i => names[i].y), gap);
   const ys = band ? fitColumn(spread, band, gap / 2) : spread;
-  const moved = [...strings];
-  order.forEach((i, k) => { moved[i] = { ...strings[i], y: ys[k] }; });
-  return moved;
+  const placed = [...names];
+  order.forEach((i, k) => { placed[i] = { ...names[i], x, y: ys[k], leader: leaderFor(names[i], { x, y: ys[k], size, toward }) }; });
+  return placed;
 }
 
 /**
@@ -132,16 +159,17 @@ function spreadStrings(strings, fontSize, band) {
  * @param {{ top: number, bottom: number }|null} [view.stringBand] stage pixels the string names must stay between
  * @param {object} [view.neck] where the guitar shown puts its strings and labels (guitarNeck.js)
  * @param {boolean} [view.stringNames] false where the nut is too far off for names pinned to the stage's edge to line up with it
- * @returns {{ text: string, x: number, y: number, kind: 'string'|'fret'|'finger'|'muted', root: boolean }[]}
+ * @returns {{ text: string, x: number, y: number, kind: 'string'|'fret'|'finger'|'muted', root: boolean, number?: number, leader?: object|null }[]}
+ *   string names also carry their tablature number and their leader (see `stringColumn`)
  */
 export function stageLabels({ project, width, maxFret, chord = null, labelMode = 'fingers', leftHanded = false, fontSize = 14, stringBand = null, neck = DRAWN_NECK, stringNames = true }) {
   // A stored text size that is not a number would turn every gap into NaN; use the standard size instead.
   const size = Number.isFinite(fontSize) ? fontSize : 14;
   const label = (text, x, at, kind, root = false) => ({ text, ...project(x, at.y, at.z), kind, root });
-  const strings = !stringNames ? [] : spreadStrings(GUITAR_TUNING.map((pitch, s) => ({
-    ...label(noteName(pitch), neck.nutX, neck.labelAt('string', s, neck.nutX), 'string'),
-    x: leftHanded ? width - STRING_LABEL_INSET : STRING_LABEL_INSET,
-  })), size, stringBand);
+  const strings = !stringNames ? [] : stringColumn(GUITAR_TUNING.map((pitch, s) => {
+    const wire = neck.stringAt(s, neck.nutX);
+    return { ...label(noteName(pitch), neck.nutX, neck.labelAt('string', s, neck.nutX), 'string'), number: STRING_COUNT - s, to: project(neck.nutX, wire.y, wire.z) };
+  }), { x: leftHanded ? width - STRING_LABEL_INSET : STRING_LABEL_INSET, fontSize: size, band: stringBand, toward: leftHanded ? -1 : 1 });
   const frets = fittingFrets(Array.from({ length: maxFret }, (_, i) => label(String(i + 1), fretSpace(i + 1).x, neck.fretLabelAt(fretSpace(i + 1).x), 'fret')), size);
   const fingers = !chord ? [] : Array.from({ length: STRING_COUNT }, (_, s) => s).flatMap(s => {
     const fret = chord.frets[s];

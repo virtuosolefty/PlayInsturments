@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings, noteInstruction } from './learning.js';
+import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings, noteInstruction, lessonReady } from './learning.js';
 import { pathState, dailySet, STAGES } from './path.js';
 import { GUITAR_PATH_STAGES, GUITAR_STUDIES } from './guitar.js';
 const run = (stars=4, mode='practice',rate=1) => ({stars,mode,rate});
@@ -46,6 +46,29 @@ describe('beginner learning rules', () => {
     expect(comfortableRate(.65)).toBe(.75);expect(comfortableRate(.95)).toBe(1);
     expect(lessonSettings('check',.65)).toMatchObject({mode:'practice',rate:1,loop:null,referenceAudio:false});
     expect(lessonSettings('follow',.65)).toMatchObject({mode:'wait',rate:.65});
+  });
+});
+
+describe('when a lesson is ready to play', () => {
+  const lesson = { id: 'path-01-home-five-right' };
+  const ready = (state = {}) => lessonReady({ active: true, lesson, loading: false, error: null, score: { id: lesson.id }, ...state });
+
+  it('is ready once the lesson’s own score is showing', () => {
+    expect(ready()).toBe(true);
+  });
+
+  it('is not ready before the lesson itself is known, while the library is still loading', () => {
+    // No lesson and no score yet: two missing ids must not count as a match.
+    expect(ready({ lesson: undefined, score: undefined })).toBe(false);
+    expect(ready({ lesson: undefined, score: null })).toBe(false);
+  });
+
+  it('is not ready while loading, after an error, outside a lesson, or with another piece showing', () => {
+    expect(ready({ loading: true })).toBe(false);
+    expect(ready({ error: 'The lesson could not load.' })).toBe(false);
+    expect(ready({ active: false })).toBe(false);
+    expect(ready({ score: { id: 'something-else' } })).toBe(false);
+    expect(ready({ score: undefined })).toBe(false);
   });
 });
 

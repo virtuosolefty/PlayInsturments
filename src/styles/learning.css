@@ -83,6 +83,14 @@
 .first-note-target > button { font-size: 13px; width: 100%; min-height: 42px; }
 .first-note-target > small { display: block; font-size: 12px; line-height: 1.7; color: var(--text-dim); margin-top: 10px; }
 .lesson-target p { font-size: 13px; margin-bottom: 0; }
+/* The computer key that plays the note on the piano. A touch screen has no keys to press, so it is left out there. */
+.first-note-target > .lesson-key, .lesson-target > .lesson-key { display: flex; align-items: center; gap: 8px; margin: -4px 0 14px; font-size: 12px; letter-spacing: 0; color: var(--text-dim); }
+.lesson-guide .first-note-target .lesson-key kbd, .lesson-guide .lesson-target .lesson-key kbd { min-width: 30px; padding: 5px 8px 4px; text-align: center; font: 700 15px/1 var(--mono); color: var(--text); background: var(--bg-1); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; }
+@media (hover: none) { .first-note-target > .lesson-key, .lesson-target > .lesson-key { display: none; } }
+/* How much of the phrase is found; the count under it says the same in words. */
+.lesson-progress { height: 6px; margin: 2px 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, transparent); overflow: hidden; }
+.lesson-progress i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .3s ease; }
+@media (prefers-reduced-motion: reduce) { .lesson-progress i { transition: none; } }
 .lesson-tempo { margin: 24px 0; }
 .lesson-tempo label { display: flex; justify-content: space-between; font-size: 13px; }
 .lesson-tempo input { width: 100%; margin: 14px 0; }

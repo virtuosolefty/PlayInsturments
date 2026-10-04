@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GUITAR_CHORDS } from './guitar.js';
-import { fretSpace, modelNeck, NUT_X, OPEN_SPACE, stringZ } from './guitarNeck.js';
-import { dotLook, fitColumn, hoverText, spreadApart, stageLabels, STRING_LABEL_INSET } from './guitarStageView.js';
+import { DRAWN_NECK, fretSpace, modelNeck, NUT_X, OPEN_SPACE, stringZ } from './guitarNeck.js';
+import { dotLook, fitColumn, hoverText, spreadApart, stageLabels, stringColumn, STRING_LABEL_INSET } from './guitarStageView.js';
 
 // A stand-in for the camera. Every coordinate moves the result, so a label anchored at the
 // wrong place along the neck, at the wrong height or on the wrong string lands somewhere else.
@@ -62,9 +62,11 @@ describe('markers on the guitar stage', () => {
 });
 
 describe('labels on the guitar stage', () => {
-  it('names the six strings at the nut, pinned to the near edge', () => {
+  it('names and numbers the six strings at the nut, pinned to the near edge', () => {
     const strings = of(labels(), 'string');
     expect(strings.map(l => l.text)).toEqual(['E2', 'A2', 'D3', 'G3', 'B3', 'E4']);
+    // Numbered as tablature does, from the high E.
+    expect(strings.map(l => l.number)).toEqual([6, 5, 4, 3, 2, 1]);
     strings.forEach((l, s) => {
       expect(l.x).toBe(STRING_LABEL_INSET);
       expect(l.y).toBeCloseTo(project(NUT_X, 0.3, stringZ(s)).y);
@@ -185,10 +187,27 @@ describe('labels on a cramped stage', () => {
     }
   });
 
+  it('ties each string name it moved back to its string, where the string leaves the nut', () => {
+    for (const leftHanded of [false, true]) {
+      of(crowded({ leftHanded }), 'string').forEach((l, s) => {
+        const at = DRAWN_NECK.stringAt(s, NUT_X);
+        expect(l.leader.to).toEqual(tiny(NUT_X, at.y, at.z));
+        expect(l.leader.from.y).toBe(l.y);
+        // From beside the name, on the side the strings are.
+        if (leftHanded) expect(l.leader.from.x).toBeLessThan(l.x - 12);
+        else expect(l.leader.from.x).toBeGreaterThan(l.x + 12);
+      });
+    }
+  });
+
   it('leaves a roomy stage exactly as it was: every string name on its string, all twelve fret numbers', () => {
     for (const fontSize of [14, 18]) {
       const roomy = stageLabels({ project, width: 1000, maxFret: 12, fontSize, stringBand: { top: 0, bottom: 300 } });
-      of(roomy, 'string').forEach((l, s) => expect(l.y).toBe(project(NUT_X, 0.3, stringZ(s)).y));
+      of(roomy, 'string').forEach((l, s) => {
+        expect(l.y).toBe(project(NUT_X, 0.3, stringZ(s)).y);
+        // Level with its string, a name needs no leader.
+        expect(l.leader).toBeNull();
+      });
       expect(of(roomy, 'fret').map(l => l.text)).toEqual(Array.from({ length: 12 }, (_, i) => String(i + 1)));
     }
   });
@@ -220,6 +239,46 @@ describe('labels on a cramped stage', () => {
     const list = crowded({ fontSize: 'large' });
     expect(list.every(l => Number.isFinite(l.x) && Number.isFinite(l.y))).toBe(true);
     expect(list).toEqual(crowded({ fontSize: 14 }));
+  });
+});
+
+describe('a column of string names', () => {
+  const name = (y, to) => ({ text: 'E4', number: 1, kind: 'string', y, to });
+  const column = (names, options = {}) => stringColumn(names, { x: 28, fontSize: 13, ...options });
+
+  it('pins the names to the column and leaves those level with their string without a leader', () => {
+    const placed = column([name(100, { x: 300, y: 104 }), name(140, { x: 300, y: 144 })]);
+    expect(placed.map(l => [l.x, l.y, l.leader])).toEqual([[28, 100, null], [28, 140, null]]);
+  });
+
+  it('ties a name it moved off its string back to the string, the leader starting beside the name', () => {
+    const placed = column([name(100, { x: 300, y: 102 }), name(104, { x: 300, y: 106 })]);
+    placed.forEach((l, i) => {
+      expect(l.leader.from.y).toBe(l.y);
+      expect(l.leader.from.x).toBeGreaterThan(l.x + 12);
+      expect(l.leader.to).toEqual({ x: 300, y: [102, 106][i] });
+    });
+    expect(placed[0].leader.from.x).toBe(placed[1].leader.from.x);
+  });
+
+  it('runs the leaders the other way when the strings lie to the left of the names', () => {
+    const placed = column([name(100, { x: 600, y: 102 }), name(104, { x: 600, y: 106 })], { x: 972, toward: -1 });
+    placed.forEach(l => {
+      expect(l.leader.from.x).toBeLessThan(l.x - 12);
+      expect(l.leader.to.x).toBe(600);
+    });
+  });
+
+  it('draws no leader back through a name, nor to a string that did not project', () => {
+    const placed = column([name(100, { x: 20, y: 102 }), name(104, { x: Number.NaN, y: 106 })]);
+    expect(placed.map(l => l.leader)).toEqual([null, null]);
+  });
+
+  it('does not change the names it was given', () => {
+    const names = [name(100, { x: 300, y: 102 }), name(104, { x: 300, y: 106 })];
+    const before = structuredClone(names);
+    column(names);
+    expect(names).toEqual(before);
   });
 });
 

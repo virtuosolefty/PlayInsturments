@@ -1,5 +1,5 @@
 import { BOWED_TAPES } from './bowed.js';
-import { fitColumn, spreadApart, STRING_FONT_MAX, STRING_LABEL_INSET } from './guitarStageView.js';
+import { stringColumn, STRING_LABEL_INSET } from './guitarStageView.js';
 import { noteName } from './theory.js';
 
 /**
@@ -31,20 +31,11 @@ export function markerText(kit, { string, fret }, labelMode) {
   return finger == null ? note : String(finger);
 }
 
-/** The string names in a column at the near edge, moved apart where the strings are too close for them, and kept inside `band`. */
-function nameColumn(names, fontSize, band) {
-  const order = names.map((_, i) => i).sort((a, b) => names[a].y - names[b].y);
-  const gap = Math.min(fontSize, STRING_FONT_MAX) + 2;
-  const spread = spreadApart(order.map(i => names[i].y), gap);
-  const ys = band ? fitColumn(spread, band, gap / 2) : spread;
-  const placed = [...names];
-  order.forEach((i, k) => { placed[i] = { ...names[i], x: STRING_LABEL_INSET, y: ys[k] }; });
-  return placed;
-}
-
 /**
- * Every text label the bowed stage overlays: the string names at the nut, the
- * finger number over each tape, and the finger or note on each marker showing.
+ * Every text label the bowed stage overlays: the string names at the nut
+ * (number and pitch, tied back to their string where they had to move off it;
+ * see guitarStageView.js `stringColumn`), the finger number over each tape,
+ * and the finger or note on each marker showing.
  *
  * @param {object} view
  * @param {(x: number, y: number, z: number) => { x: number, y: number }} view.project instrument units to stage pixels
@@ -62,10 +53,10 @@ function nameColumn(names, fontSize, band) {
 export function bowedLabels({ project, width, kit, neck, maxFret, markers = [], labelMode = 'fingers', fontSize = 14, stringBand = null }) {
   void width;
   const size = Number.isFinite(fontSize) ? fontSize : 14;
-  const names = nameColumn(kit.tuning.map((_, s) => {
+  const names = stringColumn(kit.tuning.map((pitch, s) => {
     const at = neck.stringAt(s, neck.nutX);
-    return { text: kit.stringName(s).note, ...project(neck.nutX, at.y + NAME_LIFT, at.z), kind: 'string' };
-  }), size, stringBand);
+    return { text: noteName(pitch), number: kit.stringName(s).number, ...project(neck.nutX, at.y + NAME_LIFT, at.z), kind: 'string', to: project(neck.nutX, at.y, at.z) };
+  }), { x: STRING_LABEL_INSET, fontSize: size, band: stringBand });
   const tapes = (BOWED_TAPES[kit.id] ?? []).filter(tape => tape.fret <= maxFret).map(tape => {
     const x = neck.placeX(tape.fret), at = neck.tapeLabelAt(x);
     return { text: String(tape.finger), ...project(x, at.y, at.z), kind: 'tape' };

@@ -72,9 +72,10 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
     rig.orient(stance);
     studio.refreshShadow();
   };
-  // The whole instrument is too small to label legibly, and labels would trail behind a moving camera.
+  // The whole instrument is too small to label legibly, labels would trail behind a moving camera, and a held stage
+  // shows nothing for them to label.
   const updateLabels = () => {
-    if (!rig || showcasing() || move) { setLabels(NO_LABELS); return; }
+    if (!rig || showcasing() || move || holdUntil) { setLabels(NO_LABELS); return; }
     setLabels(hooks.labels(rig, { project: studio.projector(rig.instrument), width: el.clientWidth, edges, stringBand: stringBandOf(edges) }));
   };
   const resize = () => {
@@ -86,9 +87,13 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
   };
   const aim = () => { if (rig && studio.aim(shot(), framing())) { dirty = true; updateLabels(); } };
 
-  /** Lays the floor and its shadow under the instrument as it stands, mirrored with it for a left-handed player. */
+  /**
+   * Lays the floor and its shadow under the instrument as it stands, mirrored
+   * with it for a left-handed player; an instrument with no ground of its own
+   * gets the floor the studio was built with.
+   */
   const fitFloor = () => {
-    if (!rig?.ground) return;
+    if (!rig?.ground) { studio.resetGround(); return; }
     const { min, max } = rig.ground;
     studio.fitGround(shownFlip < 0 ? { min: [-max[0], min[1], min[2]], max: [-min[0], max[1], max[2]] } : rig.ground);
   };
@@ -157,7 +162,7 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
     painted = true;
     if (painting.relabel && !move) updateLabels();
     dirty ||= painting.changed;
-    if (holdUntil && now >= holdUntil) holdUntil = 0;
+    if (holdUntil && now >= holdUntil) { holdUntil = 0; updateLabels(); }
     if ((dirty || now < warmUntil) && !document.hidden && !holdUntil) {
       studio.render();
       const ratio = drewLast && now >= warmUntil ? pacer.sample(stamp - lastStamp) : null;
@@ -173,14 +178,22 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
     holdUntil = 0;
     warmUntil = performance.now() + WARM_UP_MS;
     dirty = true;
+    updateLabels();
   };
+  // Rigs kept off stage by `show`, to be shown again later and handed back when the stage stops.
+  const kept = new Set();
   /**
-   * Puts `next` on stage in place of the rig there now, which is disposed,
-   * and ends any hold: the instrument the hold was waiting for has come. The
-   * first rig a stage opens with goes on stage without ending its hold.
+   * Puts `next` on stage in place of the rig there now, and ends any hold:
+   * the instrument the hold was waiting for has come. The rig it replaces is
+   * disposed, unless `keep` is set: then it stays ready to be shown again.
+   * The first rig a stage opens with goes on stage without ending its hold.
    */
-  const swap = (next, { first: opening = false } = {}) => {
-    if (rig) { studio.scene.remove(rig.instrument); disposeResources(rig.owned); }
+  const swap = (next, { first: opening = false, keep = false } = {}) => {
+    if (rig && rig !== next) {
+      studio.scene.remove(rig.instrument);
+      if (keep) kept.add(rig); else disposeResources(rig.owned);
+    }
+    kept.delete(next);
     rig = next;
     stood = null;
     rig.instrument.scale.x = shownFlip;
@@ -201,6 +214,10 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
   frame = requestAnimationFrame(draw);
   return {
     swap: next => swap(next),
+    /** Puts `next` on stage and keeps the rig there now for later, as when a stage switches between two instruments. */
+    show: next => swap(next, { keep: true }),
+    /** Gets `next` ready to draw before it is first shown, so that frame does not stall (see studio.js `prepare`). */
+    prepare: next => studio.prepare(next.instrument),
     release,
     /** The place under a pointer event, or null. */
     placeAt: event => (rig ? studio.pick(event, rig.targets)?.userData ?? null : null),
@@ -214,7 +231,8 @@ export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTur
       document.removeEventListener('visibilitychange', wake);
       table.stop();
       controls.current = null;
-      if (rig) disposeResources(rig.owned);
+      for (const each of new Set([rig, ...kept])) if (each) disposeResources(each.owned);
+      kept.clear();
       studio.dispose();
     },
   };

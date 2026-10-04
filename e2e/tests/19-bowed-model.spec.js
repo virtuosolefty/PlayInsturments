@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * The downloaded violin and cello on the full stage: lessons lay them across
- * the stage with tapes and finger numbers (concepts V3, C3); free play shows
- * them whole (V1, C1) and swings in close to play. The light stage, and any
- * stage whose model cannot be loaded, keeps the 2D fingerboard.
+ * The downloaded violin and cello on the full stage: lessons, and free play's
+ * Learn view, lay them across the stage with tapes and finger numbers
+ * (concepts V3, C3); free play's Whole instrument view shows all of them (V1,
+ * C1). The light stage, and any stage whose model cannot be loaded, keeps the
+ * 2D fingerboard.
  *
  * Headless Chromium draws the full stage in software at a frame or two a
  * second, so the full-stage tests are marked slow.
@@ -13,7 +14,7 @@ import { test, expect } from '@playwright/test';
 const stage = page => page.locator('.bowed-stage-3d');
 const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
 const labels = (page, kind) => stage(page).locator(`.guitar-position-label${kind ? `.${kind}` : ''}`);
-const closeUp = page => page.getByRole('button', { name: 'Close-up', exact: true });
+const viewButton = (page, name) => page.getByRole('group', { name: 'Stage view' }).getByRole('button', { name, exact: true });
 const notes = page => page.evaluate(() => window.__notes.map(m => `${m.type}:${m.midi}`));
 
 async function open(page, instrument, stageQuality) {
@@ -37,17 +38,21 @@ test('on the full stage the violin is the downloaded model, mapped for lessons a
   const errors = collectErrors(page);
   await open(page, 'violin', 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-model', 'violin', { timeout: 60_000 });
-  // V3: string names, highest first down the edge, and a number over each first-position tape.
-  await expect(labels(page, 'string')).toHaveText(['G', 'D', 'A', 'E'], { timeout: 30_000 });
+  // V3: string names down the edge, each with its number and octave, and a number over each first-position tape.
+  await expect(labels(page, 'string')).toHaveText(['4 G3', '3 D4', '2 A4', '1 E5'], { timeout: 30_000 });
   await expect(labels(page, 'tape')).toHaveText(['1', '2', '3', '4']);
   // The open G is the lesson's first note.
   await expect(stage(page)).toHaveAttribute('data-target-positions', '1');
 
   await workspace(page, 'Free play');
-  await expect(closeUp(page)).toHaveAttribute('aria-pressed', 'false', { timeout: 30_000 });
+  // Free play opens on Learn: the D major scale's eight places, labelled with their fingers.
+  await expect(viewButton(page, 'Learn')).toHaveAttribute('aria-pressed', 'true', { timeout: 30_000 });
+  await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
+  // The whole violin is too small to label.
+  await viewButton(page, 'Whole instrument').click();
+  await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
   await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
-  await closeUp(page).click();
-  // The D major scale's eight places, labelled with their fingers.
+  await viewButton(page, 'Learn').click();
   await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
   expect(errors).toEqual([]);
 });

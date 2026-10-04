@@ -4,7 +4,7 @@ The plan this belongs to is [STRINGS_3D_PLAN.md](../design/strings-3d-plan.md), 
 
 ## Delivered
 
-- **Guitar** in lessons (G3: the neck straight across) and free play (G1: the whole guitar from three-quarters, turnable, with a Close-up for playing). The light tier keeps the guitar built in code, unchanged.
+- **Guitar** in lessons (G3: the neck straight across) and free play (G1: the whole guitar from three-quarters, turnable, with a Close-up for playing; revision 7 below replaces the Close-up). The light tier keeps the guitar built in code, unchanged.
 - **Violin and cello** in lessons (V3, C3: scroll on the left, highest string on top, tapes, numbered markers) and free play (V1: the violin from three-quarters; C1: the cello standing on its endpin). Both are turnable and have a Close-up, and the cello lies down as the camera swings in. A bow built in code rests on the sounding string and travels while it sounds. The light tier keeps the 2D fingerboard. So does any stage whose model or graphics fail.
 - **Press and hold to bow** on the 3D neck, drag to slide, release to stop, as on the 2D fingerboard. The 2D fingerboard stays under the 3D stage as a keyboard-accessible panel.
 - **Credits** for the three CC BY 4.0 models, in the Help dialog and in [CREDITS.md](../../CREDITS.md).
@@ -69,8 +69,48 @@ In [models/](models), all on the real GPU at 1440 × 900 (one at phone width):
 | Cello | `cello-free-upright-dark.png`, `cello-free-upright-light.png`, `cello-free-closeup-dark.png`, `cello-lesson-dark.png` |
 | Whole page | `page-guitar-free-play.png`, `page-violin-free-play.png` (a note held, the bow on the D string), `page-violin-lesson.png`, `page-cello-free-play.png` |
 
+## Revision 7: Learn | Whole instrument (3 October 2026, later)
+
+What changed, as the plan's revision 7 records it:
+
+- Free play's stage has a **Learn | Whole instrument** switch in place of Close-up, and opens on Learn. Lessons have no switch.
+- The guitar built in code plays in lessons and in Learn; the downloaded guitar shows only in Whole instrument. It is fetched the first time free play opens at full detail, never for a lesson, and both guitars stay loaded. If the model cannot be loaded, the switch goes away.
+- String names show number and pitch (6 E2 … 1 E4; violin 4 G3 … 1 E5; cello 4 C2 … 1 A3). A name moved off its string to make room gets a leader back to the string at the nut.
+- The piano lesson's next-note card shows the computer key for the note at the chosen keyboard octave, and a progress bar; the first-note card shows the key.
+- Fixed: opening the app on a lesson's first-note step crashed it ("Cannot read properties of undefined (reading 'name')"). Before the piano library loaded, a missing lesson and a missing score counted as a match, so the lesson looked ready.
+
+Checks:
+
+- `npm test`: 909 tests pass across 62 files. New: the runner keeping an instrument it takes off and resetting the floor for one without its own, the string column and its leaders (including left-handed and a nut behind the name), the next-note card, and when a lesson counts as ready.
+- Browser specs, headless Chromium: 10, 15, 16, 17, 18 and 19 pass, 32 of 32; 08, 12, 13 and 14 pass, 33 of 33. Specs 18 and 19 now check the switch, which guitar each view shows, that a lesson does not fetch the guitar model, and the new string names.
+- On the real GPU (screenshots below): both guitars in their views, violin and cello in both views, leaders on a phone in both themes, and the piano cards at keyboard octaves 0 and 1 (F4 is F at octave 0; D4 is X at octave 1).
+
+Screenshots in [stage-views/](stage-views):
+
+| | |
+| --- | --- |
+| Guitar | `guitar-learn-dark.png`, `guitar-whole-dark.png`, `guitar-learn-phone-dark.png`, `guitar-learn-phone-light.png`, `guitar-learn-phone-360-turned-dark.png` (turned, with Reset view as its icon), `guitar-model-failed-dark.png` (the model blocked) |
+| Violin and cello | `violin-learn-dark.png`, `violin-learn-phone-dark.png`, `cello-learn-phone-light.png`, `cello-whole-dark.png` |
+| Piano lesson | `piano-next-note-dark.png`, `piano-next-note-light.png`, `piano-first-note-dark.png` |
+
+The screenshots listed earlier, under Screenshots, show revision 6: there the lesson and the close-up used the downloaded guitar.
+
+### Code review of revision 7
+
+A review found no critical problems. It ran the unit tests and specs 10 and 15 to 19, and probed the stages in a browser, counting WebGL objects through repeated switches and stops; nothing leaked. It found these, all now fixed:
+
+- **High: phones.** The two-way switch was wider than the Close-up button it replaced. At 390 px Reset view was pushed off the stage, and at 360 px the switch itself was cut off. On a phone the second button now says "Whole" and Reset view is its icon, and the bar takes a second line on the narrowest phones rather than cut a button off. Measured: at 390 and 360 px everything fits on one line with 12 px to spare. A new test in spec 18 turns the view at both widths and checks.
+- **The first switch to Whole instrument stalled** for 0.6 to 1.2 s while the model's shaders compiled and its textures uploaded. The model is now readied while Learn shows; the worst frame on the first switch was 83, 33 and 17 ms in three runs.
+- **Loading and failure were silent, and focus was lost.** While the model is on its way the stage says "Preparing the 3D guitar…"; if it cannot be loaded, the stage says so and the switch stays, so focus stays on it, and Whole instrument tries again.
+- **The new loading logic had no unit tests.** It moved to `src/lib/guitarViews.js` with twelve tests; the switch, Reset view, the labels and `useStageView` have their own.
+- Smaller: free play now always reopens on Learn; a stage rebuilt in the Whole instrument view waits for the model, with no labels, instead of flashing the drawn guitar; two dead branches in the runner went.
+
+Not changed: the stage's "Learn" button shares its word with the header's Learn | Free play switch. The stage's buttons sit in a group named "Stage view", which tells them apart for assistive technology, and the words are the ones asked for.
+
+After the fixes: `npm test` passes 930 tests across 64 files. Browser specs 10 and 15 to 19 pass, 34 of 34, with the two new phone tests; 08, 12, 13 and 14 pass, 33 of 33.
+
 ## Known limits
 
 - The guitar file is above the 1.5 MB target; its tuners are 49,000 triangles.
-- The real proportions put the strings close together at the nut. On a phone the close-up's targets are small; the 2D buttons stay one click away.
+- The real proportions put the strings close together at the nut. On a phone the Learn view's targets are small; the 2D buttons stay one click away.
 - In lessons the violin and cello maps reach from the scroll to just past the last visible place, so the bridge and the bow are off stage; free play shows them.

@@ -50,6 +50,16 @@ export function lessonCanVisit(step, record) {
   return !!record.practised;
 }
 
+/**
+ * Whether a lesson's own score is loaded and showing, so its steps can be
+ * played. Nothing is ready before the lesson itself is known: the piano
+ * library loads after the page does, and a missing lesson and a missing score
+ * must not count as a match.
+ */
+export function lessonReady({ active, lesson, loading, error, score }) {
+  return !!(active && lesson && !loading && !error && score?.id === lesson.id);
+}
+
 /** @param instrument an instrument id; `true` still means guitar for older callers */
 export function noteInstruction(note, instrument) {
   if (!note) return 'Preparing your first note…';
