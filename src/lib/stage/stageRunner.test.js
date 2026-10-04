@@ -34,6 +34,7 @@ function fakeStudio() {
     pick: () => null,
     fitGround: box => { studio.grounds.push(box); },
     refreshShadow: vi.fn(),
+    resetGround: vi.fn(),
     dispose: vi.fn(),
   };
   return studio;
@@ -200,5 +201,25 @@ describe('looking after the stage', () => {
     run.swap(rig());
     expect(geometry.dispose).toHaveBeenCalled();
     run.stop();
+  });
+
+  it('can show another instrument while keeping the first for later, and hands both back when it stops', () => {
+    const drawn = rig(), model = rig({ showcase: SHOWCASE, model: 'guitar' });
+    const [drawnGeometry] = drawn.owned.geometries, [modelGeometry] = model.owned.geometries;
+    const { studio, run, el } = open({ first: drawn });
+    run.show(model);
+    expect(drawnGeometry.dispose).not.toHaveBeenCalled();
+    expect(studio.scene.remove).toHaveBeenCalledWith(drawn.instrument);
+    expect(el.dataset.stageModel).toBe('guitar');
+    expect(studio.grounds.at(-1)).toEqual(SHOWCASE.box);
+    run.show(drawn);
+    expect(studio.scene.add).toHaveBeenLastCalledWith(drawn.instrument);
+    expect(el.dataset.stageModel).toBe('drawn');
+    // The model moved the floor down to its own body; the drawn guitar gets the floor the studio was built with.
+    expect(studio.resetGround).toHaveBeenCalled();
+    expect(modelGeometry.dispose).not.toHaveBeenCalled();
+    run.stop();
+    expect(drawnGeometry.dispose).toHaveBeenCalledTimes(1);
+    expect(modelGeometry.dispose).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { buildBowedRig } from '../lib/bowedRig.js';
 import { bowedLabels, placeText } from '../lib/bowedStageView.js';
-import { dotLook, STRING_FONT_MAX } from '../lib/guitarStageView.js';
+import { dotLook } from '../lib/guitarStageView.js';
 import { guitarFeedback } from '../lib/instrumentView.js';
 import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
 import { createStudio, disposeResources } from '../lib/stage/studio.js';
+import StageLabels from './StageLabels.jsx';
+import StageViewSwitch from './StageViewSwitch.jsx';
 
 const NO_POSITIONS = new Map();
 const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
@@ -162,11 +164,13 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
   const [turnable, setTurnable] = useState(false);
   const [resetFocused, setResetFocused] = useState(false);
   const [showcase, setShowcase] = useState(false);
-  const [closeUp, setCloseUp] = useState(false);
+  // Free play opens on Learn, the playable fingerboard map; Whole instrument shows all of it (the cello standing).
+  const [stageView, setStageView] = useState('learn');
+  const closeUp = stageView !== 'whole';
   const [ready, setReady] = useState(false);
   latest.current = { kit, engine, target, selection, activePositions, onBow, onLift, onUnavailable, labelMode, labelSize, view, closeUp, flip: 1 };
-  const offersCloseUp = view === 'freePlay' && showcase;
-  const whole = offersCloseUp && !closeUp;
+  const offersWhole = view === 'freePlay' && showcase;
+  const whole = offersWhole && !closeUp;
   const name = kit.label.toLowerCase();
   const resetView = event => {
     if (event.detail > 0) event.currentTarget.blur();
@@ -194,13 +198,13 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
   }, [kit.id, theme, quality, maxFret]);
   // The bowing stretch by the bridge is in view only when the whole instrument is.
   const hint = hover ? placeText(kit, hover)
-    : whole ? 'Drag to turn · hold by the bridge to bow an open string · Close-up for the finger places'
+    : whole ? 'Drag to turn · hold by the bridge to bow an open string · Learn for the finger places'
     : `Press and hold to bow · drag along a string to slide${turnable ? ' · drag the background to turn' : ''}`;
   return <div className="guitar-stage bowed-stage-3d" ref={host} role="group" aria-label={`Three-dimensional ${name}`} data-view={view}>
     <div className="guitar-stage-top"><div><strong>{kit.label}</strong><span>{selection ? 'First position · press and hold to bow' : `Tuned in fifths · ${kit.tuning.map((_, s) => kit.stringName(s).note).join(' ')}`}</span></div></div>
     {/* The labels only echo what the 2D finger buttons below say in full, so assistive technology is spared them. */}
-    {labels.map((label, i) => <span key={i} aria-hidden="true" className={`guitar-position-label ${label.kind}`} style={{ left: label.x, top: label.y, fontSize: label.kind === 'string' ? Math.min(labelSize, STRING_FONT_MAX) : labelSize }}>{label.text}</span>)}
+    <StageLabels labels={labels} labelSize={labelSize} decorative />
     {!ready && <div className="bowed-stage-preparing" role="status">Preparing your {name}…</div>}
-    <div className="guitar-stage-bottom"><span className="guitar-stage-legend"><i className="played" />Played <i className="next" />{target ? 'Next note' : 'Hover'}{selection && <><i className="root" />Scale</>}</span><span className="guitar-stage-end">{offersCloseUp && <button type="button" className="guitar-close-up" aria-pressed={closeUp} onClick={() => setCloseUp(on => !on)}>Close-up</button>}{turnable && (turned || resetFocused) && <button type="button" className="guitar-reset-view" aria-disabled={!turned} onFocus={() => setResetFocused(true)} onBlur={() => setResetFocused(false)} onClick={resetView}>Reset view</button>}<span className="guitar-stage-hint" role="status">{hint}</span></span></div>
+    <div className="guitar-stage-bottom"><span className="guitar-stage-legend"><i className="played" />Played <i className="next" />{target ? 'Next note' : 'Hover'}{selection && <><i className="root" />Scale</>}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={whole ? 'whole' : 'learn'} onChange={setStageView} />}{turnable && (turned || resetFocused) && <button type="button" className="guitar-reset-view" aria-disabled={!turned} onFocus={() => setResetFocused(true)} onBlur={() => setResetFocused(false)} onClick={resetView}>Reset view</button>}<span className="guitar-stage-hint" role="status">{hint}</span></span></div>
   </div>;
 }

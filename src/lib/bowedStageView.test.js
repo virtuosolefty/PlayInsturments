@@ -37,23 +37,33 @@ describe('what a marker on a bowed instrument says', () => {
 });
 
 describe('labels on the bowed stage', () => {
-  it('names the strings at the nut, lowest at the bottom, pinned to the near edge', () => {
+  it('names and numbers the strings at the nut, lowest at the bottom, pinned to the near edge', () => {
     const strings = of(labels({ fontSize: 6 }), 'string');
-    expect(strings.map(l => l.text)).toEqual(['G', 'D', 'A', 'E']);
+    expect(strings.map(l => l.text)).toEqual(['G3', 'D4', 'A4', 'E5']);
+    expect(strings.map(l => l.number)).toEqual([4, 3, 2, 1]);
     strings.forEach((l, s) => {
       expect(l.x).toBe(STRING_LABEL_INSET);
       const at = neck.stringAt(s, FIT.nutX);
       expect(l.y).toBeCloseTo(project(FIT.nutX, at.y + 0.1, at.z).y, 6);
+      // With room for every name beside its string, none needs a leader.
+      expect(l.leader).toBeNull();
     });
+    expect(of(bowedLabels({ project, width: 1200, kit: cello, neck, maxFret: 5, fontSize: 6 }), 'string').map(l => l.text)).toEqual(['C2', 'G2', 'D3', 'A3']);
     // Lowest string nearest the viewer, so lowest on screen.
     expect(strings[0].y).toBeGreaterThan(strings[3].y);
   });
 
-  it('keeps crowded string names apart', () => {
+  it('keeps crowded string names apart, each tied back to its string at the nut', () => {
     const tiny = (x, y, z) => ({ x: 300 + x * 9, y: 90 + z * 5 - y });
     const strings = of(bowedLabels({ project: tiny, width: 400, kit: violin, neck, maxFret: 7, fontSize: 14 }), 'string');
     const ys = strings.map(l => l.y).sort((a, b) => a - b);
     ys.slice(1).forEach((y, i) => expect(y - ys[i]).toBeGreaterThanOrEqual(15 - 1e-9));
+    strings.forEach((l, s) => {
+      const at = neck.stringAt(s, FIT.nutX);
+      expect(l.leader.to).toEqual(tiny(FIT.nutX, at.y, at.z));
+      expect(l.leader.from).toEqual({ x: expect.any(Number), y: l.y });
+      expect(l.leader.from.x).toBeGreaterThan(l.x);
+    });
   });
 
   it('numbers each visible tape with its finger, beyond the highest string', () => {

@@ -1,17 +1,25 @@
 # Strings in 3D — review and plan
 
-Guitar, violin and cello stages · 3 October 2026 · revision 6 · Phases 0, 1 and 3 built: the three downloaded models are on stage
+Guitar, violin and cello stages · 3 October 2026 · revision 7 · Phases 0, 1 and 3 built: the three downloaded models are on stage
 
-Revision 2 recorded three decisions (downloaded models, tab stays the lesson default with the highway as a view, no hand model) and checked every point against paid apps. Revision 3 chose the models. Revision 4 records Phase 0 as built. Revision 5 records the UI concepts chosen from the [realism study](https://claude.ai/artifact/FUJ5Rft2YbGwMGH9Ae1gJ2) and the parts of them built so far. Revision 6 records the guitar, violin and cello models on stage (Phases 1 and 3), a correction to C3, and a Close-up control that free play needed (see Chosen views).
+Revision 2 recorded three decisions (downloaded models, tab stays the lesson default with the highway as a view, no hand model) and checked every point against paid apps. Revision 3 chose the models. Revision 4 records Phase 0 as built. Revision 5 records the UI concepts chosen from the [realism study](https://claude.ai/artifact/FUJ5Rft2YbGwMGH9Ae1gJ2) and the parts of them built so far. Revision 6 records the guitar, violin and cello models on stage (Phases 1 and 3), a correction to C3, and a Close-up control that free play needed (see Chosen views). Revision 7 replaces that control with a **Learn | Whole instrument** switch, gives the two guitar views a guitar each, numbers the string names, and adds the computer key and a progress bar to the piano lesson's next-note card.
 
 ## Status
 
 | Phase | State |
 | --- | --- |
 | 0 — Shared stage kit | Built and verified, including model loading, the credits (Help dialog and `CREDITS.md`) and a shared stage runner (revision 6). |
-| 1 — Guitar model | Built. Full tier only; the light tier keeps the guitar built in code. |
+| 1 — Guitar model | Built. Full tier, in free play's Whole instrument view; lessons, free play's Learn view and the light tier use the guitar built in code (revision 7). |
 | 3 — Violin and cello | Built. Full tier only; the light tier keeps the 2D fingerboard. |
 | 2, 4, 5 | Not started. |
+
+## Built in revision 7
+
+- **Learn | Whole instrument.** In free play the stage's bottom bar has a two-way switch in place of the Close-up button. Learn is the playable fingerboard view, the one lessons use, and free play now opens on it. Whole instrument shows the whole model, turnable, without labels. Lessons have no switch. (`src/components/StageViewSwitch.jsx`.)
+- **A guitar per view.** Learn uses the guitar built in code, whose strings sit wider apart at the nut and are easier to hit; Whole instrument uses the downloaded model, which only it can show. The model is fetched the first time free play opens at full detail, not for lessons, and both guitars stay loaded, so switching is immediate. If the model cannot be loaded the switch goes away and Learn stays. The violin and the cello have one model each, used in both views. (`guitarViews` in `GuitarStage.jsx`; the runner's `show()` keeps the instrument it takes off; `studio.resetGround()` gives the drawn guitar back the floor the studio was built with.)
+- **Numbered string names.** Each string name shows its number and its pitch with the octave: 6 E2 to 1 E4 on the guitar, 4 G3 to 1 E5 on the violin, 4 C2 to 1 A3 on the cello. Where strings are too close at the nut for the names to sit level with them, as on a phone, the names are moved apart and a thin leader ties each one back to its string at the nut. (`stringColumn` in `guitarStageView.js`, `src/components/StageLabels.jsx`.)
+- **Piano next-note card.** The lesson's Find the notes card shows the computer key that plays the next note at the chosen keyboard octave, and a bar for the share of the phrase found; the first-note card shows the key too. Touch screens leave the key out. (`src/components/NextNoteCard.jsx`.)
+- **Fix.** Opening the app on a lesson's first-note step crashed it ("Cannot read properties of undefined (reading 'name')"): before the piano library had loaded, a missing lesson and a missing score counted as a match, so the lesson looked ready. `lessonReady` in `src/lib/learning.js` now needs the lesson.
 
 ## Built in revision 6
 
@@ -29,14 +37,14 @@ Decision, 2 October 2026: lessons use the fingerboard maps **G3, V3 and C3**; fr
 
 | Concept | Where | Camera | State |
 | --- | --- | --- | --- |
-| G3 Fretboard Focus | Guitar lessons | Fixed. 22° lens, neck straight across the stage, nut on the left, fret numbers above the neck, string names at the left edge. | Built, on the downloaded guitar in the full tier and the code-built one in the light tier. |
-| G1 Studio Showcase | Guitar free play | 32° lens. The whole guitar from beyond the body on the treble side, the neck running up and away to the right, fitted between the stage's bars. Drag the background to turn it up to 25° either way and 10° to 12° up or down; double-click or Reset view to ease back. **Close-up** swings the camera in to the neck for playing, and back. | Built. The code-built guitar has only the close-up, as before: it is a top surface with almost no depth. |
+| G3 Fretboard Focus | Guitar lessons, and free play's Learn view | Fixed in lessons. 22° lens, neck straight across the stage, nut on the left, fret numbers above the neck, string names at the left edge. | Built, on the code-built guitar in both tiers (revision 7; revision 6 used the downloaded guitar in the full tier). |
+| G1 Studio Showcase | Guitar free play | 32° lens. The whole guitar from beyond the body on the treble side, the neck running up and away to the right, fitted between the stage's bars. Drag the background to turn it up to 25° either way and 10° to 12° up or down; double-click or Reset view to ease back. The **Learn | Whole instrument** switch moves between this view and the playable neck. | Built, on the downloaded guitar, at full detail. Learn shows the code-built guitar, which has only the neck view: it is a top surface with almost no depth. |
 | V3 Fingerboard Map | Violin lessons | Fixed long lens, scroll on the left, E string on top, finger tapes with their numbers, numbered finger markers, press and hold to bow. | Built. Framed from the scroll to just past the last visible place, so first-position places are large enough to press; the bridge and the bow are off to the right. |
-| V1 Concert Spotlight | Violin free play | Three-quarter from the treble side at 30°, turnable as G1; the bow appears on the string being played and travels while it sounds. Close-up as G1. | Built. |
+| V1 Concert Spotlight | Violin free play | Three-quarter from the treble side at 30°, turnable as G1; the bow appears on the string being played and travels while it sounds. Learn and Whole instrument as G1, on the one violin model. | Built. |
 | C3 Fingerboard Map | Cello lessons | As V3, with cello finger spacing. | Built. **Corrected:** no mirroring is needed. The prepared model, shown true with its scroll on the left, has the A string on top and the C string at the bottom, as the mockup shows. Revision 5 said a true cello would have the C string on top; that was wrong. |
-| C1 Upright Stage | Cello free play | The cello standing on its endpin, front three-quarter, full height, with a floor shadow and the bow across the strings. Close-up lays the cello down as the camera swings in, keeping it on the floor all the way. | Built. |
+| C1 Upright Stage | Cello free play | The cello standing on its endpin, front three-quarter, full height, with a floor shadow and the bow across the strings. Learn lays the cello down as the camera swings in, keeping it on the floor all the way. | Built. |
 
-Free play needed one control the study did not draw. The study flagged the problem in its watch-outs for G1 and V1: with the whole instrument in view, the places near the nut are a few pixels apart, too small to press. Free play therefore opens on the showcase, and a **Close-up** button in the stage's bottom bar swings the camera in to the playable neck. Labels show only in the close-up.
+Free play needed one control the study did not draw. The study flagged the problem in its watch-outs for G1 and V1: with the whole instrument in view, the places near the nut are a few pixels apart, too small to press. Revision 6 opened free play on the showcase, with a **Close-up** button in the stage's bottom bar to swing the camera in to the playable neck. Revision 7 makes it a two-way **Learn | Whole instrument** switch and opens on Learn, so free play starts where it can be played. Labels show only in Learn.
 
 Built in revision 5:
 - `src/lib/stage/views.js`: the lesson and free-play views (lens, camera height, how far each may turn).
@@ -182,6 +190,6 @@ Credit lines required by CC BY 4.0 go in `CREDITS.md` and on the About page, eac
 ## Risks and open items
 
 1. **Model size.** The guitar is 2.3 MB against a 1.5 MB target (see Phase 0).
-2. **Small targets in the close-up on a phone.** The real proportions keep the strings close together at the nut; the 2D fret and finger buttons stay one click away under each 3D stage.
+2. **Small targets in the Learn view on a phone.** The real proportions keep the strings close together at the nut; the 2D fret and finger buttons stay one click away under each 3D stage.
 3. **Sound.** The strings use a synthesised voice. Competitors with 3D instruments use recorded samples. Worth a separate plan.
 4. **Consistency.** Three models from three artists will differ in style. Shared lighting and a shared floor reduce this but will not remove it.

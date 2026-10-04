@@ -4,6 +4,7 @@ import { GUITAR_CHORDS } from '../lib/guitar.js';
 import { useGuitarInput } from '../hooks/useGuitarInput.js';
 import { playInput } from '../lib/playInput.js';
 import { isStringed, stringKit } from '../lib/instruments.js';
+import NextNoteCard, { ComputerKey } from './NextNoteCard.jsx';
 
 export function LessonBar({ learning, engine, onShowGuide }) {
   const { record, ready } = learning;
@@ -26,7 +27,7 @@ function LessonChords({ score, engine, step }) {
   return <div className="lesson-chords"><span className="eyebrow">{next ? 'NEXT CHORD' : 'CHORD SHAPE'} · {current.name}</span><div className="lesson-chord-fingers" aria-label={`${current.name} chord frets, low E to high E`}>{current.frets.map((fret,i) => <span key={i}><small>{['E','A','D','G','B','e'][i]}</small><b>{fret ?? '×'}</b></span>)}</div><p>0 = open · × = skip this string. Fingers: 1 index, 2 middle, 3 ring.</p><div>{names.map(name => <button key={name} onClick={() => { const chord=GUITAR_CHORDS.find(c=>c.name===name); silence(); pluck(chord.frets.flatMap((fret,string)=>fret===null?[]:[{string,fret}]),{spread:24,strength:.72}); }}>Strum {name}</button>)}</div></div>;
 }
 
-export default function LessonGuide({ learning, engine, score, instrument = 'piano', onSetup, path }) {
+export default function LessonGuide({ learning, engine, score, instrument = 'piano', onSetup, path, typingOctave = 0 }) {
   const guitar = instrument === 'guitar';
   const kit = stringKit(instrument);
   const { record, outcome } = learning;
@@ -58,10 +59,10 @@ export default function LessonGuide({ learning, engine, score, instrument = 'pia
     <h2 ref={heading} tabIndex={-1}>{copy[0]}</h2><p className="lesson-instruction">{copy[1]}</p>
     {!learning.ready && <div role={learning.error ? 'alert' : 'status'} className="lesson-load-state"><strong>{learning.error || 'Preparing your lesson…'}</strong>{learning.error && <><button onClick={learning.retry}>Retry lesson</button><button onClick={onSetup}>Check sound setup</button></>}</div>}
     {learning.ready && record.step === 'sound' && <div className="lesson-actions"><button className="primary" disabled={learning.testing} onClick={learning.sendTest}>{learning.testing ? 'Sending test note…' : 'Play a test note'}</button>{learning.testSent && <><p role="status">Test note sent. Did you hear it?</p><button className="primary" onClick={learning.confirmSound}>I heard it</button></>}<button onClick={onSetup}>No sound? Check setup</button></div>}
-    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,instrument)}</strong><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,isStringed(instrument)?{source:`${instrument}-screen`,string:first.string,fret:first.fret}:{});clearTimeout(firstNoteTimer.current);firstNoteTimer.current=setTimeout(()=>playInput.release('lesson-first-note'),kit?.bowed?900:400);}}>Play {first.name} on screen</button><small>Or play this note on the instrument below.</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
+    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,instrument)}</strong><ComputerKey midi={first?.midi} instrument={instrument} typingOctave={typingOctave}/><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,isStringed(instrument)?{source:`${instrument}-screen`,string:first.string,fret:first.fret}:{});clearTimeout(firstNoteTimer.current);firstNoteTimer.current=setTimeout(()=>playInput.release('lesson-first-note'),kit?.bowed?900:400);}}>Play {first.name} on screen</button><small>Or play this note on the instrument below.</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
     {learning.noteHint && <p className="lesson-note-feedback" role="status">{learning.noteHint}</p>}
     {record.step === 'listen' && record.listened && <div className="lesson-actions"><p className="lesson-success">✓ Demonstration completed</p><button className="primary" onClick={() => learning.goStep('follow')}>Now find the notes →</button></div>}
-    {record.step === 'follow' && !record.followed && <div className="lesson-target"><span>NEXT NOTE</span><strong>{noteInstruction(target ?? first,instrument)}</strong><p>{engine.summary?.hit ?? 0} / {score?.noteCount ?? 0} notes found</p></div>}
+    {record.step === 'follow' && !record.followed && <NextNoteCard note={target ?? first} instrument={instrument} found={engine.summary?.hit ?? 0} total={score?.noteCount ?? 0} typingOctave={typingOctave}/>}
     {['follow','practice','check'].includes(record.step) && guitar && score && <LessonChords score={score} engine={engine} step={record.step}/>}
     {record.step === 'practice' && <div className="lesson-tempo"><label htmlFor="lesson-speed">Comfortable tempo <b>{Math.round(record.rate*100)}%</b></label><input id="lesson-speed" aria-label="Lesson practice speed" type="range" min=".4" max="1" step=".05" value={record.rate} disabled={engine.playing} onChange={e=>learning.changeRate(+e.target.value)}/><small>Tempo means speed. Adjust it between attempts.</small></div>}
     {outcome && <div className="lesson-result" role="status"><span className="eyebrow">YOUR LAST ATTEMPT</span><h3>{outcome.title}</h3><p>{outcome.message}</p><details><summary>See the numbers</summary><p>{result.summary.hit} notes hit · {result.summary.missed} missed · {result.summary.wrongNotes} extra notes</p><p>{result.grade.complete ? `${result.grade.stars} / 5 stars` : 'Partial attempt'} · {Math.round(result.rate*100)}% speed</p></details></div>}

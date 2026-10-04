@@ -64,19 +64,24 @@ browser is drawing in software. Change it under **Instrument settings → 3D det
 Either way the stage redraws only when something on it changes, and lowers its own
 resolution a step at a time if frames start arriving late.
 
-At **Full** detail the guitar, violin and cello are downloaded 3D models (credited under
-**Help** and in [CREDITS.md](../CREDITS.md)); at **Light** detail the guitar is the simpler
-one built in code and the violin and cello keep their 2D fingerboard. If a model cannot be
-loaded, the stage shows the light version instead.
+At **Full** detail the violin and cello are downloaded 3D models, and so is the guitar in
+free play's **Whole instrument** view (credited under **Help** and in
+[CREDITS.md](../CREDITS.md)). Guitar lessons and free play's **Learn** view use the guitar
+built in code, whose strings sit wider apart and are easier to hit. At **Light** detail
+the guitar is always the one built in code and the violin and cello keep their 2D
+fingerboard. If a model cannot be loaded, the stage shows the light version instead.
 
 Lessons show the neck straight across the stage through a long lens, so the frets keep
-their true spacing; the violin and cello maps add finger tapes and numbered markers. In
-**Free play** the model is shown whole, from three-quarters (the cello stands on its
-endpin), and **Close-up** swings the camera in to the neck to play it. Drag the background
-to turn the instrument a little either way, as far as the stage leaves room to keep the
-neck in view; double-click or press **Reset view** to put it back. A drag that starts on the
-neck plays the note there instead. On the violin and cello, press and hold a place to bow
-it, and drag along the string to slide; the bow appears on the string while it sounds.
+their true spacing; the violin and cello maps add finger tapes and numbered markers. String
+names carry the string's number and pitch (6 E2 … 1 E4 on the guitar); where the strings
+are too close together at the nut for the names to sit level with them, a thin line ties
+each name back to its string. **Free play** opens on **Learn**, the same playable view; the
+**Learn | Whole instrument** switch under the stage shows the whole model from
+three-quarters (the cello stands on its endpin) and back. Drag the background to turn the
+instrument a little either way, as far as the stage leaves room to keep the neck in view;
+double-click or press **Reset view** to put it back. A drag that starts on the neck plays
+the note there instead. On the violin and cello, press and hold a place to bow it, and
+drag along the string to slide; the bow appears on the string while it sounds.
 
 Guitar input currently means on-screen play or MIDI guitar. **Microphone/audio-interface
 pitch detection is not implemented.** The starter exercises score pitch and timing,

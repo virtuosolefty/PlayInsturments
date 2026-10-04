@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * The downloaded guitar on the full stage: lessons frame its neck (concept
- * G3); free play shows it whole from three-quarters (G1) and swings in to a
- * close-up of the neck to play. The light stage keeps the guitar built in
- * code, and so does the full stage when the model cannot be loaded.
+ * The two guitars on the full stage. Lessons, and free play's Learn view,
+ * play the guitar built in code (concept G3), whose wider strings are easier
+ * to hit; free play's Whole instrument view shows the downloaded model from
+ * three-quarters (G1). The model is fetched the first time free play opens.
+ * The light stage keeps the drawn guitar everywhere, and so does the full
+ * stage when the model cannot be loaded.
  *
  * Headless Chromium draws the full stage in software at a frame or two a
  * second, so these tests are marked slow.
@@ -12,8 +14,10 @@ import { test, expect } from '@playwright/test';
 
 const stage = page => page.locator('.guitar-stage');
 const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
-const closeUp = page => page.getByRole('button', { name: 'Close-up', exact: true });
+const stageView = page => page.getByRole('group', { name: 'Stage view' });
+const viewButton = (page, name) => stageView(page).getByRole('button', { name, exact: true });
 const labels = (page, kind) => page.locator(`.guitar-position-label${kind ? `.${kind}` : ''}`);
+const modelAsked = page => page.evaluate(() => performance.getEntriesByType('resource').some(entry => /\/models\/guitar\.(glb|json)/.test(entry.name)));
 
 /** Opens the guitar studio at the given 3D detail. The full stage's first frame takes seconds in software. */
 async function open(page, stageQuality) {
@@ -31,63 +35,64 @@ function collectErrors(page) {
   return errors;
 }
 
-test('the full stage shows the downloaded guitar, whole in free play and close up to play', async ({ page }) => {
+test('lessons and Learn play the drawn guitar; Whole instrument shows the downloaded one', async ({ page }) => {
   test.slow();
   const errors = collectErrors(page);
   await open(page, 'full');
-  await expect(stage(page)).toHaveAttribute('data-stage-model', 'guitar', { timeout: 60_000 });
-  // The lesson frames the neck, labelled as before.
+  await expect(stage(page)).toHaveAttribute('data-stage-tier', 'full');
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
+  // String names carry their number, as tablature counts them, and their octave.
   await expect(labels(page, 'fret')).toHaveCount(12, { timeout: 30_000 });
-  await expect(labels(page, 'string')).toHaveCount(6);
+  await expect(labels(page, 'string')).toHaveText(['6 E2', '5 A2', '4 D3', '3 G3', '2 B3', '1 E4']);
+  // A lesson has no other view, so the model is not fetched for it.
+  await expect(stageView(page)).toHaveCount(0);
+  expect(await modelAsked(page)).toBe(false);
 
   await workspace(page, 'Free play');
-  await expect(closeUp(page)).toHaveAttribute('aria-pressed', 'false', { timeout: 30_000 });
-  // The whole guitar is too small to label.
-  await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
-  await expect(page.locator('.guitar-stage-hint')).toContainText('Close-up');
-
-  await closeUp(page).click();
-  await expect(closeUp(page)).toHaveAttribute('aria-pressed', 'true');
-  await expect(labels(page, 'fret')).toHaveCount(12, { timeout: 15_000 });
-  await expect(labels(page, 'string')).toHaveCount(6);
-  // The E minor shape: two fingers and four open strings.
-  await expect(labels(page, 'finger')).toHaveCount(6);
-
-  // A fret in the close-up plays its note: fret 4 on the G string is B3.
+  // Free play opens on Learn: the same playable neck, with the E minor shape's two fingers and four open strings.
+  await expect(viewButton(page, 'Learn')).toHaveAttribute('aria-pressed', 'true', { timeout: 30_000 });
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
+  await expect(labels(page, 'finger')).toHaveCount(6, { timeout: 30_000 });
+  // A fret plays its note: fret 4 on the G string is B3.
   await page.evaluate(async () => { window.__notes = []; (await import('/src/lib/midiInput.js')).midiInput.onMessage(m => window.__notes.push(m)); });
   const fret = await labels(page, 'fret').getByText('4', { exact: true }).boundingBox();
   const string = await labels(page, 'string').getByText('G3', { exact: true }).boundingBox();
   await page.mouse.click(fret.x + fret.width / 2, string.y + string.height / 2);
   await expect.poll(() => page.evaluate(() => window.__notes.find(m => m.type === 'noteon')?.midi), { timeout: 30_000 }).toBe(59);
 
-  await closeUp(page).click();
-  await expect(closeUp(page)).toHaveAttribute('aria-pressed', 'false');
-  await expect(labels(page)).toHaveCount(0, { timeout: 15_000 });
+  await viewButton(page, 'Whole instrument').click();
+  await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'guitar', { timeout: 60_000 });
+  // The whole guitar is too small to label.
+  await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
+  await expect(page.locator('.guitar-stage-hint')).toContainText('Learn to play the frets');
+
+  await viewButton(page, 'Learn').click();
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn', { timeout: 15_000 });
+  await expect(labels(page, 'fret')).toHaveCount(12, { timeout: 15_000 });
   expect(errors).toEqual([]);
 });
 
-test('the light stage keeps the guitar built in code, with nothing to close in on', async ({ page }) => {
+test('the light stage keeps the guitar built in code, with no other view to switch to', async ({ page }) => {
   await open(page, 'light');
   await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
   await workspace(page, 'Free play');
   await expect(labels(page, 'fret')).toHaveCount(12);
-  await expect(closeUp(page)).toHaveCount(0);
+  await expect(stageView(page)).toHaveCount(0);
   // The model is never fetched for the light stage.
-  const asked = await page.evaluate(() => performance.getEntriesByType('resource').some(entry => /\/models\/guitar\.(glb|json)/.test(entry.name)));
-  expect(asked).toBe(false);
+  expect(await modelAsked(page)).toBe(false);
 });
 
-test('when the model cannot be loaded, the full stage shows the drawn guitar instead', async ({ page }) => {
+test('when the model cannot be loaded, free play keeps the drawn guitar and drops the view switch', async ({ page }) => {
   test.slow();
   const errors = collectErrors(page);
   await page.route('**/models/guitar.glb', route => route.fulfill({ status: 404, body: '' }));
   await open(page, 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-tier', 'full');
-  await expect(labels(page, 'fret')).toHaveCount(12, { timeout: 30_000 });
-  await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
   await workspace(page, 'Free play');
   await expect(labels(page, 'fret')).toHaveCount(12, { timeout: 30_000 });
-  await expect(closeUp(page)).toHaveCount(0);
+  await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
+  await expect(stageView(page)).toHaveCount(0, { timeout: 30_000 });
   // The browser logs the missing file this test serves; nothing else may go wrong.
   expect(errors.filter(message => !/Failed to load resource.*404/.test(message))).toEqual([]);
 });

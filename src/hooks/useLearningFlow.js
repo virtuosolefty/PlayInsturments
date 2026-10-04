@@ -4,7 +4,7 @@ import { loadScoreFromUrl } from '../lib/score.js';
 import { midiInput } from '../lib/midiInput.js';
 import { dayKey } from '../lib/streaks.js';
 import { webglAvailable } from '../lib/webgl.js';
-import { learningRecord, lessonSettings, recommendedLesson, lessonOutcome, comfortableRate, lessonCanVisit } from '../lib/learning.js';
+import { learningRecord, lessonSettings, recommendedLesson, lessonOutcome, comfortableRate, lessonCanVisit, lessonReady } from '../lib/learning.js';
 
 const scores = new Map();
 function loadLesson(entry) {
@@ -112,7 +112,7 @@ export function useLearningFlow({ settings, setSettings, library, path, score, e
     if (next) loadLesson(next).catch(() => {});
   }, [active, loading, lesson?.id, entries, path.state]);
 
-  const ready = active && !loading && !error && score?.id === lesson?.id;
+  const ready = lessonReady({ active, lesson, loading, error, score });
   const goStep = useCallback(step => {
     const current = latest.current.record;
     if (!lessonCanVisit(step, current)) return;
