@@ -77,9 +77,3 @@ export function followRange([lo, hi], midi) {
   const nextLo = clampLow(lo + octaves * 12, span + 1);
   return [nextLo, nextLo + span];
 }
-
-/** True when every note of `range` sits inside `window`. */
-export const rangeFitsWindow = ([lo, hi], [wLo, wHi]) => lo >= wLo && hi <= wHi;
-
-/** A window covering everything — used when no controller is connected. */
-export const UNLIMITED_RANGE = [21, 108];

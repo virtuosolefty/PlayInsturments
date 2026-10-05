@@ -9,8 +9,8 @@
  */
 
 export const STORAGE_KEY = 'piano-practice-coach:v1';
-export const IDB_NAME = 'piano-practice-coach';
-export const IDB_BACKUP_STORE = 'backup';
+export const IDB_NAME = 'piano-practice-coach-backup';
+export const IDB_BACKUP_STORE = 'data';
 
 /** Parsed contents of the localStorage practice database, or null. */
 export function readLocalStorageDb() {
@@ -19,41 +19,45 @@ export function readLocalStorageDb() {
 }
 
 /**
- * `{ version, stores }` for whatever the shared `piano-practice-coach`
- * IndexedDB schema currently is. Opened without a version argument so this
- * is a pure read — it never triggers `onupgradeneeded` itself.
+ * Inspect the separate practice-backup and imported-file vault schemas.
  */
 export async function readIndexedDbSchema() {
-  const db = await new Promise((resolve, reject) => {
-    const req = window.indexedDB.open('piano-practice-coach');
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-  const stores = Array.from(db.objectStoreNames);
-  db.close();
-  return { version: db.version, stores };
+  const schemas = {};
+  for (const [kind, name] of Object.entries({
+    backup: 'piano-practice-coach-backup',
+    vault: 'piano-practice-coach',
+  })) {
+    const db = await new Promise((resolve, reject) => {
+      const req = window.indexedDB.open(name);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    schemas[kind] = { name, version: db.version, stores: Array.from(db.objectStoreNames) };
+    db.close();
+  }
+  return schemas;
 }
 
 /**
  * The practice-history backup written by `indexedDbBackup.js`, keyed the
  * same as the localStorage entry. Returns `{ ok:false, reason }` instead of
- * throwing when the `backup` object store does not exist, so a caller can
+ * throwing when the `data` object store does not exist, so a caller can
  * assert on the failure mode directly.
  */
 export async function readIndexedDbBackup() {
   const db = await new Promise((resolve, reject) => {
-    const req = window.indexedDB.open('piano-practice-coach');
+    const req = window.indexedDB.open('piano-practice-coach-backup');
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
-  if (!db.objectStoreNames.contains('backup')) {
+  if (!db.objectStoreNames.contains('data')) {
     db.close();
-    return { ok: false, reason: 'no "backup" object store', data: null };
+    return { ok: false, reason: 'no "data" object store', data: null };
   }
   try {
     const data = await new Promise((resolve, reject) => {
-      const tx = db.transaction('backup', 'readonly');
-      const req = tx.objectStore('backup').get('piano-practice-coach:v1');
+      const tx = db.transaction('data', 'readonly');
+      const req = tx.objectStore('data').get('piano-practice-coach:v1');
       req.onsuccess = () => resolve(req.result ?? null);
       req.onerror = () => reject(req.error);
     });
@@ -68,10 +72,13 @@ export async function readIndexedDbBackup() {
 /** Clears both persistence layers so a test starts from a blank slate. */
 export async function clearAllPersistence() {
   window.localStorage.clear();
-  await new Promise((resolve) => {
-    const req = window.indexedDB.deleteDatabase('piano-practice-coach');
-    req.onsuccess = () => resolve();
-    req.onerror = () => resolve(); // best-effort — a fresh context may not have one yet
-    req.onblocked = () => resolve();
-  });
+  for (const name of ['piano-practice-coach', 'piano-practice-coach-backup']) {
+    await new Promise((resolve) => {
+      const req = window.indexedDB.deleteDatabase(name);
+      req.onsuccess = () => resolve();
+      req.onerror = () => resolve(); // best-effort — a fresh context may not have one yet
+      // Reloading the page closes its existing connection and lets deletion finish.
+      req.onblocked = () => resolve();
+    });
+  }
 }

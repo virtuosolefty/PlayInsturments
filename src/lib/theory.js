@@ -158,14 +158,6 @@ export function identifyChord(midiNotes) {
   };
 }
 
-/** Roman-numeral-ish degree label for a chord root inside a key. */
-export function degreeInKey(chordRoot, keyTonic, mode = 'major') {
-  const NUMERALS_MAJOR = ['I', '#I', 'II', 'bIII', 'III', 'IV', '#IV', 'V', 'bVI', 'VI', 'bVII', 'VII'];
-  const NUMERALS_MINOR = ['i', '#i', 'ii', 'III', 'iii', 'iv', '#iv', 'v', 'VI', 'vi', 'VII', 'vii'];
-  const interval = pitchClass(chordRoot - keyTonic);
-  return (mode === 'major' ? NUMERALS_MAJOR : NUMERALS_MINOR)[interval];
-}
-
 /* ------------------------------------------------- wrong-note classification */
 
 export const ERROR_KINDS = {

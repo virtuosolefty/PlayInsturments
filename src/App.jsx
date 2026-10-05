@@ -298,12 +298,12 @@ export default function App({ startupSettings = {} }) {
   const visiblePianoRange = useMemo(() => pianoViewRange(score, settings.pianoRange, settings.typingOctave, rollRange), [score, settings.pianoRange, settings.typingOctave, rollRange]);
 
   const bestCombo = useMemo(
-    () => (score ? appData.getBestCombo?.(score.id, variant) ?? 0 : 0),
+    () => (score ? appData.getBestCombo(score.id, variant) : 0),
     [score?.id, variant, refreshVersion, appData],
   );
 
   const ghost = useMemo(
-    () => (score ? appData.getGhost?.(score.id, variant) : null),
+    () => (score ? appData.getGhost(score.id, variant) : null),
     [score?.id, variant, refreshVersion, appData],
   );
   const assessment = useMemo(

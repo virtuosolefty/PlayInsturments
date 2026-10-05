@@ -67,12 +67,6 @@ export const ROLL_FONT = {
   bar: '12px ui-monospace, monospace',
 };
 
-/** Two-digit hex alpha, so hand colours can be tinted without string surgery. */
-export const alphaHex = (a) =>
-  Math.round(Math.max(0, Math.min(1, a)) * 255)
-    .toString(16)
-    .padStart(2, '0');
-
 /** Multiply a #rrggbb colour's brightness — for key highlights and shadows. */
 export function shade(hex, factor) {
   const n = parseInt(hex.slice(1), 16);
@@ -84,27 +78,8 @@ export function shade(hex, factor) {
 }
 
 export function roundRect(ctx, x, y, w, h, r) {
-  const rr = Math.max(0, Math.min(r, w / 2, h / 2));
   ctx.beginPath();
-  ctx.moveTo(x + rr, y);
-  ctx.arcTo(x + w, y, x + w, y + h, rr);
-  ctx.arcTo(x + w, y + h, x, y + h, rr);
-  ctx.arcTo(x, y + h, x, y, rr);
-  ctx.arcTo(x, y, x + w, y, rr);
-  ctx.closePath();
-}
-
-/** Square across the top, rounded across the bottom — an accidental's shape. */
-export function roundRectBottom(ctx, x, y, w, h, r) {
-  const rr = Math.max(0, Math.min(r, w / 2, h / 2));
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + w, y);
-  ctx.lineTo(x + w, y + h - rr);
-  ctx.arcTo(x + w, y + h, x + w - rr, y + h, rr);
-  ctx.lineTo(x + rr, y + h);
-  ctx.arcTo(x, y + h, x, y + h - rr, rr);
-  ctx.closePath();
+  ctx.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2)));
 }
 
 /**

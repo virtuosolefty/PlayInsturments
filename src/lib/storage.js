@@ -335,15 +335,6 @@ export function getTroubleSpots(songId, limit = 8) {
     .slice(0, limit);
 }
 
-/** Dense array of trouble weights for canvas overlay lookups. */
-export function getTroubleLookup(songId) {
-  const { troubleMap } = getSongHistory(songId);
-  return Object.values(troubleMap).map((t) => ({
-    time: t.time,
-    weight: t.missed * 2 + t.wrong * 1.5 + t.late,
-  }));
-}
-
 export function clearSongHistory(songId) {
   const db = read();
   delete db.songs[songId];

@@ -72,8 +72,6 @@ export const putScoreFile = (entry) =>
 
 export const listScoreFiles = () => run(SCORES, 'readonly', (store) => store.getAll());
 
-export const deleteScoreFile = (id) => run(SCORES, 'readwrite', (store) => store.delete(id));
-
 /* -------------------------------------------------------------- sample packs */
 
 /**
@@ -83,8 +81,6 @@ export const putSamplePack = (pack) =>
   run(SAMPLES, 'readwrite', (store) => store.put(pack, PACK_KEY));
 
 export const getSamplePack = () => run(SAMPLES, 'readonly', (store) => store.get(PACK_KEY));
-
-export const clearSamplePack = () => run(SAMPLES, 'readwrite', (store) => store.delete(PACK_KEY));
 
 /* ------------------------------------------------------------------ helpers */
 
