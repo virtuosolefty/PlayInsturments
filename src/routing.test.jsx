@@ -85,7 +85,7 @@ beforeEach(() => {
   global.cancelAnimationFrame = (id) => clearTimeout(id);
   HTMLCanvasElement.prototype.getContext = () => ({
     setTransform() {}, fillRect() {}, strokeRect() {}, clearRect() {}, beginPath() {},
-    moveTo() {}, lineTo() {}, arcTo() {}, arc() {}, closePath() {}, stroke() {}, fill() {},
+    moveTo() {}, lineTo() {}, arcTo() {}, roundRect() {}, arc() {}, closePath() {}, stroke() {}, fill() {},
     fillText() {}, save() {}, restore() {}, setLineDash() {}, drawImage() {}, rect() {}, clip() {},
     measureText: () => ({ width: 0 }),
     createLinearGradient: () => ({ addColorStop() {} }),

@@ -1,7 +1,7 @@
 import { test, expect } from '../fixtures/index.js';
 
 /**
- * Phase 2 validates the `useAppData` / `StorageService` refactor: components
+ * Phase 2 validates the `useAppData` refactor: components
  * never touch `storage.js` directly any more, they go through the hook —
  * these tests exercise that only through the UI, the same way Phase 1's
  * bug (a manual refresh being needed) would have been caught.
@@ -43,18 +43,18 @@ test.describe('Phase 2 — useAppData settings persistence', () => {
 });
 
 test.describe('Phase 2 — storage centralization', () => {
-  test('a UI-driven practice run reaches localStorage with the full StorageService-shaped record', async ({ appPage }) => {
+  test('a UI-driven practice run reaches localStorage with the full storage-shaped record', async ({ appPage }) => {
     await appPage.selectSongByTitle('C Major Scale — Two Octaves');
     await appPage.playCompleteSession();
 
     const db = await appPage.readLocalStorageDb();
     console.log('[phase2] verifying the top-level database shape written by recordSession/recordPracticeDay');
 
-    // Structural shape StorageService.recordSession / recordPracticeDay /
+    // Structural shape storage.recordSession / recordPracticeDay /
     // saveSettings all write into (see emptyDb() in storage.js) — asserting
     // on this from a UI-driven run, rather than by calling storage.js
     // directly, is what proves the whole chain (Controls → usePracticeEngine
-    // → storage.recordSession, and useAppData → StorageService →
+    // → storage.recordSession, and useAppData →
     // saveSettings) is actually wired up end to end.
     expect(db).toMatchObject({
       version: 1,

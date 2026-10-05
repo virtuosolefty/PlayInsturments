@@ -11,113 +11,85 @@
  *   - functions: recordSession, saveSettings, etc.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getStorageService } from '../lib/StorageService.js';
+import { useCallback, useEffect, useState } from 'react';
 import { DEFAULT_SETTINGS, migrateSettings } from '../lib/settings.js';
-import { getSongHistory, getAllBestStars, getTroubleSpots, getAllSongEntries, getPracticeDays } from '../lib/storage.js';
+import {
+  getSongHistory,
+  getAllBestStars,
+  getTroubleSpots,
+  getAllSongEntries,
+  getPracticeDays,
+  getBestCombo,
+  getGhost,
+  recordSession as storeSession,
+  recordCombo as storeCombo,
+  recordGhost as storeGhost,
+  recordPracticeDay as storePracticeDay,
+  clearSongHistory as storeClearSong,
+  clearAllHistory as storeClearAll,
+  loadSettings,
+  saveSettings,
+  exportHistory,
+  importHistory,
+  parseBackup,
+  describeBackup,
+  onStorageFailure,
+} from '../lib/storage.js';
 
 export function useAppData(initialSettings = {}) {
-  const storage = getStorageService();
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [settings, setSettings] = useState(() => ({
     ...DEFAULT_SETTINGS,
-    ...migrateSettings(storage.loadSettings()),
+    ...migrateSettings(loadSettings()),
     ...initialSettings,
     loop: null,
   }));
   const [days, setDays] = useState(() => getPracticeDays());
   const [storageFailure, setStorageFailure] = useState(null);
 
-  const unsubscribeRef = useRef(null);
-
-  // Force load data on mount to ensure fresh state
-  useEffect(() => {
-    console.log('[useAppData.mount] loading data from storage');
-    setDays(getPracticeDays());
+  const refresh = useCallback(() => {
     setRefreshVersion((v) => v + 1);
+    setDays(getPracticeDays());
   }, []);
 
-  // Subscribe to storage changes
+  // Force load data on mount to ensure fresh state
+  useEffect(refresh, [refresh]);
+
+  // Every successful write announces itself; re-read history and the day ledger.
   useEffect(() => {
-    unsubscribeRef.current = storage.onChange(() => {
-      console.log('[useAppData] storage changed, refreshing');
-      setRefreshVersion((v) => v + 1);
-      setDays(getPracticeDays());
-    });
-    return () => unsubscribeRef.current?.();
-  }, [storage]);
+    window.addEventListener('storage-write', refresh);
+    return () => window.removeEventListener('storage-write', refresh);
+  }, [refresh]);
 
   // Subscribe before the first write so blocked storage is reported on entry.
-  useEffect(() => storage.onStorageFailure(setStorageFailure), [storage]);
+  useEffect(() => onStorageFailure(setStorageFailure), []);
 
   // Persist settings whenever they change
   useEffect(() => {
     const { loop, ...persistable } = settings;
-    storage.saveSettings(persistable);
-  }, [settings, storage]);
+    saveSettings(persistable);
+  }, [settings]);
 
-  // Memoized functions
-  const recordSession = useCallback(
-    (songId, summary, troubleSpots, context) => {
-      console.log('[useAppData.recordSession]', songId);
-      storage.recordSession(songId, summary, troubleSpots, context);
-      setRefreshVersion((v) => v + 1);
-      setDays(getPracticeDays());
-    },
-    [storage],
-  );
+  const recordSession = useCallback((songId, summary, troubleSpots, context) => {
+    storeSession(songId, summary, troubleSpots, context);
+    refresh();
+  }, [refresh]);
 
-  const getSongData = useCallback(
-    (songId, variant) => {
-      const history = getSongHistory(songId, { variant });
-      const troubleSpots = getTroubleSpots(songId);
-      const bestStars = getAllBestStars(variant);
-      return { history, troubleSpots, bestStars };
-    },
-    [],
-  );
-
-  const clearSongHistory = useCallback(
-    (songId) => {
-      storage.clearSongHistory(songId);
-      setRefreshVersion((v) => v + 1);
-    },
-    [storage],
-  );
+  const clearSongHistory = useCallback((songId) => {
+    storeClearSong(songId);
+    refresh();
+  }, [refresh]);
 
   const clearAllHistory = useCallback(() => {
-    storage.clearAllHistory();
-    setRefreshVersion((v) => v + 1);
-  }, [storage]);
+    storeClearAll();
+    refresh();
+  }, [refresh]);
 
-  const recordCombo = useCallback(
-    (context, best) => storage.recordCombo(context, best),
-    [storage],
-  );
-
-  const recordGhost = useCallback(
-    (context, targets) => storage.recordGhost(context, targets),
-    [storage],
-  );
-
-  const recordPracticeDay = useCallback(
-    (run) => storage.recordPracticeDay(run),
-    [storage],
-  );
-
-  const exportData = useCallback(() => storage.exportHistory(), [storage]);
-
-  const importData = useCallback(
-    (text) => {
-      const result = storage.importHistory(text);
-      if (result.ok) {
-        setRefreshVersion((v) => v + 1);
-        setDays(getPracticeDays());
-      }
-      return result;
-    },
-    [storage],
-  );
+  const importData = useCallback((text) => {
+    const result = importHistory(text);
+    if (result.ok) refresh();
+    return result;
+  }, [refresh]);
 
   return {
     // State
@@ -128,29 +100,30 @@ export function useAppData(initialSettings = {}) {
     storageFailure,
 
     // Data fetching
-    getSongData,
     getSongHistory: (songId, options) => getSongHistory(songId, options),
     getTroubleSpots: (songId, limit) => getTroubleSpots(songId, limit),
     getAllBestStars: (variant) => getAllBestStars(variant),
     getAllSongEntries: () => getAllSongEntries(),
+    getBestCombo,
+    getGhost,
 
     // Recording
     recordSession,
-    recordCombo,
-    recordGhost,
-    recordPracticeDay,
+    recordCombo: storeCombo,
+    recordGhost: storeGhost,
+    recordPracticeDay: storePracticeDay,
 
     // History management
     clearSongHistory,
     clearAllHistory,
 
     // Backup/import
-    exportData,
+    exportData: exportHistory,
     importData,
-    parseBackup: (text) => storage.parseBackup(text),
-    describeBackup: (data) => storage.describeBackup(data),
+    parseBackup,
+    describeBackup,
 
     // Storage events
-    onStorageFailure: (cb) => storage.onStorageFailure(cb),
+    onStorageFailure,
   };
 }

@@ -10,9 +10,6 @@
 .instrument-hover:empty { display:none; }
 .playable-piano { touch-action:none; }
 .playable-piano:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
-.surface-divider { height:8px; flex:0 0 8px; display:grid; place-items:center; cursor:ns-resize; background:var(--bg-2); touch-action:none; z-index:3; }
-.surface-divider i { width:36px; height:2px; border-radius:2px; background:var(--text-faint); pointer-events:none; }
-.surface-divider:hover,.surface-divider:focus-visible { background:var(--accent-soft); outline:2px solid var(--accent); outline-offset:-2px; }
 .guitar-position-label { position:absolute; transform:translate(-50%,-50%); z-index:1; pointer-events:none; line-height:1; font:600 14px var(--sans); color:var(--text); }
 .guitar-position-label.string { color:#fffaf0; background:#2b221de6; padding:2px 4px; border-radius:3px; }
 .guitar-stage { flex-shrink:0; overflow:hidden; }

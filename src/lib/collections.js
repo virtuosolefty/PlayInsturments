@@ -52,10 +52,5 @@ export function composersIn(library = []) {
     .sort((a, b) => b.songs.length - a.songs.length || a.name.localeCompare(b.name));
 }
 
-/** Everything that is an exercise or a traditional tune rather than a named work. */
-export function studiesIn(library = []) {
-  return library.filter((song) => NOT_A_PERSON.has(song.composer));
-}
-
 /** Surname only, for a chip that has to fit in a 292px drawer. */
 export const shortName = (name) => name.split(' ').filter(Boolean).pop();
