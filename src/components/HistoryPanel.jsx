@@ -86,7 +86,7 @@ export default function HistoryPanel({
             </div>
             <div className="kv">
               <span>Runs</span>
-              <span>{history.totalRuns}</span>
+              <span>{displayHistory.totalRuns}</span>
             </div>
             <div className="kv">
               <span>Best accuracy</span>

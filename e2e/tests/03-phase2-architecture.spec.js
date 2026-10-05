@@ -26,7 +26,7 @@ test.describe('Phase 2 — useAppData settings persistence', () => {
 
   test('practice mode survives a reload', async ({ page, appPage }) => {
     console.log('[phase2] switching mode to "Wait for me"');
-    const waitModeButton = page.getByRole('button', { name: /Wait for me/ });
+    const waitModeButton = page.getByRole('button', { name: 'Wait for me', exact: true });
     await waitModeButton.click();
     await expect(waitModeButton).toHaveClass(/on/);
 
@@ -38,7 +38,7 @@ test.describe('Phase 2 — useAppData settings persistence', () => {
     await appPage.waitForLibraryManifest();
 
     console.log('[phase2] re-checking that "Wait for me" is still the active mode');
-    await expect(page.getByRole('button', { name: /Wait for me/ })).toHaveClass(/on/);
+    await expect(waitModeButton).toHaveClass(/on/);
   });
 });
 
@@ -105,7 +105,8 @@ test.describe('Phase 2 — no historyVersion cache-busting needed', () => {
 
     for (let run = 1; run <= 3; run += 1) {
       console.log(`[phase2] playing run ${run} of 3`);
-      await appPage.playCompleteSession();
+      // A few scored notes suffice; this test checks repeated persistence, not accuracy.
+      await appPage.playCompleteSession(['a', 's', 'd']);
       await expect.poll(
         () => appPage.historyRunsCount(),
         { message: `History panel should read ${run} after run ${run}` },
