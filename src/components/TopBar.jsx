@@ -30,7 +30,7 @@ export default function TopBar({ midiState, audioReady, audioLabel, onStartAudio
     {/* Saving is silent while it works; it takes space in the bar only when it has failed. */}
     {storageProblem && <span className="saved-locally save-problem" role="status" title={saveNote}><i />Changes not saved</span>}
     <div className="sound-input" role="group" aria-label="Sound and input">
-      <button className="setup-trigger" onClick={onSetup}><span className={'connection-dot ' + (connected ? 'connected' : '')} /><span className="setup-label">{connected ? 'Controller connected' : 'Instrument setup'}</span></button>
+      <button className="setup-trigger" onClick={onSetup}><span className={'connection-dot ' + (connected ? 'connected' : '')} /><Icon name="sliders" size={16} className="setup-icon" /><span className="setup-label">{connected ? 'Controller connected' : 'Instrument setup'}</span></button>
       <div className="io-strip" aria-label="Sound">
         {audioReady ? <span className="io-slot ok audio-slot" title={`Sound ready · ${audioLabel}`}><i className="dot" /><strong>Sound ready</strong><LevelMeter /></span> : <button className="io-slot audio-slot" onClick={onStartAudio}><Icon name="volume" size={15} /> Enable sound</button>}
       </div>

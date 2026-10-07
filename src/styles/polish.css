@@ -225,8 +225,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
 }
 @media (max-width: 700px) {
   .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
-  .studio-app .topbar .setup-trigger { font-size: 0; gap: 0; padding: 0 10px; }
-  .studio-app .topbar .setup-trigger .connection-dot { width: 8px; height: 8px; }
   .studio-header { flex-wrap: wrap; padding: 16px !important; }
   .studio-header-actions { flex-wrap: wrap; width: 100%; }
   .studio-app .controls { flex-wrap: wrap; }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDialog } from '../hooks/useDialog.js';
 import Icon from './Icon.jsx';
 import { stageTierHere, webglAvailable, webglRendererName } from '../lib/webgl.js';
@@ -36,21 +36,33 @@ export function InstrumentIcon({ guitar = false, instrument = guitar ? 'guitar' 
 
 export default function StudioHeader({ score, settings, onInstrumentChange, freePlay, onFreePlay, focus, onFocus, instrumentSettings = null }) {
   const current = normalizeInstrument(settings.practiceInstrument);
+  // On a phone the header keeps the title and one button; the rest opens as a sheet (chrome.css).
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const closeSheet = () => setSheetOpen(false);
+  useEffect(() => {
+    if (!sheetOpen) return undefined;
+    const onKey = event => { if (event.key === 'Escape') setSheetOpen(false); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [sheetOpen]);
+  const sheetLabel = `${instrumentInfo(current).label} · ${freePlay ? 'Free play' : 'Learn'}`;
   return (
     <div className="studio-header">
       <div className="studio-heading">
         <h2>{freePlay ? 'A little room to improvise.' : score?.title ?? 'Choose your next piece'}</h2>
         <p title={score?.title}>{freePlay ? 'Explore your instrument. Nothing is scored or saved.' : (score?.composer ?? 'Your practice session')}<span>{!freePlay && ` · ${Math.round((score?.bpm ?? 80) * settings.rate)} bpm · ${score?.key?.name ?? ''}`}</span></p>
       </div>
-      <div className="studio-header-actions"><div className="workspace-switch" role="group" aria-label="Workspace"><button aria-pressed={!freePlay} onClick={() => onFreePlay(false)}>Learn</button><button aria-pressed={freePlay} onClick={() => onFreePlay(true)}>Free play</button></div>
+      <button className="header-sheet-toggle" aria-expanded={sheetOpen} aria-label={`${sheetLabel}. Change instrument or workspace`} onClick={() => setSheetOpen(open => !open)}><InstrumentIcon instrument={current} /><span>{sheetLabel}</span><Icon name="chevronDown" size={14} /></button>
+      {sheetOpen && <div className="header-sheet-scrim" onClick={closeSheet} />}
+      <div className={`studio-header-actions ${sheetOpen ? 'open' : ''}`}><div className="workspace-switch" role="group" aria-label="Workspace"><button aria-pressed={!freePlay} onClick={() => { closeSheet(); onFreePlay(false); }}>Learn</button><button aria-pressed={freePlay} onClick={() => { closeSheet(); onFreePlay(true); }}>Free play</button></div>
       <div className="instrument-picker" role="group" aria-label="Practice instrument">
         {INSTRUMENTS.map(value => (
           <button key={value} aria-pressed={current === value} aria-label={instrumentInfo(value).label} title={`${instrumentInfo(value).label} · ${instrumentInfo(value).tagline}`}
-            onClick={() => onInstrumentChange(value)}>
+            onClick={() => { closeSheet(); onInstrumentChange(value); }}>
             <InstrumentIcon instrument={value} /><span>{instrumentInfo(value).label}</span>
           </button>
         ))}
-      </div>{instrumentSettings}<button className="focus-toggle" aria-pressed={focus} onClick={onFocus} title={focus ? 'Show everything again (Esc)' : 'Hide panels and settings — just the music'}><Icon name={focus ? 'minimize' : 'focus'} size={14} />{focus ? 'Exit focus' : 'Focus'}</button></div>
+      </div>{instrumentSettings}<button className="focus-toggle" aria-pressed={focus} onClick={() => { closeSheet(); onFocus(); }} title={focus ? 'Show everything again (Esc)' : 'Hide panels and settings — just the music'}><Icon name={focus ? 'minimize' : 'focus'} size={14} />{focus ? 'Exit focus' : 'Focus'}</button></div>
     </div>
   );
 }

@@ -239,7 +239,7 @@ export default function Controls({
           {/* Only on the widths where the feedback column has been folded away. */}
           {onShowFeedback && (
             <button className="show-feedback" onClick={onShowFeedback} title="Show this run's feedback">
-              <Icon name="panel" /> This run
+              <Icon name="panel" /> <span>This run</span>
             </button>
           )}
 
@@ -253,7 +253,7 @@ export default function Controls({
               aria-expanded={open} aria-haspopup="dialog"
               title="View, hands, reference audio and zoom"
             >
-              <Icon name="sliders" /> Practice settings
+              <Icon name="sliders" /> <span>Practice settings</span>
             </button>
 
         {open && (
