@@ -17,6 +17,7 @@ export const MIDI_STATUS = {
   ERROR: 'error',
 };
 
+const MIDI_REQUEST_TIMEOUT_MS = 8000;
 const NOTE_OFF = 0x80;
 const NOTE_ON = 0x90;
 const CONTROL_CHANGE = 0xb0;
@@ -53,6 +54,27 @@ export class MidiInputManager {
     this.deviceListeners = new Set();
     this.accessListeners = new Set();
     this._boundMessage = this._onMessage.bind(this);
+    // Name-based picking is a guess. A controller with several ports (MPK mini IV
+    // has MIDI, DAW, Plugin and DIN) can leave us listening to one that never
+    // carries notes, and then the keys do nothing and nothing says why. So until
+    // the chosen port has produced a note, the first real note on any other port
+    // moves the selection there — unless the user picked a port themselves.
+    this._explicit = false;
+    this._selectedHeard = false;
+    this._probes = new Map();
+  }
+
+  _probeFor(id) {
+    if (!this._probes.has(id)) {
+      this._probes.set(id, (event) => {
+        const [status, , velocity = 0] = event.data;
+        if (this._explicit || this._selectedHeard) return;
+        if ((status & 0xf0) !== NOTE_ON || velocity === 0) return;
+        this._apply(id);
+        this._onMessage(event);
+      });
+    }
+    return this._probes.get(id);
   }
 
   /** Fires with the MIDIAccess once it exists, so outputs can be enumerated. */
@@ -93,27 +115,46 @@ export class MidiInputManager {
       this._notifyDevices();
       return this;
     }
+    // A browser that never shows its permission prompt (or cannot open the
+    // device) leaves this promise pending forever, which looked like an endless
+    // "Checking…". Give up waiting after a while and say so; if the browser does
+    // answer later, the late answer is still adopted.
+    const request = navigator.requestMIDIAccess({ sysex: false });
+    request.then((access) => { if (!this.access) this._adopt(access); }, () => {});
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(Object.assign(new Error('no answer from the browser'), { name: 'TimeoutError' })), MIDI_REQUEST_TIMEOUT_MS);
+    });
     try {
-      this.access = await navigator.requestMIDIAccess({ sysex: false });
-      this.access.onstatechange = () => {
-        this._refreshInputs();
-        this.accessListeners.forEach((fn) => fn(this.access));
-      };
-      this.status = MIDI_STATUS.READY;
-      this.error = null;
-      this._refreshInputs();
-      // The same MIDIAccess carries the output ports, which is how the app
-      // hands note duty to an external instrument.
-      this.accessListeners.forEach((fn) => fn(this.access));
+      const access = await Promise.race([request, timeout]);
+      if (!this.access) this._adopt(access);
     } catch (err) {
       this.status = err?.name === 'SecurityError' ? MIDI_STATUS.DENIED : MIDI_STATUS.ERROR;
       this.error =
         this.status === MIDI_STATUS.DENIED
           ? 'MIDI permission was blocked. Allow MIDI access for this site and reload.'
-          : `Could not open MIDI: ${err.message}`;
+          : err?.name === 'TimeoutError'
+            ? 'The browser did not answer the MIDI request. Look for a permission prompt near the address bar, or open the app in Chrome or Edge.'
+            : `Could not open MIDI: ${err.message}`;
       this._notifyDevices();
+    } finally {
+      clearTimeout(timer);
     }
     return this;
+  }
+
+  _adopt(access) {
+    this.access = access;
+    this.access.onstatechange = () => {
+      this._refreshInputs();
+      this.accessListeners.forEach((fn) => fn(this.access));
+    };
+    this.status = MIDI_STATUS.READY;
+    this.error = null;
+    this._refreshInputs();
+    // The same MIDIAccess carries the output ports, which is how the app
+    // hands note duty to an external instrument.
+    this.accessListeners.forEach((fn) => fn(this.access));
   }
 
   _refreshInputs() {
@@ -126,14 +167,23 @@ export class MidiInputManager {
     const stillThere = next.some((i) => i.id === this.selectedId);
     if (!stillThere) {
       this.selectedId = preferredMidiInput(next)?.id ?? null;
+      this._explicit = false;
+      this._selectedHeard = false;
     }
-    this.select(this.selectedId);
+    this._apply(this.selectedId);
   }
 
+  /** The user's own choice: honoured, and never auto-followed away from. */
   select(id) {
+    this._explicit = true;
+    return this._apply(id);
+  }
+
+  _apply(id) {
+    if (id !== this.selectedId) this._selectedHeard = false;
     this.selectedId = id;
     for (const input of this.inputs) {
-      input.onmidimessage = input.id === id ? this._boundMessage : null;
+      input.onmidimessage = input.id === id ? this._boundMessage : this._probeFor(input.id);
     }
     this._notifyDevices();
     return this;
@@ -148,6 +198,7 @@ export class MidiInputManager {
 
     let msg = null;
     if (type === NOTE_ON && d2 > 0) {
+      this._selectedHeard = true;
       msg = { type: 'noteon', midi: d1, velocity: d2 / 127, channel, at };
     } else if (type === NOTE_OFF || (type === NOTE_ON && d2 === 0)) {
       msg = { type: 'noteoff', midi: d1, velocity: 0, channel, at };

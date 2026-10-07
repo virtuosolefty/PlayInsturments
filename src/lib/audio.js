@@ -296,6 +296,9 @@ class AudioEngine {
   async _loadLocalPack() {
     const res = await fetch('/samples/manifest.json', { cache: 'no-cache' });
     if (!res.ok) return null;
+    // The pack is optional. A dev server answers a missing file with the app's
+    // HTML page and a 200, which is "no pack here", not a broken manifest.
+    if (/text\/html/i.test(res.headers?.get?.('content-type') ?? '')) return null;
     const manifest = await res.json();
     if (!manifest?.samples || Object.keys(manifest.samples).length === 0) return null;
 
