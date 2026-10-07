@@ -74,6 +74,11 @@
   .show-feedback, .studio-app .options-toggle { width: var(--control-h); min-height: var(--control-h); padding: 0; justify-content: center; }
 
   .studio-app .studio-footer { padding: 6px var(--sp-3); }
+
+  /* The home page: the instrument picker takes the full width, four equal segments. */
+  .learning-home-heading { flex-direction: column; align-items: stretch; gap: var(--sp-4); }
+  .learning-instruments { width: 100%; }
+  .learning-instruments button { flex: 1 1 0; min-width: 0; justify-content: center; gap: var(--sp-1); padding-inline: var(--sp-1); font-size: var(--fs-sm); }
   .close-feedback { min-height: var(--control-h); }
   .studio-footer .footer-detail { display: none; }
 }
