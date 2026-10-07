@@ -4,8 +4,8 @@
 /* ------------------------------------------------------- destinations
    Learning path, Library and Progress are one tab set with one style. The
    icons belong to the phone's tab bar and stay hidden up here. */
-.topbar-nav { display: flex; align-items: center; flex-shrink: 0; gap: 3px; padding: 3px; border-radius: 9px; background: var(--seg-trough); border: 1px solid var(--line-soft); }
-.studio-app .topbar .topbar-nav .nav-link { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text-dim); font-size: var(--fs-sm); white-space: nowrap; }
+.topbar-nav { display: flex; align-items: center; flex-shrink: 0; gap: 3px; padding: 3px; border-radius: var(--control-r); background: var(--seg-trough); border: 1px solid var(--line-soft); }
+.studio-app .topbar .topbar-nav .nav-link { display: inline-flex; align-items: center; gap: 6px; min-height: var(--control-h-sm); padding: 0 12px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text-dim); font-size: var(--fs-sm); white-space: nowrap; }
 .topbar-nav .nav-link .icon { display: none; }
 .studio-app .topbar .topbar-nav .nav-link:hover { color: var(--text); }
 .studio-app .topbar .topbar-nav .nav-link:is([aria-current], [aria-expanded="true"]) { background: var(--seg-on); color: var(--text); box-shadow: var(--seg-on-shadow); }
@@ -21,10 +21,20 @@
 .topbar > .saved-locally { font-size: var(--fs-xs); font-weight: 600; }
 
 /* ----------------------------------------------------------------- more */
-.more-toggle { display: inline-grid; place-items: center; flex: none; width: 36px; min-height: 36px; padding: 0; background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text-dim); }
+.more-toggle { display: inline-grid; place-items: center; flex: none; width: var(--control-h); min-height: var(--control-h); padding: 0; background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text-dim); }
 .more-toggle:hover, .more-toggle[aria-expanded="true"] { background: var(--pad-face-hover); color: var(--text); }
 .studio-app .popover.topbar-menu { width: 232px; padding: 6px; gap: 2px; }
-.topbar-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
+.topbar-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: var(--control-h); padding: 0 10px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
 .topbar-menu button:hover { background: var(--bg-2); }
 .topbar-menu button .icon { color: var(--text-dim); }
 .topbar-menu .menu-status { margin: 4px 0 0; padding: 10px 10px 6px; border-top: 1px solid var(--line-soft); font-size: var(--fs-xs); }
+
+/* ------------------------------------------------------------- controls
+   A segmented control is one control tall, so its segments take the small
+   step. The one action a view is for takes the large one. */
+.workspace-switch button, .instrument-picker button, .library-instruments button, .studio-app .mode-switch button, .stage-view-switch button, .fit-switch button, .practice-size button { min-height: var(--control-h-sm); padding-block: 0; }
+.learning-instruments button { padding-block: 0; }
+.settings-heading button, .drawer-heading button { width: var(--control-h); }
+@media (min-width: 901px) {
+  .studio-app .controls .pad.pad-play { min-height: var(--control-h-lg); height: var(--control-h-lg); }
+}

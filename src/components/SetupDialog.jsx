@@ -36,7 +36,7 @@ export default function SetupDialog({ settings, setSettings, midiState, audioRea
     : 'Connect your USB MIDI controller, then look for a device. The on-screen instrument is always available.';
   return <div className="report-overlay setup-overlay">
     <section className="report setup-dialog" ref={ref} role="dialog" aria-modal="true" aria-labelledby="setup-title" tabIndex={-1}>
-      <header className="setup-heading"><div><span className="eyebrow">MAKE YOURSELF AT HOME</span><h2 id="setup-title">Your instrument, ready to play.</h2></div><button onClick={onClose} aria-label="Close instrument setup">×</button></header>
+      <header className="setup-heading"><div><h2 id="setup-title">Your instrument, ready to play.</h2></div><button onClick={onClose} aria-label="Close instrument setup">×</button></header>
       <div className="setup-instrument"><InstrumentIcon instrument={instrument} /><div><strong>{info.label}</strong><span>{info.detail}</span></div></div>
       <h3 className="setup-section-title">Controller input</h3>
       <div className="setup-inputs" role="group" aria-label="Input preference">

@@ -3,7 +3,7 @@ import { liveFeedback } from '../lib/liveFeedback.js';
 export default function FeedbackPanel({ summary, events = [], listening = false, waitingMode = false, playing = false }) {
   const s = summary ?? {};
   const live = liveFeedback(s);
-  if (listening) return <div className="section live-feedback"><span className="eyebrow">LISTEN & LEARN</span><h2>Hear the whole phrase.</h2><p className="hint">Follow the notes and listen for the rhythm. This preview is not scored.</p></div>;
+  if (listening) return <div className="section live-feedback"><h2>Hear the whole phrase.</h2><p className="hint">Follow the notes and listen for the rhythm. This preview is not scored.</p></div>;
   const pct = v => v == null ? '—' : Math.round(v * 100) + '%';
   return <>
     <div className="section live-feedback">

@@ -34,12 +34,11 @@ export function InstrumentIcon({ guitar = false, instrument = guitar ? 'guitar' 
   );
 }
 
-export default function StudioHeader({ score, settings, playing, onInstrumentChange, freePlay, onFreePlay, focus, onFocus, instrumentSettings = null }) {
+export default function StudioHeader({ score, settings, onInstrumentChange, freePlay, onFreePlay, focus, onFocus, instrumentSettings = null }) {
   const current = normalizeInstrument(settings.practiceInstrument);
   return (
     <div className="studio-header">
       <div className="studio-heading">
-        <span className="eyebrow"><i className={playing ? 'session-dot live' : 'session-dot'} /> YOUR PRACTICE STUDIO</span>
         <h2>{freePlay ? 'A little room to improvise.' : score?.title ?? 'Choose your next piece'}</h2>
         <p title={score?.title}>{freePlay ? 'Explore your instrument. Nothing is scored or saved.' : (score?.composer ?? 'Your practice session')}<span>{!freePlay && ` · ${Math.round((score?.bpm ?? 80) * settings.rate)} bpm · ${score?.key?.name ?? ''}`}</span></p>
       </div>

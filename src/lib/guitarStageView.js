@@ -9,9 +9,11 @@ import { GUITAR_TUNING } from './guitar.js';
 import { chordPositionLabel, chordTone } from './guitarPresentation.js';
 import { DRAWN_NECK, fretSpace, OPEN_SPACE, STRING_COUNT } from './guitarNeck.js';
 import { noteName } from './theory.js';
+import { STAGE_COLORS } from './stageColors.js';
 
 const VERDICT_COLORS = new Map([['wrong', '#c95d74'], ['timing', '#c69548']]);
-const PLAYED = '#63dbb6', POINTED = '#7160c6', GUESSED = '#cfb980', ROOT = '#e3ad77', TONE = '#f1ebdf';
+// The note to play next, and the place under the pointer, share the stage's note blue.
+const PLAYED = '#63dbb6', POINTED = STAGE_COLORS.noteRight, GUESSED = '#cfb980', ROOT = '#e3ad77', TONE = '#f1ebdf';
 const OUTLINED = new Set(['target', 'hover', 'possible']);
 const looks = new Map();
 

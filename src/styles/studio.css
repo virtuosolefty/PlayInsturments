@@ -5,20 +5,20 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .studio-app .topbar { background: transparent; border: 0; padding: 17px 0 10px; box-shadow: none; gap: 20px; }
 .studio-app .brand { order: -1; gap: 10px; }
 .studio-app .brand h1 { letter-spacing: -0.5px; font-weight: 750; font-size: 17px; }
-.studio-app .brand .mark { width: 22px; height: 27px; border-radius: 4px; background: repeating-linear-gradient(90deg, #78e0c8 0 4px, transparent 4px 7px); box-shadow: none; }
+.studio-app .brand .mark { width: 22px; height: 27px; border-radius: var(--radius-xs); background: repeating-linear-gradient(90deg, #78e0c8 0 4px, transparent 4px 7px); box-shadow: none; }
 .studio-app .brand .ver { color: #91a398; font-size: 9px; letter-spacing: 2px; }
 .studio-app .topbar > .chip:not(.setup) { display: none; }
 .studio-app .topbar .chip.setup { border: 0; background: transparent; }
-.studio-app .io-strip { box-shadow: none; background: #131a22; border-color: #303b49; border-radius: 8px; }
-.studio-app .io-slot { min-height: 36px; }
+.studio-app .io-strip { box-shadow: none; background: #131a22; border-color: #303b49; border-radius: var(--control-r); }
+.studio-app .io-slot { min-height: calc(var(--control-h) - 2px); }
 .studio-app .io-slot.primary { background: #78e0c8; color: #10251f; font-weight: 650; }
 .studio-app .app-body { gap: 16px; background: transparent; grid-template-columns: minmax(0, 1fr) 300px; }
-.studio-app .pane.center { background: #131a23; border: 1px solid #2b3542; border-radius: 14px; box-shadow: 0 15px 50px #00000025; }
-.studio-app .pane.right { background: #141a23; border: 1px solid #2b3542; border-radius: 14px; }
-.studio-app .pane.left { width: 320px; background: #151c25; border-radius: 12px; }
+.studio-app .pane.center { background: #131a23; border: 1px solid #2b3542; border-radius: var(--radius); box-shadow: 0 15px 50px #00000025; }
+.studio-app .pane.right { background: #141a23; border: 1px solid #2b3542; border-radius: var(--radius); }
+.studio-app .pane.left { width: 320px; background: #151c25; border-radius: var(--radius); }
 .studio-app .section { padding: 24px; }
 .studio-app .pane.left .section { padding: 18px; }
-.studio-app .scrim { border-radius: 14px; }
+.studio-app .scrim { border-radius: var(--radius); }
 .studio-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 26px; gap: 20px; background: radial-gradient(ellipse at 90% 0, #24423765, transparent 65%); }
 .studio-heading { min-width: 0; }
 .studio-heading .eyebrow { display: flex; gap: 7px; align-items: center; font-size: 10px; letter-spacing: 1.9px; color: #adc1c2; }
@@ -27,16 +27,16 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .studio-heading h2 { font-size: clamp(21px, 2vw, 30px); font-weight: 650; margin: 9px 0 7px; letter-spacing: -1px; }
 .studio-heading p { font-size: 12px; color: #a4b3c3; margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .studio-heading p span { color: #a7d4c6; }
-.instrument-picker { display: flex; padding: 5px; gap: 5px; border: 1px solid #35433f; background: #10191dd9; border-radius: 12px; flex-shrink: 0; }
-.instrument-picker button { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; min-width: 104px; border-radius: 8px; border: 1px solid transparent; background: transparent; box-shadow: none; color: #adbbc4; }
+.instrument-picker { display: flex; padding: 5px; gap: 5px; border: 1px solid #35433f; background: #10191dd9; border-radius: var(--radius); flex-shrink: 0; }
+.instrument-picker button { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: var(--control-h-sm); min-width: 104px; border-radius: var(--control-r); border: 1px solid transparent; background: transparent; box-shadow: none; color: #adbbc4; }
 .instrument-picker button[aria-pressed='true'] { background: #78e0c8; border-color: #91efd9; color: #0a2b23; box-shadow: 0 3px 10px #0004; font-weight: 700; }
 .instrument-picker svg { width: 21px; height: 21px; }
 .studio-app .controls { border-top: 1px solid #29343f; border-bottom-color: #29343f; padding: 13px 16px; gap: 12px; box-shadow: none; background: #171e28; }
-.studio-app .pad { min-height: 46px; border-color: #394553; border-radius: 7px; }
+.studio-app .pad { min-height: 46px; border-color: #394553; border-radius: var(--control-r); }
 .studio-app .pad.primary { background: #78e0c8; color: #0e2a22; text-shadow: none; box-shadow: inset 0 1px 0 #ffffff60; }
 .studio-app .pad.primary .glyph, .studio-app .pad.primary .keycap { color: #12372c; }
-.studio-app .mode-switch { border-color: #344050; background: #101620; box-shadow: none; padding: 4px; border-radius: 8px; }
-.studio-app .mode-switch button { min-height: 30px; }
+.studio-app .mode-switch { border-color: #344050; background: #101620; box-shadow: none; padding: 4px; border-radius: var(--control-r); }
+.studio-app .mode-switch button { min-height: var(--control-h-sm); }
 .studio-app .mode-switch button.on { background: #2a3846; color: #c2f6e9; box-shadow: none; }
 .studio-app .zone + .zone { border-color: #35404c; box-shadow: none; }
 .studio-app .popover { max-height: min(65vh, 540px); overflow-y: auto; }
@@ -44,11 +44,11 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .stage-description { font-weight: 400; letter-spacing: 0; margin-left: 6px; color: var(--text-faint); }
 @media (max-width: 700px) { .stage-description { display: none; } }
 .stage-view-switch { display: flex; align-items: center; gap: 3px; }
-.stage-view-switch button { background: transparent; border: 0; box-shadow: none; color: #9baabd; padding: 6px 10px; font-size: 11px; min-height: 30px; }
-.stage-view-switch button[aria-pressed='true'] { background: #25333c; color: #adf0dd; border-radius: 5px; }
+.stage-view-switch button { background: transparent; border: 0; box-shadow: none; color: #9baabd; padding: 6px 10px; font-size: 11px; min-height: var(--control-h-sm); }
+.stage-view-switch button[aria-pressed='true'] { background: #25333c; color: #adf0dd; border-radius: var(--radius-sm); }
 .studio-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; color: #9aabbd; font-size: 10px; background: #141b24; border-top: 1px solid #2d3744; }
 .studio-footer > span { display: inline-flex; align-items: center; gap: 6px; }
-.studio-footer kbd { background: #202a36; border: 1px solid #394553; padding: 1px 4px; font-size: 9px; border-radius: 3px; color: #cbd7e6; }
+.studio-footer kbd { background: #202a36; border: 1px solid #394553; padding: 1px 4px; font-size: 9px; border-radius: var(--radius-xs); color: #cbd7e6; }
 .studio-app .piece-panel { background: linear-gradient(155deg, #202c35, #141a23 55%); }
 .studio-app .piece-panel .eyebrow { font-size: 10px; letter-spacing: 1.8px; color: #9fd4c6; }
 .studio-app .piece-title { margin-top: 17px; font-size: 24px; line-height: 1.3; font-weight: 630; letter-spacing: -0.7px; }
@@ -56,7 +56,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .studio-app .piece-best { padding: 12px 0 0; font-size: 11px; }
 .studio-app .piece-facts { margin-top: 22px; }
 .studio-app .piece-facts > div { padding: 10px 0; border-color: #2d3743; font-size: 12px; }
-.studio-app .piece-play { min-height: 48px; margin-top: 17px; background: #78e0c8; color: #0c2921; border: 0; border-radius: 9px; font-weight: 650; box-shadow: 0 5px 20px #78e0c815; }
+.studio-app .piece-play { min-height: 48px; margin-top: 17px; background: #78e0c8; color: #0c2921; border: 0; border-radius: var(--radius); font-weight: 650; box-shadow: 0 5px 20px #78e0c815; }
 .studio-app .piece-hint { line-height: 1.8; font-size: 11px; margin-bottom: 0; }
 .studio-coach { padding: 24px; background: #151e26; border-top: 1px solid #293842; }
 .studio-coach .eyebrow { color: #90b6ab; font-size: 9px; letter-spacing: 1.2px; }
@@ -64,20 +64,20 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .studio-coach p { color: #a2b2c5; font-size: 12px; line-height: 1.8; }
 .studio-coach ol { list-style: none; padding: 4px 0 0; margin: 0; display: grid; gap: 15px; }
 .studio-coach li { font-size: 11px; color: #c1cdd9; display: flex; align-items: center; gap: 10px; }
-.studio-coach b { color: #8fbcaf; font: 10px var(--mono); background: #23362f; border-radius: 5px; padding: 6px; }
-.studio-app .song { border-radius: 8px; padding: 12px; margin-bottom: 4px; }
+.studio-coach b { color: #8fbcaf; font: 10px var(--mono); background: #23362f; border-radius: var(--radius-sm); padding: 6px; }
+.studio-app .song { border-radius: var(--control-r); padding: 12px; margin-bottom: 4px; }
 .studio-app .song.active { background: #203a35; border-color: #4b8f7f; }
 .library-search { display: block; margin: 12px 0; }
 .library-mode-note { color: #b7c8d2; font-size: 11px; line-height: 1.6; padding: 4px 18px; }
-.library-search input { width: 100%; min-height: 40px; background: #0c131c; border: 1px solid #3b4b5d; border-radius: 8px; padding: 9px 12px; color: #edf2f8; }
-.skip-link { position: fixed; top: -100px; left: 20px; z-index: 300; background: #78e0c8; color: #09261c; padding: 12px; border-radius: 8px; }
+.library-search input { width: 100%; min-height: var(--control-h); background: #0c131c; border: 1px solid #3b4b5d; border-radius: var(--control-r); padding: 9px 12px; color: #edf2f8; }
+.skip-link { position: fixed; top: -100px; left: 20px; z-index: 300; background: #78e0c8; color: #09261c; padding: 12px; border-radius: var(--control-r); }
 .skip-link:focus { top: 12px; }
 .close-feedback { align-self: flex-end; margin: 12px 14px 0; min-height: 36px; }
 /* The guitar score is linear in time even with the 3D fretboard enabled. */
 .guitar-workspace { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: auto; background: #0c1118; }
 .guitar-study-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px; gap: 12px; flex-shrink: 0; }
 .guitar-study-row label { display: flex; align-items: center; gap: 10px; font-size: 11px; color: #a5b6c8; }
-.guitar-study-row select { min-width: 205px; min-height: 36px; border: 1px solid #344653; background: #1a2630; color: #e6f2ef; border-radius: 7px; padding: 4px 12px; }
+.guitar-study-row select { min-width: 205px; min-height: var(--control-h); border: 1px solid #344653; background: #1a2630; color: #e6f2ef; border-radius: var(--control-r); padding: 4px 12px; }
 .tuning-badge { color: #93a598; font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 .tuning-badge b { color: #c0d2cb; font-size: 10px; letter-spacing: 3px; margin-left: 8px; }
 .guitar-tab { display: block; flex: 1 1 0; height: 0; min-height: 140px; width: 100%; }
@@ -103,7 +103,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 .left-handed .guitar-string, .left-handed .fret-numbers { direction: rtl; }
 .guitar-chords { display: flex; align-items: center; gap: 7px; padding: 9px 18px; flex-wrap: wrap; }
 .guitar-chords > span { font-size: 9px; color: #a5b6b0; letter-spacing: 1px; margin-right: 4px; }
-.guitar-chords button { background: #1a2530; border: 1px solid #3a4c57; color: #c6d4e0; min-width: 34px; min-height: 32px; padding: 5px 9px; box-shadow: none; font-size: 11px; }
+.guitar-chords button { background: #1a2530; border: 1px solid #3a4c57; color: #c6d4e0; min-width: 34px; min-height: var(--control-h-sm); padding: 5px 9px; box-shadow: none; font-size: 11px; }
 .guitar-chords button[aria-pressed='true'] { background: #254239; border-color: #77a896; color: #bcf1de; }
 .guitar-chords .strum-button { color: #b4f1dc; border-color: #558978; margin-left: 3px; }
 .guitar-left-toggle { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #a8bab4; margin-left: auto; }

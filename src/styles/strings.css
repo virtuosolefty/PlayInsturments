@@ -29,7 +29,7 @@
 /* Nickel-silver fret wire at the end of each fret space. */
 .fretboard-surface > span:nth-child(n+3):not(:last-child)::before {
   content:''; position:absolute; inset-block:-1px; inset-inline-end:-2px; width:4px; z-index:1;
-  background:linear-gradient(90deg,#8e9196,#f4f6f8 45%,#a7aaaf); border-radius:2px; box-shadow:1px 0 2px #0007;
+  background:linear-gradient(90deg,#8e9196,#f4f6f8 45%,#a7aaaf); border-radius: var(--radius-xs); box-shadow:1px 0 2px #0007;
 }
 .guitar-fretboard .guitar-string { position:relative; z-index:1; }
 .guitar-fretboard .guitar-string button,
@@ -60,14 +60,14 @@
 .guitar-stage-leaders line { stroke:var(--text-dim); stroke-width:1; stroke-linecap:round; }
 .guitar-stage-leaders line.halo { stroke:var(--bg-1); stroke-width:3; stroke-opacity:.6; }
 .guitar-stage-bottom .guitar-stage-hint,
-.guitar-stage-legend { background:color-mix(in srgb,var(--bg-1) 88%,transparent); padding:4px 9px; border-radius:999px; }
+.guitar-stage-legend { background:color-mix(in srgb,var(--bg-1) 88%,transparent); padding:4px 9px; border-radius: var(--radius-pill); }
 .guitar-stage-end { display:flex; align-items:center; gap:8px; min-width:0; }
 /* Two lines at most: squeezed beside the legend, the hint shortens instead of growing into a column over the neck. */
 .guitar-stage-end .guitar-stage-hint { min-width:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
 /* The bar ignores the pointer so clicks reach the neck; these buttons take them back. */
 .guitar-reset-view, .stage-view-toggle button {
   pointer-events:auto; flex-shrink:0; cursor:pointer; font:600 11px/1 var(--sans); color:var(--text);
-  padding:5px 10px; border-radius:999px; border:1px solid var(--line-soft);
+  padding:5px 10px; border-radius: var(--radius-pill); border:1px solid var(--line-soft);
   background:color-mix(in srgb,var(--bg-1) 92%,transparent);
 }
 .guitar-reset-view:not([aria-disabled="true"]):hover, .stage-view-toggle button:hover { border-color:var(--accent); color:var(--accent); }
@@ -93,7 +93,7 @@
 /* What the stage is waiting for, or could not do, in the middle of the stage, readable over the instrument. */
 .stage-status {
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; max-width:calc(100% - 32px);
-  padding:6px 12px; border-radius:999px; background:color-mix(in srgb,var(--bg-1) 90%,transparent);
+  padding:6px 12px; border-radius: var(--radius-pill); background:color-mix(in srgb,var(--bg-1) 90%,transparent);
   color:var(--text); font-size:12px; line-height:1.4; text-align:center; pointer-events:none;
 }
 .stage-status:empty { display:none; }
@@ -121,9 +121,8 @@
 .bowed-stage {
   position:relative; flex:1 1 auto; min-height:170px; display:flex; flex-direction:column; justify-content:center;
   padding:8px 0 38px; overflow:hidden; border-block:1px solid var(--line-soft);
-  background:radial-gradient(ellipse at 42% 50%,#faf5ec 5%,#eee9e0 70%,#e9e6e2);
+  background:radial-gradient(ellipse at 42% 50%,#34313a 0%,#24232c 65%,#202029);
 }
-:root[data-theme="dark"] .bowed-stage { background:radial-gradient(ellipse at 42% 50%,#34313a 0%,#24232c 65%,#202029); }
 .studio-app.free-play .bowed-stage { min-height:300px; }
 .bowed-svg { display:block; width:100%; height:100%; max-height:430px; overflow:visible; touch-action:none; user-select:none; -webkit-user-select:none; }
 .bowed-art, .bowed-tape, .bowed-marker, .bowed-string, .bowed-string-wind, .bowed-string-glint, .bowed-string-silk, .bowed-string-name, .bowed-zone-caption, .bowed-bow { pointer-events:none; }
@@ -167,7 +166,7 @@
 .bow-card .bow-notes { display:flex; flex-direction:column; gap:10px; }
 .bow-note-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
 .bow-note-list button, .bow-open-strings button { width:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
-.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line-strong); border-radius:6px; background:var(--bg-1); }
+.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line-strong); border-radius: var(--radius-sm); background:var(--bg-1); }
 .bow-note-list b { font-size:14px; font-weight:650; }
 .bow-note-list small { font:10px var(--mono); color:var(--text-faint); }
 .bow-note-list button.sounding, .bow-open-strings button.sounding { background:#167b63; color:#fff; border-color:#167b63; }

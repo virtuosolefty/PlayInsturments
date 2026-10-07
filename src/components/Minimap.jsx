@@ -8,18 +8,16 @@ const HEIGHT = 40;
 // full height and shown squeezed, so opening a loop does not repaint it.
 const COMPACT_HEIGHT = 16;
 
-const COLORS = {
-  // Matched to PianoRoll's laneWhite. The two are screens set into the same
-  // plate a few pixels apart, and a blue cast on one of them showed.
-  bg: '#0a0d13',
-  right: PIANO_COLORS.right,
-  left: PIANO_COLORS.left,
-  accompaniment: 'rgba(255,255,255,0.16)',
-  trouble: '#ff5d6c',
-  loop: 'rgba(77,212,192,0.10)',
-  played: 'rgba(77,212,192,0.07)',
-  head: '#4dd4c0',
-};
+/**
+ * The timeline is chrome, not stage, so it follows the theme: it reads the
+ * interface tokens where it is mounted. The playhead and the loop are the
+ * music's position, which is --now everywhere else too.
+ */
+function timelineColors(el) {
+  const css = el ? getComputedStyle(el) : null;
+  const token = (name, builtIn) => css?.getPropertyValue(name).trim() || builtIn;
+  return { bg: token('--bg-2', '#eeedf5'), now: token('--now', '#2f62ab'), trouble: token('--bad', '#b53954'), quiet: token('--text-faint', '#5f6174') };
+}
 
 /**
  * The whole piece at a glance.
@@ -41,6 +39,7 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
   const layerRef = useRef(null);
   const engineRef = useRef(engine);
   engineRef.current = engine;
+  const colorsRef = useRef(null);
   const loopRef = useRef(loop);
   loopRef.current = loop;
 
@@ -64,13 +63,17 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, HEIGHT);
 
-    ctx.fillStyle = theme === 'light' ? '#eeece8' : '#131319';
+    const colors = timelineColors(wrapRef.current);
+    colorsRef.current = colors;
+    ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, w, HEIGHT);
 
     if (loop) {
       const from = (loop[0] / score.duration) * w;
-      ctx.fillStyle = COLORS.loop;
+      ctx.fillStyle = colors.now;
+      ctx.globalAlpha = 0.1;
       ctx.fillRect(from, 0, ((loop[1] - loop[0]) / score.duration) * w, HEIGHT);
+      ctx.globalAlpha = 1;
     }
 
     const [lo, hi] = range;
@@ -83,11 +86,11 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
       const width = Math.max(1.2, (note.duration / score.duration) * w);
       const y = pad + (1 - (note.midi - lo) / span) * usable;
       ctx.fillStyle = note.accompaniment
-        ? COLORS.accompaniment
+        ? colors.quiet
         : note.hand === 'left'
-          ? COLORS.left
-          : COLORS.right;
-      ctx.globalAlpha = note.accompaniment ? 1 : 0.75;
+          ? PIANO_COLORS.left
+          : PIANO_COLORS.right;
+      ctx.globalAlpha = note.accompaniment ? 0.3 : 0.85;
       ctx.fillRect(x, y - 1, width, 2.4);
     }
     ctx.globalAlpha = 1;
@@ -97,7 +100,7 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
       const worst = Math.max(...troubleSpots.map((t) => t.weight), 1);
       for (const spot of troubleSpots) {
         const x = (spot.time / score.duration) * w;
-        ctx.fillStyle = COLORS.trouble;
+        ctx.fillStyle = colors.trouble;
         ctx.globalAlpha = 0.35 + 0.65 * (spot.weight / worst);
         ctx.fillRect(x - 1, HEIGHT - 3, 2.5, 3);
       }
@@ -152,10 +155,14 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
       const songTime = engineRef.current?.transportRef?.current?.now() ?? 0;
       const x = (Math.max(0, songTime) / duration) * w;
 
-      ctx.fillStyle = COLORS.played;
+      const colors = colorsRef.current;
+      if (!colors) return;
+      ctx.fillStyle = colors.now;
+      ctx.globalAlpha = 0.08;
       ctx.fillRect(0, 0, x, HEIGHT);
+      ctx.globalAlpha = 1;
 
-      ctx.strokeStyle = COLORS.head;
+      ctx.strokeStyle = colors.now;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(x, 0);

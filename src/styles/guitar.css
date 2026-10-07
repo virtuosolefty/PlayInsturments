@@ -1,24 +1,23 @@
 /* Guitar workspace. Scoped to the instrument so piano layout stays independent. */
 .guitar-workspace, .chord-card { --guitar-root:#a36032; --guitar-played:#167b63; }
 .guitar-view-controls { gap:16px; padding:8px 16px; }
-.guitar-view-controls select { border-radius:6px; }
+.guitar-view-controls select { border-radius: var(--radius-sm); }
 .guitar-height-control { white-space:nowrap; }
 .guitar-height-control input { width:60px; min-width:0; accent-color:var(--accent); }
 .guitar-next { background:var(--bg-1); gap:14px; min-height:32px; }
 .guitar-next > span:first-child { font-size:9px; font-weight:650; letter-spacing:1.2px; }
 .guitar-next strong { font-weight:600; }
-.guitar-stage { isolation:isolate; border-block:1px solid var(--line-soft); background:radial-gradient(ellipse at 50% 45%,#faf5ec 5%,#eee9e0 70%,#e9e6e2); }
-:root[data-theme="dark"] .guitar-stage { background:radial-gradient(ellipse at 50% 45%,#34313a 0%,#24232c 65%,#202029); }
+.guitar-stage { isolation:isolate; border-block:1px solid var(--line-soft); background:radial-gradient(ellipse at 50% 45%,#34313a 0%,#24232c 65%,#202029); }
 .guitar-stage-top { position:absolute; inset:12px 18px auto; display:flex; align-items:center; justify-content:space-between; gap:18px; z-index:2; pointer-events:none; }
 .guitar-stage-top > div:first-child { display:flex; align-items:center; gap:10px; }
 .guitar-stage-top strong { font-size:13px; font-weight:650; }
 .guitar-stage-top span { color:var(--text-faint); font-size:11px; }
 .guitar-open-picks { display:flex; align-items:center; gap:4px; pointer-events:auto; }
 .guitar-open-picks > span { font-size:8px; letter-spacing:1px; margin-right:6px; }
-.guitar-open-picks button { min-width:30px; min-height:27px; padding:4px 5px; font:11px var(--mono); background:var(--bg-1); border:1px solid var(--line-strong); border-radius:5px; }
+.guitar-open-picks button { min-width:30px; min-height: var(--control-h-sm); padding:4px 5px; font:11px var(--mono); background:var(--bg-1); border:1px solid var(--line-strong); border-radius: var(--radius-sm); }
 .guitar-open-picks button:hover { background:var(--accent-soft); border-color:var(--accent); }
 .guitar-open-picks button:active { transform:translateY(1px); background:var(--accent); color:var(--on-accent); }
-.guitar-position-label.string { background:#251d19; border:1px solid #b99d7340; border-radius:4px; padding:4px 5px; font-weight:500; box-shadow:0 1px 3px #0003; }
+.guitar-position-label.string { background:#251d19; border:1px solid #b99d7340; border-radius: var(--radius-xs); padding:4px 5px; font-weight:500; box-shadow:0 1px 3px #0003; }
 .guitar-position-label.fret { color:var(--text-dim); font-family:var(--mono); font-weight:500; }
 .guitar-position-label.finger { font-weight:750; color:#30251c; text-shadow:none; }
 .guitar-position-label.finger.root { color:#3d2515; }
@@ -29,7 +28,7 @@
 .guitar-stage-legend i { width:7px; height:7px; border-radius:50%; background:#a36032; margin-left:9px; }
 .guitar-stage-legend i:first-child { margin-left:0; }
 .guitar-stage-legend i.played { background:#167b63; }
-.guitar-stage-legend i.next { background:transparent; border:1.5px solid var(--accent); width:8px; height:8px; }
+.guitar-stage-legend i.next { background:transparent; border:1.5px solid var(--now); width:8px; height:8px; }
 .guitar-stage-bottom .guitar-stage-hint { position:static; background:none; padding:0; font-size:11px; }
 .guitar-fret-controls { background:var(--bg-1); }
 .guitar-fret-controls > summary { padding:7px 16px; font-size:11px; }
@@ -44,17 +43,17 @@
 .chord-card-heading strong { font-size:14px; font-weight:550; }
 .chord-card-heading > div > span { font-size:10px; color:var(--text-faint); }
 .chord-choices { grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; margin-bottom:16px; }
-.chord-choices button { min-height:34px; font-size:13px; border-radius:6px; }
+.chord-choices button { min-height: var(--control-h-sm); font-size:13px; border-radius: var(--radius-sm); }
 .chord-choices button[aria-pressed=true] { background:var(--accent); color:var(--on-accent); }
-.chord-visual { background:var(--bg); border:1px solid var(--line-soft); border-radius:10px; padding:8px; }
-.chord-label-modes { display:flex; padding:3px; background:var(--bg-2); border-radius:6px; gap:2px; }
-.chord-label-modes button { flex:1; border:0; background:none; min-height:27px; padding:4px 2px; font-size:11px; color:var(--text-dim); }
-.chord-label-modes button[aria-pressed=true] { background:var(--bg-1); color:var(--text); box-shadow:0 1px 4px #0001; border-radius:4px; }
+.chord-visual { background:var(--bg); border:1px solid var(--line-soft); border-radius: var(--radius); padding:8px; }
+.chord-label-modes { display:flex; padding:3px; background:var(--bg-2); border-radius: var(--radius-sm); gap:2px; }
+.chord-label-modes button { flex:1; border:0; background:none; min-height: var(--control-h-sm); padding:4px 2px; font-size:11px; color:var(--text-dim); }
+.chord-label-modes button[aria-pressed=true] { background:var(--bg-1); color:var(--text); box-shadow:0 1px 4px #0001; border-radius: var(--radius-xs); }
 .chord-card .chord-diagram { height:205px; margin:0 auto; }
 .chord-diagram .diagram-fret-number { font:10px var(--mono); fill:var(--text-faint); }
 .chord-diagram .diagram-finger { font-size:13px; font-weight:600; }
 .chord-tones { display:flex; justify-content:center; gap:8px; padding-bottom:5px; }
-.chord-tones > span { display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:5px; padding:4px 7px; font-size:11px; background:var(--bg-1); }
+.chord-tones > span { display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius: var(--radius-sm); padding:4px 7px; font-size:11px; background:var(--bg-1); }
 .chord-tones small { font-size:9px; color:var(--text-faint); }
 .chord-tones .root { border-color:#a3603260; }
 .chord-tones .root b { color:var(--guitar-root); }
@@ -62,19 +61,19 @@
 .chord-audition > span { display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); margin-bottom:7px; }
 .chord-audition small { font-size:9px; color:var(--text-faint); }
 .chord-string-picks { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; }
-.chord-string-picks button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; min-height:40px; border:1px solid var(--line-strong); border-radius:6px; background:var(--bg-1); }
+.chord-string-picks button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; min-height:40px; border:1px solid var(--line-strong); border-radius: var(--radius-sm); background:var(--bg-1); }
 .chord-string-picks b { font-size:13px; font-weight:600; }
 .chord-string-picks button:disabled { opacity:.4; border-style:dashed; }
 .chord-string-picks button.sounding { background:#167b63; color:#fff; border-color:#167b63; }
 .chord-string-picks button.sounding small { color:#ddfff4; }
 .chord-card .strum-actions { margin:0; gap:7px; }
-.chord-card .strum-actions button { flex:1; min-height:36px; font-size:12px; padding:6px; }
+.chord-card .strum-actions button { flex:1; min-height: var(--control-h); font-size:12px; padding:6px; }
 .chord-dynamics { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
 .chord-dynamics label { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; font-size:10px; color:var(--text-dim); }
 .chord-dynamics output { font:10px var(--mono); }
 .chord-dynamics input { width:100%; min-width:0; height:16px; margin:0; accent-color:var(--accent); }
 .chord-card .hint { color:var(--text-faint); font-size:10px; line-height:1.7; margin:13px 0 0; }
-:root[data-theme="dark"] .chord-card, :root[data-theme="dark"] .guitar-workspace { --guitar-root:#ba7747; }
+:root[data-theme="dark"] .chord-card, .guitar-workspace { --guitar-root:#ba7747; }
 
 @media(min-width:901px) {
   .studio-app .guitar-workspace { overflow:auto; }
@@ -126,7 +125,7 @@
   .guitar-stage-top { inset:10px 12px auto; flex-wrap:wrap; gap:6px 10px; }
   .studio-app.free-play .guitar-stage-top > div:first-child > span, .guitar-open-picks > span { display:none; }
   .guitar-open-picks { flex-wrap:wrap; }
-  .guitar-open-picks button { min-width:28px; min-height:28px; padding:3px 4px; }
+  .guitar-open-picks button { min-width:28px; min-height: var(--control-h-sm); padding:3px 4px; }
   /* Under the stage the chord and scale explorers read top to bottom; three columns left the last one 54px wide.
      The violin and cello workspaces carry the guitar-workspace class too, so this covers their explorer. */
   .guitar-workspace > .chord-card { grid-template-columns:minmax(0, 1fr); }

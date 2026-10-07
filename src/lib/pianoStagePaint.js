@@ -19,11 +19,14 @@ export function paintStageNotes(ctx, { notes, geometry, now, pps, hitLine, proje
     ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.lineTo(c.x,c.y);ctx.lineTo(d.x,d.y);ctx.closePath();
     if (faces) {
       const fill=ctx.createLinearGradient(a.x,a.y,c.x,c.y);
-      fill.addColorStop(0,color+'aa');fill.addColorStop(1,color+'ed');
+      // A missed note is told by its shape as well as its colour: hollow, with a broken rim.
+      const missed=note.status==='missed';
+      fill.addColorStop(0,color+(missed?'33':'aa'));fill.addColorStop(1,color+(missed?'44':'ed'));
       ctx.fillStyle=fill;ctx.fill();
     }
     ctx.shadowColor=handColor(note);ctx.shadowBlur=calm?3:faces?8+approach*8:3+approach*5;
-    ctx.strokeStyle=edge;ctx.lineWidth=faces?1.2+approach*.4:.8+approach*.3;ctx.lineJoin='round';ctx.stroke();
+    ctx.strokeStyle=edge;ctx.lineWidth=faces?1.2+approach*.4:.8+approach*.3;ctx.lineJoin='round';
+    ctx.setLineDash(note.status==='missed'?[5,4]:[]);ctx.stroke();ctx.setLineDash([]);
     ctx.shadowBlur=0;
     if(labels!=='none' && c.x-d.x>13 && d.y-a.y>15) {
       const p=project(key.center,box.bottom-iy-5,depth);
@@ -57,7 +60,7 @@ export function paintChordLabels(ctx, chords, { now, pps, hitLine, geometry, pro
 
 export function paintStrike(ctx, { geometry, layout, activeInput, sounding, playback, project=(x,y)=>({x,y}), depth=0, calm=false }) {
   const y=layout.keyboardTop, a=project(0,y,depth), b=project(layout.w,y,depth);
-  ctx.save();ctx.strokeStyle='#f8efff';ctx.lineWidth=1.2;ctx.shadowColor='#ded0ff';ctx.shadowBlur=calm?3:7;
+  ctx.save();ctx.strokeStyle=PIANO_COLORS.hitLine;ctx.lineWidth=1.2;ctx.shadowColor=PIANO_COLORS.hitLine;ctx.shadowBlur=calm?3:7;
   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.shadowBlur=0;
   for(const key of geometry.keys.values()){
     const color=keyLight(key.midi,activeInput,sounding,playback);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STAGE_COLORS } from './stageColors.js';
 import { GUITAR_CHORDS } from './guitar.js';
 import { DRAWN_NECK, fretSpace, modelNeck, NUT_X, OPEN_SPACE, stringZ } from './guitarNeck.js';
 import { dotLook, fitColumn, hoverText, spreadApart, stageLabels, stringColumn, STRING_LABEL_INSET } from './guitarStageView.js';
@@ -36,8 +37,8 @@ describe('markers on the guitar stage', () => {
   });
 
   it('uses one colour for what is pointed at and another for a guessed position', () => {
-    expect(dotLook('target').color).toBe('#7160c6');
-    expect(dotLook('hover').color).toBe('#7160c6');
+    expect(dotLook('target').color).toBe(STAGE_COLORS.noteRight);
+    expect(dotLook('hover').color).toBe(STAGE_COLORS.noteRight);
     expect(dotLook('possible').color).toBe('#cfb980');
   });
 

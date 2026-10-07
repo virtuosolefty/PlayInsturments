@@ -8,6 +8,7 @@ import { stringKit } from '../lib/instruments.js';
 import { noteInstruction } from '../lib/learning.js';
 import { normalizeStageQuality, STAGE_TIERS } from '../lib/stage/quality.js';
 import { stageTierHere, webglAvailable } from '../lib/webgl.js';
+import { STAGE_THEME } from '../lib/stageColors.js';
 import { useStringInput } from '../hooks/useGuitarInput.js';
 
 const BowedStage3D = lazy(() => import('./BowedStage3D.jsx'));
@@ -60,8 +61,8 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
     setFlat(true);
   };
   return (
-    <section className={`guitar-workspace bowed-workspace ${instrument}-workspace`} aria-label={`${kit.label} studio`}>
-      {!freePlay && <StringTab instrument={instrument} theme={settings.theme} score={score} engine={engine} pps={settings.pps} />}
+    <section className={`guitar-workspace bowed-workspace stage-dark ${instrument}-workspace`} aria-label={`${kit.label} studio`}>
+      {!freePlay && <StringTab instrument={instrument} score={score} engine={engine} pps={settings.pps} />}
       {!freePlay && <div className="guitar-next"><span>UP NEXT</span><strong>{next ? noteInstruction(next, instrument) : 'Study complete'}</strong><span className="guitar-tab-key">0 = open string · numbers are fingers</span></div>}
       <div className="guitar-view-controls">
         {!freePlay && <label className="guitar-exercise">Exercise<select aria-label={`${kit.label} exercise`} value={score.id} onChange={e => onStudy(e.target.value)}>
@@ -77,7 +78,7 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
       </div>
       {solid ? <>
         <Suspense fallback={<div className="guitar-stage-loading">Preparing your {kit.label.toLowerCase()}…</div>}>
-          <BowedStage3D {...stage} theme={settings.theme} quality={quality} view={freePlay ? 'freePlay' : 'lesson'} onUnavailable={giveUp} />
+          <BowedStage3D {...stage} theme={STAGE_THEME} quality={quality} view={freePlay ? 'freePlay' : 'lesson'} onUnavailable={giveUp} />
         </Suspense>
         <details className="guitar-fret-controls with-stage bowed-finger-controls">
           <summary>Show finger buttons · keyboard accessible</summary>

@@ -6,35 +6,35 @@
 .learning-home p { color: var(--text-dim); line-height: 1.75; font-size: 14px; margin: 8px 0; }
 .learning-home h2:focus, .lesson-guide h2:focus { outline: none; }
 .next-lesson-card > .comfortable-best { min-height: 0; font-size: 12px; color: var(--accent); }
-.learning-instruments { display: flex; flex-shrink: 0; border: 1px solid var(--line); padding: 4px; border-radius: 12px; background: var(--bg-2); }
-.learning-instruments button { display: flex; align-items: center; gap: 9px; min-height: 42px; padding: 10px 18px; background: transparent; border-color: transparent; border-radius: 8px; }
+.learning-instruments { display: flex; flex-shrink: 0; border: 1px solid var(--line); padding: 4px; border-radius: var(--radius); background: var(--bg-2); }
+.learning-instruments button { display: flex; align-items: center; gap: 9px; min-height: var(--control-h); padding: 10px 18px; background: transparent; border-color: transparent; border-radius: var(--control-r); }
 .learning-instruments svg { width: 20px; height: 20px; }
 .learning-instruments button[aria-pressed="true"] { color: var(--text); background: var(--bg-1); box-shadow: 0 2px 5px #25243b12; }
 .learning-home-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 24px; }
-.next-lesson-card, .daily-learning-card { padding: 28px; border: 1px solid var(--line-soft); border-radius: 18px; background: var(--bg-1); }
+.next-lesson-card, .daily-learning-card { padding: 28px; border: 1px solid var(--line-soft); border-radius: var(--radius-lg); background: var(--bg-1); }
 .next-lesson-card { background: linear-gradient(135deg, var(--accent-soft), var(--bg-1) 72%); border-color: var(--accent-dim); display: flex; flex-direction: column; align-items: flex-start; }
 .learning-card-meta { display: flex; gap: 18px; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 18px; }
 .learning-card-meta > span:last-child { font-size: 12px; color: var(--text-dim); }
 .next-lesson-card h3 { font-size: 29px; max-width: 470px; }
 .next-lesson-card > p { min-height: 48px; max-width: 500px; }
-.lesson-method { display: flex; gap: 24px; margin: 22px 0 28px; font-size: 11px; color: var(--accent); }
+.lesson-method { display: flex; gap: 24px; margin: 22px 0 28px; font: 11px var(--mono); color: var(--text-faint); }
 .lesson-method b { display: block; font-size: 13px; color: var(--text-dim); font-weight: 500; margin-top: 8px; }
-.learning-home button.primary { min-height: 44px; padding: 10px 22px; font-size: 14px; border-radius: 8px; }
+.learning-home button.primary { min-height: var(--control-h-lg); padding: 10px 22px; font-size: 14px; border-radius: var(--control-r); }
 .next-lesson-card button.primary { margin-top: auto; display: flex; gap: 28px; }
 .learning-save-note { margin-top: 14px; color: var(--text-dim); font-size: 12px; line-height: 1.7; }
 .daily-learning-card ol { margin: 20px 0; padding: 0; list-style: none; counter-reset: daily; }
 .daily-learning-card li { counter-increment: daily; padding: 0 0 16px 34px; position: relative; }
-.daily-learning-card li::before { content: counter(daily, decimal-leading-zero); position: absolute; left: 0; top: 2px; color: var(--accent); font-size: 12px; }
+.daily-learning-card li::before { content: counter(daily, decimal-leading-zero); position: absolute; left: 0; top: 2px; color: var(--text-faint); font: 12px var(--mono); }
 .daily-learning-card li span { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 5px; }
 .daily-learning-card li strong { font-size: 14px; font-weight: 500; }
-.daily-learning-card > button { width: 100%; min-height: 42px; background: var(--bg-2); }
+.daily-learning-card > button { width: 100%; min-height: var(--control-h); background: var(--bg-2); }
 .daily-learning-card > .hint { display: block; text-align: center; margin-top: 12px; }
 .learning-roadmap { margin-top: 36px; }
 .learning-roadmap > header { display: flex; justify-content: space-between; align-items: end; }
 .learning-roadmap > header p { font-size: 13px; }
 .learning-home .learning-rule { font-size: 13px; max-width: 800px; margin: 4px 0 24px; }
 .learning-rule strong { font-weight: 500; color: var(--text); }
-.learning-stages { border: 1px solid var(--line-soft); border-radius: 14px; overflow: hidden; background: var(--bg-1); }
+.learning-stages { border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden; background: var(--bg-1); }
 .learning-stages details + details { border-top: 1px solid var(--line-soft); }
 .learning-stages summary { display: flex; align-items: center; gap: 18px; padding: 18px 24px; cursor: pointer; list-style: none; }
 .learning-stage-number { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-2); font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
@@ -44,14 +44,14 @@
 .stage-state { margin-left: auto; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
 .current .stage-state { color: var(--accent); }
 .learning-stage-lessons { display: grid; gap: 8px; padding: 0 24px 20px 78px; }
-.learning-stage-lessons button { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 16px; background: var(--bg-2); border-color: transparent; padding: 12px 16px; min-height: 44px; }
+.learning-stage-lessons button { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 16px; background: var(--bg-2); border-color: transparent; padding: 12px 16px; min-height: var(--control-h-lg); }
 .learning-stage-lessons button span { font-size: 13px; }
 .learning-stage-lessons button small { font-size: 12px; color: var(--text-dim); }
 .learning-stage-lessons button:disabled { opacity: .65; }
 .learning-home-footer { display: flex; gap: 12px; align-items: center; margin-top: 28px; }
 .learning-home-footer > span { font-size: 13px; color: var(--text-dim); margin-right: auto; }
 .learning-home-footer button { background: transparent; border-color: var(--line-strong); }
-.daily-finished { display: flex; gap: 12px; flex-direction: column; padding: 20px 24px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); margin-bottom: 24px; font-size: 14px; }
+.daily-finished { display: flex; gap: 12px; flex-direction: column; padding: 20px 24px; border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); margin-bottom: 24px; font-size: 14px; }
 .learning-summary { padding: 24px; border-bottom: 1px solid var(--line-soft); }
 .learning-summary h3 { font-size: 20px; margin: 12px 0; }
 .learning-summary p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
@@ -59,12 +59,12 @@
 .lesson-bar { flex-shrink: 0; padding: 8px 20px 12px; border-bottom: 1px solid var(--line-soft); background: var(--bg-1); }
 .lesson-bar ol { display: flex; padding: 0; margin: 0 0 12px; list-style: none; justify-content: space-between; gap: 4px; }
 .lesson-bar li { flex: 1; }
-.lesson-bar li button { width: 100%; min-height: 36px; padding: 6px 8px; text-align: left; border-radius: 6px; border-color: transparent; background: transparent; color: var(--text-dim); font-size: 12px; white-space: nowrap; }
+.lesson-bar li button { width: 100%; min-height: var(--control-h); padding: 6px 8px; text-align: left; border-radius: var(--radius-sm); border-color: transparent; background: transparent; color: var(--text-dim); font-size: 12px; white-space: nowrap; }
 .lesson-bar li button > span { display: inline-block; margin-right: 7px; font: 10px var(--mono); }
 .lesson-bar li button[aria-current] { background: var(--accent-soft); color: var(--accent); }
 .lesson-bar li button:disabled { opacity: .5; }
 .lesson-transport { display: flex; align-items: center; gap: 10px; min-height: 42px; }
-.lesson-transport button { font-size: 12px; min-height: 38px; }
+.lesson-transport button { font-size: 12px; min-height: var(--control-h); }
 .lesson-transport button:first-child { min-width: 164px; }
 .lesson-transport > span { font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
 .lesson-transport .lesson-save { margin-left: auto; background: transparent; border-color: transparent; color: var(--text-dim); }
@@ -72,28 +72,29 @@
 .lesson-guide h2 { font-size: 26px; line-height: 1.25; letter-spacing: -.65px; margin: 16px 0; }
 .lesson-instruction { font-size: 14px; line-height: 1.8; color: var(--text-dim); }
 .lesson-actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin: 22px 0; }
-.lesson-actions button { min-height: 42px; font-size: 13px; padding: 10px 14px; white-space: normal; }
+.lesson-actions button { min-height: var(--control-h); font-size: 13px; padding: 10px 14px; white-space: normal; }
 .lesson-actions p { font-size: 13px; line-height: 1.6; }
 .lesson-success, .lesson-note-feedback { color: var(--accent); font-size: 13px; line-height: 1.7; }
-.first-note-target, .lesson-target { margin: 22px 0; padding: 18px; border: 1px solid var(--accent-dim); background: var(--accent-soft); border-radius: 10px; }
-.first-note-target > span, .lesson-target > span { font-size: 10px; letter-spacing: 1px; color: var(--accent); }
+/* What to play next is the music's position, so it is --now blue, not the interface's violet. */
+.first-note-target, .lesson-target { margin: 22px 0; padding: 18px; border: 1px solid var(--now-dim); background: var(--now-soft); border-radius: var(--radius); }
+.first-note-target > span, .lesson-target > span { font-size: 10px; letter-spacing: 1px; color: var(--now); }
 .first-note-target > strong, .lesson-target > strong { display: block; font-size: 19px; margin: 12px 0; line-height: 1.5; }
-.first-note-target > button { font-size: 13px; width: 100%; min-height: 42px; }
+.first-note-target > button { font-size: 13px; width: 100%; min-height: var(--control-h); }
 .first-note-target > small { display: block; font-size: 12px; line-height: 1.7; color: var(--text-dim); margin-top: 10px; }
 .lesson-target p { font-size: 13px; margin-bottom: 0; }
 /* The computer key that plays the note on the piano. A touch screen has no keys to press, so it is left out there. */
 .first-note-target > .lesson-key, .lesson-target > .lesson-key { display: flex; align-items: center; gap: 8px; margin: -4px 0 14px; font-size: 12px; letter-spacing: 0; color: var(--text-dim); }
-.lesson-guide .first-note-target .lesson-key kbd, .lesson-guide .lesson-target .lesson-key kbd { min-width: 30px; padding: 5px 8px 4px; text-align: center; font: 700 15px/1 var(--mono); color: var(--text); background: var(--bg-1); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 6px; }
+.lesson-guide .first-note-target .lesson-key kbd, .lesson-guide .lesson-target .lesson-key kbd { min-width: 30px; padding: 5px 8px 4px; text-align: center; font: 700 15px/1 var(--mono); color: var(--text); background: var(--bg-1); border: 1px solid var(--line); border-bottom-width: 3px; border-radius: var(--radius-sm); }
 @media (hover: none) { .first-note-target > .lesson-key, .lesson-target > .lesson-key { display: none; } }
 /* How much of the phrase is found; the count under it says the same in words. */
-.lesson-progress { height: 6px; margin: 2px 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 18%, transparent); overflow: hidden; }
+.lesson-progress { height: 6px; margin: 2px 0 10px; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--accent) 18%, transparent); overflow: hidden; }
 .lesson-progress i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width .3s ease; }
 @media (prefers-reduced-motion: reduce) { .lesson-progress i { transition: none; } }
 .lesson-tempo { margin: 24px 0; }
 .lesson-tempo label { display: flex; justify-content: space-between; font-size: 13px; }
 .lesson-tempo input { width: 100%; margin: 14px 0; }
 .lesson-tempo small { color: var(--text-dim); font-size: 12px; line-height: 1.7; }
-.lesson-result { border: 1px solid var(--line); background: var(--bg-2); border-radius: 10px; padding: 18px; margin: 20px 0; }
+.lesson-result { border: 1px solid var(--line); background: var(--bg-2); border-radius: var(--radius); padding: 18px; margin: 20px 0; }
 .lesson-result h3 { font-size: 18px; margin: 12px 0; line-height: 1.4; }
 .lesson-result p { font-size: 13px; color: var(--text-dim); line-height: 1.75; }
 .lesson-result summary { cursor: pointer; font-size: 12px; color: var(--accent); padding-top: 8px; }
@@ -109,9 +110,9 @@
 .lesson-chord-fingers b { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 13px; }
 .lesson-chords p { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
 .lesson-chords > div:last-child { display: flex; gap: 8px; }
-.lesson-chords button { flex: 1; min-height: 40px; }
+.lesson-chords button { flex: 1; min-height: var(--control-h); }
 @media (min-width: 901px) { .studio-app.guided-lesson .app-body { grid-template-columns: minmax(0, 1fr) 330px; } .guided-lesson .pane.right { width: auto; min-width: 0; } }
-.lesson-guide-toggle { float: right; min-height: 36px; margin-left: 12px; font-size: 12px; color: var(--accent); background: var(--accent-soft); }
+.lesson-guide-toggle { float: right; min-height: var(--control-h); margin-left: 12px; font-size: 12px; color: var(--accent); background: var(--accent-soft); }
 .guided-lesson .guitar-exercise, .guided-lesson .guitar-chords { display: none; }
 .guided-lesson .studio-header .focus-toggle { display: none; }
 .learning-home button, .lesson-bar button, .lesson-guide button { transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease; }

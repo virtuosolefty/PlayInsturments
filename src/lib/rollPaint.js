@@ -10,11 +10,12 @@
  * like once they are there.
  */
 
-export const COLORS = {
-  // Mirrors --screen in styles.css, which the bezel around .roll-area is drawn
-  // against. Canvas cannot read a custom property, so the two have to be kept
-  // in step by hand — if one moves, move the other.
-  bg: '#06080c',
+import { STAGE_COLORS } from './stageColors.js';
+
+export const COLORS = Object.freeze({
+  // The interface colours come from tokens.css through stageColors.js; the
+  // rest are the stage's own furniture.
+  bg: STAGE_COLORS.stage,
   // Lanes. Every VST piano roll shades the black-key rows darker than the
   // white ones, and it is most of why you can read pitch off one without
   // counting keys up from the nearest C. laneBlack is --screen exactly, so the
@@ -29,12 +30,12 @@ export const COLORS = {
   gridBeat: 'rgba(255,255,255,0.040)',
   gridSub: 'rgba(255,255,255,0.018)',
   octave: 'rgba(255,255,255,0.10)',
-  right: '#4dc3ff',
-  left: '#a78bfa',
-  hit: '#45d68a',
-  missed: '#ff5d6c',
-  late: '#f2b544',
-  hitLine: '#4dd4c0',
+  right: STAGE_COLORS.noteRight,
+  left: STAGE_COLORS.noteLeft,
+  hit: STAGE_COLORS.hit,
+  missed: STAGE_COLORS.miss,
+  late: STAGE_COLORS.late,
+  hitLine: STAGE_COLORS.hitLine,
   // Beating your own longest streak. Warm rather than teal, because it is not
   // the app talking about itself — it is about what you just did.
   record: '#ffd479',
@@ -45,17 +46,13 @@ export const COLORS = {
   // The dark edge the key strip is set into. This was a red felt strip under a
   // fallboard, back when the keyboard was drawn as an acoustic piano.
   shelf: '#04060a',
-  keyPress: '#45d68a',
-  keyWrong: '#ff5d6c',
-  keyTarget: '#4dd4c0',
+  keyPress: STAGE_COLORS.hit,
+  keyWrong: STAGE_COLORS.miss,
+  keyTarget: STAGE_COLORS.noteRight,
   // Your best previous run. Deliberately faint and colourless — it is a
   // reference line, not a thing to chase into the ground.
   ghost: 'rgba(255,255,255,0.5)',
-};
-
-const DARK_PALETTE = { ...COLORS, bg: '#0e0e14', laneWhite: '#13131a', laneBlack: '#0e0e14', gridBar: 'rgba(255,255,255,0.08)', gridBeat: 'rgba(255,255,255,0.04)', gridSub: 'rgba(255,255,255,0.018)', octave: 'rgba(255,255,255,0.09)', right: '#5ab8ff', left: '#b89cff', hit: '#5ad79a', missed: '#ff6b82', late: '#f5b94f', hitLine: '#a594ff', keyTarget: '#a594ff', keyPress: '#5ad79a', keyWrong: '#ff6b82', blackKey: '#1c1c24', shelf: '#060609', keyLabel: '#9d9db0', label: '#b9b9c8', noteInk: '#f4f2ff', ghost: 'rgba(255,255,255,0.45)' };
-const LIGHT_PALETTE = { ...COLORS, bg: '#f5f3ee', laneWhite: '#f8f6f1', laneBlack: '#eeece8', gridBar: 'rgba(55,49,77,0.14)', gridBeat: 'rgba(55,49,77,0.07)', gridSub: 'rgba(55,49,77,0.035)', octave: 'rgba(55,49,77,0.15)', right: '#367cb4', left: '#865ac2', hit: '#268769', missed: '#bd4963', hitLine: '#6251b7', keyTarget: '#b7a5e8', shelf: '#615643', ghost: 'rgba(55,49,77,0.4)', keyLabel: '#5a5766', label: '#686373', noteInk: '#282438' };
-export function setRollTheme(theme) { Object.assign(COLORS, theme === 'dark' ? DARK_PALETTE : LIGHT_PALETTE); }
+});
 
 export const BLACK_H_RATIO = 0.62;
 export const SHELF_H = 4; // the dark lip the key strip sits in
