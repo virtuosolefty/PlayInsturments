@@ -17,7 +17,9 @@ button.primary, .studio-app button.primary { background: var(--accent); border-c
 .studio-header-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
 .instrument-picker, .workspace-switch, .library-instruments { background: var(--bg-2); border: 1px solid var(--line-soft); display: flex; align-items: center; border-radius: 9px; padding: 3px; gap: 3px; }
 .instrument-picker button, .workspace-switch button, .library-instruments button { background: transparent; border: 0; color: var(--text-dim); border-radius: 6px; box-shadow: none; }
-.instrument-picker button[aria-pressed="true"], .workspace-switch button[aria-pressed="true"], .library-instruments button[aria-pressed="true"] { background: var(--bg-1); color: var(--accent); box-shadow: 0 2px 5px #25243b12; }
+.instrument-picker button[aria-pressed="true"], .workspace-switch button[aria-pressed="true"], .library-instruments button[aria-pressed="true"] { background: var(--bg-1); color: var(--text); box-shadow: 0 2px 5px #25243b12; }
+/* One selected state for every segmented control: a raised segment with a text label. The accent marks only the icon. */
+.instrument-picker button[aria-pressed="true"] svg, .library-instruments button[aria-pressed="true"] svg, .learning-instruments button[aria-pressed="true"] svg { color: var(--accent); }
 .workspace-switch button { padding: 8px 12px; font-size: 12px; }
 .instrument-picker button { min-width: 84px; min-height: 36px; font-size: 12px; }
 .instrument-picker svg { width: 18px; height: 18px; }
@@ -31,7 +33,7 @@ button.primary, .studio-app button.primary { background: var(--accent); border-c
 .studio-app .controls { background: var(--bg-1); border-color: var(--line-soft); }
 .studio-app .mode-switch { background: var(--bg-2); border-color: var(--line-soft); }
 .studio-app .mode-switch button { color: var(--text-dim); }
-.studio-app .mode-switch button.on { background: var(--bg-1); color: var(--accent); }
+.studio-app .mode-switch button.on { background: var(--bg-1); color: var(--text); }
 .studio-app .pad { border-color: var(--line-strong); background: var(--bg-1); color: var(--text-dim); box-shadow: none; }
 .studio-app .pad .glyph { color: var(--text-dim); }
 .studio-app .pad.primary, .studio-app .pad.primary .glyph { color: var(--on-accent); }
@@ -52,7 +54,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .studio-app .stage-toolbar { background: var(--bg-2); padding: 7px 20px; }
 .stage-caption { color: var(--text-dim); font-size: 11px; letter-spacing: 0.5px; }
 .stage-description, .stage-view-switch button { color: var(--text-dim); }
-.stage-view-switch button[aria-pressed="true"] { background: var(--bg-1); color: var(--accent); }
+.stage-view-switch button[aria-pressed="true"] { background: var(--bg-1); color: var(--text); }
 .stage-live-dot, .session-dot.live, .studio-footer i { background: var(--accent); }
 .studio-app .studio-footer { color: var(--text-faint); border-color: var(--line-soft); font-size: 11px; padding: 9px 20px; }
 .studio-app .studio-footer kbd { color: var(--text-dim); background: var(--bg-2); border-color: var(--line); }

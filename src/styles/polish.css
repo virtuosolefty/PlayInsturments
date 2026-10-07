@@ -39,11 +39,13 @@
 :root[data-theme="dark"] .instrument-picker,
 :root[data-theme="dark"] .workspace-switch,
 :root[data-theme="dark"] .library-instruments,
+:root[data-theme="dark"] .learning-instruments,
 :root[data-theme="dark"] .studio-app .mode-switch,
 :root[data-theme="dark"] .stage-view-switch { background: var(--bg); border-color: var(--line-soft); }
 :root[data-theme="dark"] .instrument-picker button[aria-pressed="true"],
 :root[data-theme="dark"] .workspace-switch button[aria-pressed="true"],
 :root[data-theme="dark"] .library-instruments button[aria-pressed="true"],
+:root[data-theme="dark"] .learning-instruments button[aria-pressed="true"],
 :root[data-theme="dark"] .studio-app .mode-switch button.on,
 :root[data-theme="dark"] .stage-view-switch button[aria-pressed="true"] {
   background: var(--bg-3);
