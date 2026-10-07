@@ -31,7 +31,8 @@ export default function SetupDialog({ settings, setSettings, midiState, audioRea
   const guidance = connected ? 'Play one note on your controller to check the connection.'
     : midiState.status === MIDI_STATUS.DENIED ? 'MIDI permission is blocked. Allow MIDI in this site’s browser permissions, then try again.'
     : midiState.status === MIDI_STATUS.UNSUPPORTED ? 'This browser does not support MIDI. Use Chrome or Edge, or choose the on-screen instrument.'
-    : midiState.status === MIDI_STATUS.ERROR ? 'MIDI could not be opened. Check the connection and browser permissions, then try again.'
+    : midiState.status === MIDI_STATUS.ERROR ? (midiState.error || 'MIDI could not be opened. Check the connection and browser permissions, then try again.')
+    : midiState.status === MIDI_STATUS.READY ? 'The browser has MIDI access but sees no controller. Plug it in directly, close any other program using it (a DAW or a piano plug-in), then press Look for a device.'
     : 'Connect your USB MIDI controller, then look for a device. The on-screen instrument is always available.';
   return <div className="report-overlay setup-overlay">
     <section className="report setup-dialog" ref={ref} role="dialog" aria-modal="true" aria-labelledby="setup-title" tabIndex={-1}>
