@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Icon from './Icon.jsx';
 import { compareToBest } from '../lib/grading.js';
 import { cancelSpeech, coachingScript, speak, speechAvailable } from '../lib/speech.js';
 import { clipsDuration, comparisonClips, PerformancePlayback, toClips } from '../lib/playback.js';
@@ -47,7 +48,7 @@ function Stars({ count }) {
     <div className="stars-row" role="img" aria-label={`${count} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (
         <span key={n} className={n <= count ? 'on' : ''} style={{ animationDelay: `${n * 90}ms` }}>
-          ★
+          <Icon name="starFill" size={26} />
         </span>
       ))}
     </div>
@@ -272,7 +273,7 @@ export default function PracticeReport({
                       title="Hear this passage played to you"
                       aria-label={`Hear ${p.label}`}
                     >
-                      ♪
+                      <Icon name="music" size={14} />
                     </button>
                   )}
                 </div>

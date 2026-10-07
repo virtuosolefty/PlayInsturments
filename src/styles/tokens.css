@@ -44,9 +44,17 @@
   --fs-sm: 13px;
   --fs-md: 15px;
   --fs-lg: 18px;
-  --fs-xl: 22px;
+  --fs-xl: 24px;
   --fs-2xl: 30px;
+  --fs-3xl: 36px;
   --fs-display: 96px;
+
+  /* Three weights, and two trackings: tight for headings, open for uppercase labels. */
+  --fw-regular: 400;
+  --fw-medium: 550;
+  --fw-bold: 650;
+  --tracking-tight: -0.03em;
+  --tracking-caps: 0.08em;
 
   /* Spacing, in multiples of four. */
   --sp-1: 4px;
@@ -54,6 +62,15 @@
   --sp-3: 12px;
   --sp-4: 16px;
   --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Layers, lowest first. A scrim sits one below its panel. */
+  --z-drawer: 20;
+  --z-nav: 30;
+  --z-popover: 40;
+  --z-toast: 50;
+  --z-dialog: 100;
+  --z-top: 300;
 
   /* Motion. `--ease-out` for things arriving, `--ease-spring` for things that
      should feel physical. */
@@ -77,6 +94,7 @@
   --late: #f5b94f;
   --hit-line: #f8efff;
   --shadow: var(--elev-3);
+  --guitar-played: #167b63;
 
   /* Left from the hardware look. They resolve to `none` in both themes but
      rules in styles.css still read them inside shadow and background lists. */
@@ -114,6 +132,15 @@
   --lift: none; --lift-strong: none;
   --elev-1: 0 2px 5px #25243b06; --elev-2: 0 8px 28px #25243b10; --elev-3: 0 24px 90px #25243b20;
   --studio-shadow: 0 8px 35px #37324b09;
+  /* Surfaces and states that differ by more than a colour between the themes. */
+  --app-wash: none; --header-wash: none;
+  --primary-bg: #6251b7; --primary-border: #6251b7; --primary-shadow: none;
+  --armed-bg: #0f6b7a; --armed-border: #0f6b7a; --armed-text: #ffffff; --armed-shadow: none;
+  --field-bg: #eeedf5; --overlay-bg: #fffefa;
+  --scrim: rgb(37 36 59 / 38%); --scrim-blur: none;
+  --selection: rgb(98 81 183 / 22%); --scrollbar: #c5c3d2;
+  --staff-filter: brightness(0.3);
+  --guitar-root: #a36032;
   color-scheme: light;
 }
 
@@ -140,6 +167,17 @@
   --elev-2: 0 8px 24px rgb(0 0 0 / 45%), var(--lift);
   --elev-3: 0 24px 64px rgb(0 0 0 / 60%), var(--lift-strong);
   --studio-shadow: 0 0 0 1px rgb(255 255 255 / 2%), 0 24px 60px -24px rgb(0 0 0 / 70%), var(--lift);
+  --app-wash: radial-gradient(1100px 520px at 12% -12%, rgb(124 108 255 / 9%), transparent 62%), radial-gradient(900px 480px at 100% 0%, rgb(90 184 255 / 5%), transparent 60%);
+  --header-wash: radial-gradient(ellipse 60% 120% at 100% 0%, rgb(165 148 255 / 10%), transparent 70%);
+  --primary-bg: linear-gradient(180deg, #b6a9ff, #9582ff); --primary-border: #b6a9ff;
+  --primary-shadow: 0 8px 24px -8px rgb(149 130 255 / 65%), inset 0 1px 0 rgb(255 255 255 / 35%);
+  --armed-bg: linear-gradient(180deg, #6ee7b0, #3fcf8e); --armed-border: #6ee7b0; --armed-text: #06281a;
+  --armed-shadow: 0 8px 24px -8px rgb(63 207 142 / 60%), inset 0 1px 0 rgb(255 255 255 / 35%);
+  --field-bg: #0b0b10; --overlay-bg: #16161d;
+  --scrim: rgb(5 5 8 / 62%); --scrim-blur: blur(3px);
+  --selection: rgb(165 148 255 / 35%); --scrollbar: #2e2e3a;
+  --staff-filter: none;
+  --guitar-root: #ba7747;
   color-scheme: dark;
 }
 

@@ -25,7 +25,7 @@ export default function TopBar({ midiState, audioReady, audioLabel, onStartAudio
       <button className="nav-link" aria-expanded={libraryOpen} onClick={onToggleLibrary}><Icon name="panel" size={18} />Library</button>
       <button className="nav-link" onClick={onProgress}><Icon name="flame" size={18} />Progress</button>
     </nav>
-    {score?.drillOf && <button className="back-to-piece" onClick={onLeaveDrill}>← {score.drillOf.title}</button>}
+    {score?.drillOf && <button className="back-to-piece" onClick={onLeaveDrill}><Icon name="arrowLeft" size={14} /> {score.drillOf.title}</button>}
     <div className="spacer" />
     {/* Saving is silent while it works; it takes space in the bar only when it has failed. */}
     {storageProblem && <span className="saved-locally save-problem" role="status" title={saveNote}><i />Changes not saved</span>}

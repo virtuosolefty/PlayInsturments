@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
  * The studio on tablets, phones and small laptops. Before this, from 701px to
@@ -8,13 +9,6 @@ import { test, expect } from '@playwright/test';
  */
 
 const stage = page => page.locator('.guitar-stage');
-// On an upright phone the workspace switch lives in the sheet the header's button opens.
-const workspace = async (page, name) => {
-  await page.locator('.studio-header').waitFor();
-  const sheet = page.getByRole('button', { name: /Change instrument or workspace/ });
-  if (await sheet.isVisible()) await sheet.click();
-  await page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
-};
 
 function open(page, { instrument = 'guitar', free = true } = {}) {
   return async () => {

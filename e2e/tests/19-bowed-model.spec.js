@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
  * The downloaded violin and cello on the full stage: lessons, and free play's
@@ -12,7 +13,6 @@ import { test, expect } from '@playwright/test';
  */
 
 const stage = page => page.locator('.bowed-stage-3d');
-const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
 const labels = (page, kind) => stage(page).locator(`.guitar-position-label${kind ? `.${kind}` : ''}`);
 const viewButton = (page, name) => page.getByRole('group', { name: 'Stage view' }).getByRole('button', { name, exact: true });
 const notes = page => page.evaluate(() => window.__notes.map(m => `${m.type}:${m.midi}`));

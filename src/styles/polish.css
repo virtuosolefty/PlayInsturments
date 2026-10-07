@@ -12,88 +12,41 @@
    2. Icons, focus mode, live HUD, library art, hint behaviour, responsive.
    ========================================================================== */
 
-/* ---------------------------------------------------------------- dark */
-:root[data-theme="dark"] body {
-  background:
-    radial-gradient(1100px 520px at 12% -12%, rgb(124 108 255 / 9%), transparent 62%),
-    radial-gradient(900px 480px at 100% 0%, rgb(90 184 255 / 5%), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
-}
+/* ------------------------------------------------------------ surfaces
+   Written once against tokens. tokens.css is the only file that knows which
+   theme is showing. */
+body { background: var(--app-wash), var(--bg); background-attachment: fixed; }
+.studio-app .pane.center, .studio-app .pane.right, .studio-app .pane.left { background: var(--bg-1); border: 1px solid var(--line-soft); box-shadow: var(--studio-shadow); }
+.studio-app .studio-header { background: var(--header-wash); }
+.studio-app .instrument-controls { background: var(--bg-1); }
 
-:root[data-theme="dark"] .studio-app .pane.center,
-:root[data-theme="dark"] .studio-app .pane.right,
-:root[data-theme="dark"] .studio-app .pane.left {
-  background: var(--bg-1);
-  border: 1px solid var(--line-soft);
-  box-shadow: var(--studio-shadow);
-}
-:root[data-theme="dark"] .studio-app .studio-header {
-  background: radial-gradient(ellipse 60% 120% at 100% 0%, rgb(165 148 255 / 10%), transparent 70%);
-}
-:root[data-theme="dark"] .studio-app .controls { background: var(--bg-1); border-color: var(--line-soft); }
-:root[data-theme="dark"] .studio-app .instrument-controls { background: var(--bg-1); }
+/* Segmented controls: a well, and a raised segment for the choice. */
+.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .studio-app .mode-switch, .stage-view-switch { background: var(--seg-trough); border-color: var(--line-soft); }
+.instrument-picker button[aria-pressed="true"], .workspace-switch button[aria-pressed="true"], .library-instruments button[aria-pressed="true"], .learning-instruments button[aria-pressed="true"], .studio-app .mode-switch button.on, .stage-view-switch button[aria-pressed="true"] { background: var(--seg-on); color: var(--text); border-color: transparent; box-shadow: var(--seg-on-shadow); }
 
-/* Segmented controls: selected = raised surface, not a lighter purple slab. */
-:root[data-theme="dark"] .instrument-picker,
-:root[data-theme="dark"] .workspace-switch,
-:root[data-theme="dark"] .library-instruments,
-:root[data-theme="dark"] .learning-instruments,
-:root[data-theme="dark"] .studio-app .mode-switch,
-:root[data-theme="dark"] .stage-view-switch { background: var(--bg); border-color: var(--line-soft); }
-:root[data-theme="dark"] .instrument-picker button[aria-pressed="true"],
-:root[data-theme="dark"] .workspace-switch button[aria-pressed="true"],
-:root[data-theme="dark"] .library-instruments button[aria-pressed="true"],
-:root[data-theme="dark"] .learning-instruments button[aria-pressed="true"],
-:root[data-theme="dark"] .studio-app .mode-switch button.on,
-:root[data-theme="dark"] .stage-view-switch button[aria-pressed="true"] {
-  background: var(--bg-3);
-  color: var(--text);
-  border-color: transparent;
-  box-shadow: var(--lift-strong), 0 1px 2px rgb(0 0 0 / 50%);
-}
-:root[data-theme="dark"] .instrument-picker button[aria-pressed="true"] svg { color: var(--accent); }
+/* The primary action, and the same button while a run is playing. */
+button.primary, .studio-app button.primary, .studio-app .pad.primary { background: var(--primary-bg); border-color: var(--primary-border); color: var(--on-accent); box-shadow: var(--primary-shadow); text-shadow: none; }
+button.primary:hover:not(:disabled), .studio-app button.primary:hover:not(:disabled), .studio-app .pad.primary:hover:not(:disabled) { background: var(--primary-bg); border-color: var(--primary-border); color: var(--on-accent); filter: brightness(1.08); }
+.studio-app .pad.primary.armed, .studio-app .pad.primary.transport-toggle.armed { background: var(--armed-bg); border-color: var(--armed-border); color: var(--armed-text); box-shadow: var(--armed-shadow); }
+.studio-app .pad.primary.armed .glyph { color: var(--armed-text); }
 
-/* Primary action: a lit accent with a soft glow, the one bright thing on screen. */
-:root[data-theme="dark"] button.primary,
-:root[data-theme="dark"] .studio-app button.primary,
-:root[data-theme="dark"] .studio-app .pad.primary {
-  background: linear-gradient(180deg, #b6a9ff, #9582ff);
-  border-color: #b6a9ff;
-  color: var(--on-accent);
-  box-shadow: 0 8px 24px -8px rgb(149 130 255 / 65%), inset 0 1px 0 rgb(255 255 255 / 35%);
-}
-:root[data-theme="dark"] .studio-app .pad.primary.armed,
-:root[data-theme="dark"] .studio-app .pad.primary.transport-toggle.armed {
-  background: linear-gradient(180deg, #6ee7b0, #3fcf8e);
-  border-color: #6ee7b0;
-  color: #06281a;
-  box-shadow: 0 8px 24px -8px rgb(63 207 142 / 60%), inset 0 1px 0 rgb(255 255 255 / 35%);
-}
-
-/* Secondary buttons and fields. */
-:root[data-theme="dark"] .studio-app .pad, :root[data-theme="dark"] .studio-app .io-strip, :root[data-theme="dark"] .setup-trigger, :root[data-theme="dark"] .focus-toggle, :root[data-theme="dark"] .options-toggle, :root[data-theme="dark"] .show-feedback {
-  background: var(--bg-2);
-  border: 1px solid var(--line-strong);
-  color: var(--text-dim);
-  box-shadow: var(--lift);
-}
-:root[data-theme="dark"] .studio-app .pad:hover:not(:disabled), :root[data-theme="dark"] .setup-trigger:hover, :root[data-theme="dark"] .focus-toggle:hover, :root[data-theme="dark"] .options-toggle:hover, :root[data-theme="dark"] .show-feedback:hover { background: var(--bg-3); color: var(--text); }
-:root[data-theme="dark"] select,
-:root[data-theme="dark"] input[type="search"],
-:root[data-theme="dark"] input[type="text"],
-:root[data-theme="dark"] .studio-app .library-search input { background: var(--bg); border-color: var(--line-strong); color: var(--text); }
-:root[data-theme="dark"] .studio-app .lcd { background: var(--bg); border-color: var(--line-soft); }
-:root[data-theme="dark"] .studio-app .popover,
-:root[data-theme="dark"] .report,
-:root[data-theme="dark"] dialog,
-:root[data-theme="dark"] .modal { background: #16161d; border-color: var(--line); box-shadow: var(--elev-3); }
-:root[data-theme="dark"] .scrim { background: rgb(5 5 8 / 62%); backdrop-filter: blur(3px); }
-:root[data-theme="dark"] .studio-app .song.active { background: var(--accent-soft); border-color: #3a3170; box-shadow: inset 2px 0 0 var(--accent); }
-:root[data-theme="dark"] .studio-app .song:hover:not(.active) { background: var(--bg-2); }
-:root[data-theme="dark"] .guitar-study-row select { background: var(--bg); }
-:root[data-theme="dark"] ::selection { background: rgb(165 148 255 / 35%); }
-:root[data-theme="dark"] * { scrollbar-color: #2e2e3a transparent; }
+/* Secondary controls share one face. */
+.studio-app .pad, .studio-app .io-strip, .setup-trigger, .focus-toggle, .studio-app .options-toggle, .show-feedback { background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text-dim); box-shadow: var(--lift); }
+.studio-app .pad:hover:not(:disabled), .setup-trigger:hover, .focus-toggle:hover, .studio-app .options-toggle:hover, .show-feedback:hover { background: var(--pad-face-hover); color: var(--text); }
+select, input[type="search"], input[type="text"] { background-color: var(--field-bg); border-color: var(--line-strong); color: var(--text); }
+.studio-app .lcd { background: var(--seg-trough); border-color: var(--line-soft); }
+.studio-app .popover, .report, dialog, .modal { background: var(--overlay-bg); border-color: var(--line); box-shadow: var(--elev-3); }
+.scrim { background: var(--scrim); backdrop-filter: var(--scrim-blur); }
+.studio-app .song.active { background: var(--accent-soft); border-color: var(--accent-dim); }
+.studio-app .song:hover:not(.active) { background: var(--bg-2); }
+::selection { background: var(--selection); }
+* { scrollbar-color: var(--scrollbar) transparent; }
+.staff-view { background: var(--bg-1); }
+.staff-view svg { filter: var(--staff-filter); }
+.keycap, kbd { background: var(--bg-2); color: var(--text-dim); border-color: var(--line); }
+.count-in { background: var(--bg-1); color: var(--text); border: 1px solid var(--line); }
+.toast { background: var(--bg-1); color: var(--bad); border-color: var(--bad); }
+.score-ring, .report-next { background: var(--accent-soft); }
 
 /* ---------------------------------------------------------------- icons */
 .icon { display: inline-block; flex: none; vertical-align: -0.18em; }
@@ -125,7 +78,7 @@
 .live-hud {
   position: absolute; top: 12px; right: 14px; z-index: 5;
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 8px 6px 6px;
+  padding: 6px var(--sp-2) 6px 6px;
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--bg-1) 82%, transparent);
   border: 1px solid var(--line-soft);
@@ -134,15 +87,15 @@
   pointer-events: none;
   animation: hud-in var(--dur-base) var(--ease-out);
 }
-.hud-stat { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: var(--control-r); background: var(--bg-2); color: var(--text-dim); font: 600 13px var(--mono); font-variant-numeric: tabular-nums; }
-.hud-stat b { color: var(--text); font-weight: 650; }
+.hud-stat { display: inline-flex; align-items: center; gap: var(--sp-1); height: 28px; padding: 0 var(--sp-2); border-radius: var(--control-r); background: var(--bg-2); color: var(--text-dim); font: var(--fw-bold) var(--fs-sm) var(--mono); font-variant-numeric: tabular-nums; }
+.hud-stat b { color: var(--text); font-weight: var(--fw-bold); }
 .hud-acc.good b, .hud-acc.good .icon { color: var(--good); }
 .hud-acc.ok b, .hud-acc.ok .icon { color: var(--warn); }
 .hud-acc.low b, .hud-acc.low .icon { color: var(--bad); }
 .hud-streak.hot { background: rgb(245 185 79 / 14%); }
 .hud-streak.hot .icon, .hud-streak.hot b { color: var(--warn); }
 .hud-pop { display: inline-block; animation: hud-pop var(--dur-base) var(--ease-spring); }
-.hud-progress { width: 64px; height: 4px; border-radius: var(--radius-xs); background: var(--bg-3); overflow: hidden; margin-left: 4px; }
+.hud-progress { width: 64px; height: 4px; border-radius: var(--radius-xs); background: var(--bg-3); overflow: hidden; margin-left: var(--sp-1); }
 .hud-progress i { display: block; height: 100%; background: var(--accent); transform-origin: left; transition: transform var(--dur-base) var(--ease-out); }
 @keyframes hud-in { from { opacity: 0; transform: translateY(-6px); } }
 @keyframes hud-pop { 0% { transform: scale(1.35); } 100% { transform: scale(1); } }
@@ -161,22 +114,22 @@
 .studio-app.focus-view .instrument-picker,
 .studio-app.focus-view .pane.right,
 .studio-app.focus-view .zone-sound .show-feedback { display: none !important; }
-.studio-app.focus-view { padding-top: 12px; grid-template-rows: minmax(0, 1fr); }
+.studio-app.focus-view { padding-top: var(--sp-3); grid-template-rows: minmax(0, 1fr); }
 .studio-app.focus-view .app-body { grid-template-columns: minmax(0, 1fr) !important; }
-.studio-app.focus-view .studio-header { min-height: 0 !important; padding-top: 12px; padding-bottom: 12px; }
+.studio-app.focus-view .studio-header { min-height: 0 !important; padding-top: var(--sp-3); padding-bottom: var(--sp-3); }
 .studio-app.focus-view .studio-heading h2 { margin: 0; }
 .focus-toggle[aria-pressed="true"] { background: var(--accent-soft) !important; color: var(--accent) !important; border-color: var(--accent-dim) !important; }
 
 /* ------------------------------------------------------- library rows */
-.song { padding: 7px 9px; gap: 11px; align-items: center; }
-.song .song-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.song { padding: var(--sp-2) var(--sp-2); gap: var(--sp-3); align-items: center; }
+.song .song-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
 .song .song-body .name {
   white-space: normal; overflow: hidden; text-overflow: clip;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  font-size: 14px; line-height: 1.3;
+  font-size: var(--fs-md); line-height: 1.3;
 }
-.song .song-body .meta { flex-wrap: wrap; row-gap: 4px; }
-.song .song-body .meta > .by { background: transparent; padding: 0; color: var(--text-dim); font-size: 12px; margin-right: 2px; }
+.song .song-body .meta { flex-wrap: wrap; row-gap: var(--sp-1); }
+.song .song-body .meta > .by { background: transparent; padding: 0; color: var(--text-dim); font-size: var(--fs-xs); margin-right: 2px; }
 .song .song-body .song-description { margin-top: 0; }
 .piece-art {
   position: relative; flex: none; display: grid; place-items: center; overflow: hidden;
@@ -185,15 +138,15 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 25%), 0 2px 6px rgb(0 0 0 / 18%);
 }
 .piece-art svg { position: absolute; inset: 0; width: 100%; height: 100%; stroke: rgb(255 255 255 / 18%); stroke-width: 0.6; }
-.piece-art b { position: relative; color: #fff; font: 700 13px var(--sans); letter-spacing: 0.3px; text-shadow: 0 1px 2px rgb(0 0 0 / 30%); }
+.piece-art b { position: relative; color: #fff; font: var(--fw-bold) var(--fs-sm) var(--sans); letter-spacing: normal; text-shadow: 0 1px 2px rgb(0 0 0 / 30%); }
 .song:hover .piece-art { transform: scale(1.04); }
 .piece-art { transition: transform var(--dur-fast) var(--ease-out); }
 
 /* ------------------------------------------------------- empty states */
-.empty-state { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 18px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--bg-2); }
+.empty-state { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); padding: var(--sp-4); border: 1px dashed var(--line); border-radius: var(--radius); background: var(--bg-2); }
 .empty-state .empty-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); }
-.empty-state strong { font-size: 14px; }
-.empty-state p { margin: 0; color: var(--text-dim); font-size: 12px; line-height: 1.6; }
+.empty-state strong { font-size: var(--fs-md); }
+.empty-state p { margin: 0; color: var(--text-dim); font-size: var(--fs-xs); line-height: 1.6; }
 
 /* ------------------------------------------------------- micro-motion */
 .studio-app .pad, .options-toggle, .show-feedback, .focus-toggle, .setup-trigger, .song {
@@ -210,7 +163,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
    rule they stayed on one line from 701 to 900 px and pushed the whole studio
    past the window; now the bar takes a second line instead. */
 @media (max-width: 900px) {
-  .studio-app .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .studio-app .topbar { flex-wrap: wrap; row-gap: var(--sp-2); }
 }
 /* A phone held sideways has a few hundred pixels of height, and every line of chrome comes out of the workspace:
    with the top bar on two lines it was left 14px. Here the top bar keeps to one line and scrolls sideways, and the
@@ -221,11 +174,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .studio-app .topbar::-webkit-scrollbar { display: none; }
   .studio-app .topbar > * { flex-shrink: 0; }
   .studio-app .studio-heading .eyebrow, .studio-app .studio-heading p { display: none; }
-  .studio-app .studio-header { padding-block: 8px !important; }
+  .studio-app .studio-header { padding-block: var(--sp-2) !important; }
 }
-@media (max-width: 700px) {
-  .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
-  .studio-header { flex-wrap: wrap; padding: 16px !important; }
+@media (max-width: 600px) {
+  .studio-app { padding-left: var(--sp-2) !important; padding-right: var(--sp-2) !important; }
+  .studio-header { flex-wrap: wrap; padding: var(--sp-4) !important; }
   .studio-header-actions { flex-wrap: wrap; width: 100%; }
   .studio-app .controls { flex-wrap: wrap; }
   .studio-app .pads { flex-wrap: wrap; }
@@ -238,14 +191,14 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* Recent notes in the This run panel have no timestamp column, so the
    three-column grid squeezed the message into 42px and wrapped every word. */
 .event:not(:has(.t)) { grid-template-columns: 44px minmax(0, 1fr); align-items: center; padding-top: 6px; padding-bottom: 6px; }
-.event .msg strong { font-weight: 550; }
+.event .msg strong { font-weight: var(--fw-medium); }
 
 /* ------------------------------------------------ sound needs a click */
 .sound-nudge {
-  display: flex; align-items: center; gap: 12px;
-  margin: 0 0 10px; padding: 10px 12px 10px 14px;
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin: 0 0 var(--sp-2); padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-3);
   border-radius: var(--radius); border: 1px solid var(--accent-dim);
-  background: var(--accent-soft); color: var(--text); font-size: 13px; line-height: 1.5;
+  background: var(--accent-soft); color: var(--text); font-size: var(--fs-sm); line-height: 1.5;
   animation: hud-in var(--dur-base) var(--ease-out);
 }
 .sound-nudge .icon { color: var(--accent); }
@@ -254,7 +207,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 /* The piano has a dark performance surface in both interface themes. */
 .playable-piano { background: var(--stage); }
-.playable-piano .instrument-hover { color: var(--text-dim); background: color-mix(in srgb, var(--bg-1) 90%, transparent); border-color: var(--line); font-size: 11px; }
+.playable-piano .instrument-hover { color: var(--text-dim); background: color-mix(in srgb, var(--bg-1) 90%, transparent); border-color: var(--line); font-size: var(--fs-2xs); }
 
 /* Unlocking audio on pointer-down must not move nearby click targets. */
 @media (min-width: 901px) {

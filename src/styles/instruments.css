@@ -1,26 +1,26 @@
 /* Instrument surfaces and compact desktop chrome. */
-.instrument-controls,.guitar-view-controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:6px 16px; flex-shrink:0; border-bottom:1px solid var(--line-soft); background:var(--bg-1); }
-.instrument-controls label,.guitar-view-controls label { display:flex; gap:6px; align-items:center; color:var(--text-dim); font-size:12px; }
+.instrument-controls,.guitar-view-controls { display:flex; align-items:center; flex-wrap:wrap; gap:var(--sp-3); padding:6px var(--sp-4); flex-shrink:0; border-bottom:1px solid var(--line-soft); background:var(--bg-1); }
+.instrument-controls label,.guitar-view-controls label { display:flex; gap:6px; align-items:center; color:var(--text-dim); font-size: var(--fs-xs); }
 .instrument-controls select,.guitar-view-controls select { min-height: var(--control-h-sm); border:1px solid var(--line-strong); background:var(--bg-1); border-radius: var(--radius-sm); padding:2px 6px; font:inherit; color:var(--text); }
-.instrument-controls button { min-height: var(--control-h-sm); padding:3px 9px; font-size:12px; }
+.instrument-controls button { min-height: var(--control-h-sm); padding:3px var(--sp-2); font-size: var(--fs-xs); }
 .instrument-controls button[aria-pressed=true] { color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
-.octave-controls { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-dim); }
+.octave-controls { display:flex; align-items:center; gap:var(--sp-2); font-size: var(--fs-xs); color:var(--text-dim); }
 .velocity-control input { width:60px; }
-.instrument-hover { position:absolute; top:12px; left:16px; padding:5px 8px; border-radius: var(--radius-sm); color:var(--text); background:var(--bg-1); border:1px solid var(--line-soft); font-size:13px; pointer-events:none; z-index:2; }
+.instrument-hover { position:absolute; top:12px; left:16px; padding:var(--sp-1) var(--sp-2); border-radius: var(--radius-sm); color:var(--text); background:var(--bg-1); border:1px solid var(--line-soft); font-size: var(--fs-sm); pointer-events:none; z-index:2; }
 .instrument-hover:empty { display:none; }
 .playable-piano { touch-action:none; }
 .playable-piano:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
-.guitar-position-label { position:absolute; transform:translate(-50%,-50%); z-index:1; pointer-events:none; line-height:1; font:600 14px var(--sans); color:var(--text); }
-.guitar-position-label.string { color:#fffaf0; background:#2b221de6; padding:2px 4px; border-radius: var(--radius-xs); }
+.guitar-position-label { position:absolute; transform:translate(-50%,-50%); z-index:1; pointer-events:none; line-height:1; font: var(--fw-bold) var(--fs-md) var(--sans); color:var(--text); }
+.guitar-position-label.string { color:#fffaf0; background:#2b221de6; padding:2px var(--sp-1); border-radius: var(--radius-xs); }
 .guitar-stage { flex-shrink:0; overflow:hidden; }
-.guitar-stage-label,.guitar-stage-hint { top:8px; font-size:12px; letter-spacing:0; }
+.guitar-stage-label,.guitar-stage-hint { top:8px; font-size: var(--fs-xs); letter-spacing:0; }
 .guitar-stage-hint { top:auto; bottom:6px; right:12px; background:var(--bg-1); padding:3px 6px; border-radius: var(--radius-xs); }
 .guitar-left-toggle { margin-left:auto; }
 .fret-numbers,.guitar-string { grid-template-columns:32px repeat(var(--frets,13),minmax(26px,1fr)); min-width:0; }
 .guitar-fretboard { --instrument-label-size:14px; }
 .fret-numbers span,.guitar-string .string-name { font-size:var(--instrument-label-size); }
 .fret-numbers span { height:24px; }
-.fret-numbers span:nth-child(2) { font-size:11px; }
+.fret-numbers span:nth-child(2) { font-size: var(--fs-2xs); }
 .guitar-string button { background:#382b25; border-right-color:#a7a09a; }
 .guitar-string button span { font-size:var(--instrument-label-size); }
 .guitar-string button::before { background:#d1c6b8; opacity:.6; }
@@ -29,54 +29,54 @@
 .guitar-string .held span { background:#8bdfb9; border:2px solid #bcf4d9; color:#173c2c; box-shadow:none; }
 .guitar-string .possible span { background:transparent; border:1px dashed #b8a88e; color:#d4c5aa; opacity:.65; }
 .guitar-string button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; z-index:2; }
-.chord-card-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; }
-.chord-card-heading h2 { font-size:30px; margin:10px 0; font-weight:600; }
-.chord-card-heading > span { color:var(--text-dim); font-size:13px; }
+.chord-card-heading { display:flex; justify-content:space-between; align-items:center; gap:var(--sp-2); }
+.chord-card-heading h2 { font-size: var(--fs-2xl); margin:var(--sp-2) 0; font-weight: var(--fw-bold); }
+.chord-card-heading > span { color:var(--text-dim); font-size: var(--fs-sm); }
 .chord-choices { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-.chord-choices button { min-height: var(--control-h-sm); font-size:14px; padding:4px; background:var(--bg-1); }
+.chord-choices button { min-height: var(--control-h-sm); font-size: var(--fs-md); padding:var(--sp-1); background:var(--bg-1); }
 .chord-choices button[aria-pressed=true] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
-.chord-diagram { display:block; width:100%; height:205px; color:var(--text-dim); margin:8px auto; font:15px var(--sans); }
+.chord-diagram { display:block; width:100%; height:205px; color:var(--text-dim); margin:8px auto; font: var(--fs-md) var(--sans); }
 .chord-diagram text:not([fill]) { fill:var(--text-dim); }
-.strum-actions { display:flex; gap:8px; margin-bottom:18px; }
-.strum-actions button { flex:1; min-height: var(--control-h); font-size:13px; padding:6px; }
-.chord-card > label { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:13px; margin:14px 0; color:var(--text-dim); }
+.strum-actions { display:flex; gap:var(--sp-2); margin-bottom:var(--sp-4); }
+.strum-actions button { flex:1; min-height: var(--control-h); font-size: var(--fs-sm); padding:6px; }
+.chord-card > label { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--sp-2); font-size: var(--fs-sm); margin:var(--sp-3) 0; color:var(--text-dim); }
 .chord-card > label input { display:block; width:100%; }
 .chord-card output { color:var(--text); }
-.guitar-workspace > .chord-card { display:grid; grid-template-columns:150px 1fr 1fr; gap:12px; align-items:center; border-top:1px solid var(--line); }
+.guitar-workspace > .chord-card { display:grid; grid-template-columns:150px 1fr 1fr; gap:var(--sp-3); align-items:center; border-top:1px solid var(--line); }
 .guitar-workspace > .chord-card .chord-diagram { grid-row:1/4; grid-column:1; height:170px; }
 .guitar-workspace > .chord-card .eyebrow,.guitar-workspace > .chord-card .hint { display:none; }
 .guitar-workspace > .chord-card > label,.guitar-workspace > .chord-card .strum-actions { margin:0; }
 @media(min-width:901px) {
-  .studio-app { padding:0 16px 12px; gap:6px; }
+  .studio-app { padding:0 var(--sp-4) var(--sp-3); gap:6px; }
   .studio-app .topbar { min-height:48px; padding:6px 0; }
-  .studio-app .app-body { gap:12px; }
-  .studio-app .studio-header { padding:10px 16px; min-height:68px; flex-shrink:0; }
-  .studio-heading h2 { font-size:20px; margin:3px 0; line-height:1.25; }
+  .studio-app .app-body { gap:var(--sp-3); }
+  .studio-app .studio-header { padding:var(--sp-2) var(--sp-4); min-height:68px; flex-shrink:0; }
+  .studio-heading h2 { font-size: var(--fs-xl); margin:3px 0; line-height:1.25; }
   .studio-heading .eyebrow { display:none; }
-  .studio-header-actions { flex-wrap:nowrap; max-width:none; gap:8px; }
+  .studio-header-actions { flex-wrap:nowrap; max-width:none; gap:var(--sp-2); }
   .studio-header-actions .workspace-switch { order:0; }
-  .studio-header-actions .workspace-switch button { padding:6px 8px; }
-  .instrument-picker button { min-width:74px; min-height: var(--control-h-sm); padding:6px 8px; gap:6px; }
-  .studio-app .controls { padding:6px 16px; gap:6px 10px; flex-shrink:0; }
-  .studio-app .pad { padding:0 7px; height: var(--control-h); min-height: var(--control-h); }
+  .studio-header-actions .workspace-switch button { padding:6px var(--sp-2); }
+  .instrument-picker button { min-width:74px; min-height: var(--control-h-sm); padding:6px var(--sp-2); gap:6px; }
+  .studio-app .controls { padding:6px var(--sp-4); gap:6px var(--sp-2); flex-shrink:0; }
+  .studio-app .pad { padding:0 var(--sp-2); height: var(--control-h); min-height: var(--control-h); }
   .studio-app .pad-play { min-width:66px; }
   .studio-app .pad:nth-child(2) .cap,.studio-app .pad:nth-child(3) .cap,.studio-app .pad:nth-child(6) .cap { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
   .studio-app .pad:nth-child(2),.studio-app .pad:nth-child(3),.studio-app .pad:nth-child(6) { width:32px; min-width:32px; padding:0; justify-content:center; }
   .studio-app .mode-switch { padding:2px; }
-  .studio-app .mode-switch button { font-size:12px; padding:4px 7px; }
-  .studio-app .options-toggle { font-size:12px; padding:7px 8px; }
-  .stage-view-switch button { min-height: var(--control-h-sm); padding:3px 8px; font-size:12px; }
-  .studio-app .studio-footer { padding:5px 16px; min-height:28px; flex-shrink:0; }
+  .studio-app .mode-switch button { font-size: var(--fs-xs); padding:var(--sp-1) var(--sp-2); }
+  .studio-app .options-toggle { font-size: var(--fs-xs); padding:var(--sp-2) var(--sp-2); }
+  .stage-view-switch button { min-height: var(--control-h-sm); padding:3px var(--sp-2); font-size: var(--fs-xs); }
+  .studio-app .studio-footer { padding:var(--sp-1) var(--sp-4); min-height:28px; flex-shrink:0; }
   .studio-app .pane.center { overflow-y:auto; }
   .studio-app .roll-area:not(.hidden-roll) { min-height:280px; }
   .studio-app.guitar-mode .minimap { display:none; }
   .studio-app.guitar-mode .roll-area { min-height:385px; }
   .studio-app .guitar-workspace { overflow:visible; }
-  .guitar-view-controls { order:-1; gap:12px; }
+  .guitar-view-controls { order:-1; gap:var(--sp-3); }
   .guitar-view-controls .guitar-exercise { max-width:40%; }
   .guitar-view-controls .guitar-exercise select { min-width:0; width:100%; max-width:215px; }
   .guitar-tab { min-height:120px; }
-  .guitar-next { padding:5px 16px; min-height:28px; }
+  .guitar-next { padding:var(--sp-1) var(--sp-4); min-height:28px; }
   .studio-app .guitar-stage,.studio-app .guitar-stage-loading { height:var(--fretboard-height,230px); min-height:180px; flex:0 1 var(--fretboard-height,230px); }
   .studio-app.free-play .guitar-stage { flex:1 1 auto; min-height:300px; }
   .studio-app.free-play .guitar-fret-controls:not(.with-stage) { margin:auto 0; }
@@ -84,25 +84,25 @@
   .guitar-fret-controls > summary { padding:5px 16px; }
   .guitar-fretboard { padding:6px 16px; }
   .studio-app .guitar-string button { height:28px; }
-  .guitar-chords { padding:5px 16px; flex-wrap:nowrap; }
-  .guitar-chords > span { font-size:11px; letter-spacing:0; margin-left:auto; }
-  .guitar-chords button { min-height: var(--control-h-sm); padding:3px 8px; }
-  .studio-app .section,.studio-app .studio-coach { padding:20px; }
-  .studio-app .piece-title { font-size:20px; margin-top:12px; }
-  .studio-app .studio-coach ol { gap:12px; }
+  .guitar-chords { padding:var(--sp-1) var(--sp-4); flex-wrap:nowrap; }
+  .guitar-chords > span { font-size: var(--fs-2xs); letter-spacing:0; margin-left:auto; }
+  .guitar-chords button { min-height: var(--control-h-sm); padding:3px var(--sp-2); }
+  .studio-app .section,.studio-app .studio-coach { padding:var(--sp-4); }
+  .studio-app .piece-title { font-size: var(--fs-xl); margin-top:var(--sp-3); }
+  .studio-app .studio-coach ol { gap:var(--sp-3); }
 }
 @media(min-width:901px) and (max-height:800px) {
   .studio-app .minimap { display:none; }
   .studio-app .guitar-stage,.studio-app .guitar-stage-loading { min-height:175px; }
   .studio-app .guitar-tab { min-height:120px; }
   .studio-app .chord-diagram { height:180px; }
-  .studio-app .chord-card.section { padding:16px 20px; }
+  .studio-app .chord-card.section { padding:var(--sp-4) var(--sp-4); }
   .chord-card-heading h2 { margin:6px 0; }
-  .studio-app .studio-coach { padding-top:16px; }
+  .studio-app .studio-coach { padding-top:var(--sp-4); }
   .studio-coach ol { display:none; }
 }
 @media(prefers-reduced-motion:reduce) {
   .playable-piano *,.guitar-workspace * { animation:none!important; transition:none!important; }
 }
 
-.guitar-position-label.finger { color:#241d24; font-weight:700; }
+.guitar-position-label.finger { color:#241d24; font-weight: var(--fw-bold); }
