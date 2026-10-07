@@ -34,7 +34,7 @@ export function InstrumentIcon({ guitar = false, instrument = guitar ? 'guitar' 
   );
 }
 
-export default function StudioHeader({ score, settings, playing, onInstrumentChange, freePlay, onFreePlay, focus, onFocus }) {
+export default function StudioHeader({ score, settings, playing, onInstrumentChange, freePlay, onFreePlay, focus, onFocus, instrumentSettings = null }) {
   const current = normalizeInstrument(settings.practiceInstrument);
   return (
     <div className="studio-header">
@@ -51,27 +51,33 @@ export default function StudioHeader({ score, settings, playing, onInstrumentCha
             <InstrumentIcon instrument={value} /><span>{instrumentInfo(value).label}</span>
           </button>
         ))}
-      </div><button className="focus-toggle" aria-pressed={focus} onClick={onFocus} title={focus ? 'Show everything again (Esc)' : 'Hide panels and settings — just the music'}><Icon name={focus ? 'minimize' : 'focus'} size={14} />{focus ? 'Exit focus' : 'Focus'}</button></div>
+      </div>{instrumentSettings}<button className="focus-toggle" aria-pressed={focus} onClick={onFocus} title={focus ? 'Show everything again (Esc)' : 'Hide panels and settings — just the music'}><Icon name={focus ? 'minimize' : 'focus'} size={14} />{focus ? 'Exit focus' : 'Focus'}</button></div>
     </div>
   );
 }
 
-export function StageToolbar({ settings, setSettings, instrument = 'piano', freePlay, children }) {
+/** What the stage is showing and the one thing to do with it. The studio footer carries it. */
+export function stageCaption(instrument = 'piano', freePlay = false) {
   const stringed = isStringed(instrument), kit = stringKit(instrument);
   const name = instrumentInfo(instrument).label.toUpperCase();
-  const caption = freePlay ? name : !stringed ? 'PIANO ROLL' : kit.bowed ? `${name} FINGERS` : 'GUITAR TAB';
-  const description = freePlay ? (kit?.bowed ? 'Press and hold a place to bow it' : 'Click a note or play your controller')
-    : !stringed ? 'Play as the notes reach the line' : kit.bowed ? 'Numbers show the finger to use' : 'Numbers show the fret to play';
+  return {
+    caption: freePlay ? name : !stringed ? 'PIANO ROLL' : kit.bowed ? `${name} FINGERS` : 'GUITAR TAB',
+    description: freePlay ? (kit?.bowed ? 'Press and hold a place to bow it' : 'Click a note or play your controller')
+      : !stringed ? 'Play as the notes reach the line' : kit.bowed ? 'Numbers show the finger to use' : 'Numbers show the fret to play',
+  };
+}
+
+/** The settings of the instrument on stage. Sits beside the instrument picker in the studio header. */
+export function InstrumentSettings({ settings, setSettings, instrument = 'piano', children }) {
+  const stringed = isStringed(instrument), kit = stringKit(instrument);
   const [open, setOpen] = useState(false);
   const ref = useDialog({ open, onClose: () => setOpen(false) });
   const available = webglAvailable();
   const renderer = available ? settings.renderer : 'canvas';
   const quality = normalizeStageQuality(settings.stageQuality);
   return (
-    <div className="stage-toolbar">
-      <div className="stage-caption"><span className="stage-live-dot" />{caption}<span className="stage-description">{description}</span></div>
       <div className="popover-host instrument-settings-host">
-      <button className="instrument-settings-toggle" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen(v => !v)}><Icon name="sliders" size={14} /> Instrument settings</button>
+      <button className="instrument-settings-toggle" aria-expanded={open} aria-haspopup="dialog" title="Instrument settings" onClick={() => setOpen(v => !v)}><Icon name="sliders" size={15} /><span>Instrument settings</span></button>
       {open && <><div className="popover-scrim" onClick={() => setOpen(false)} /><div className="popover instrument-settings-panel" ref={ref} role="dialog" aria-modal="true" aria-label="Instrument settings" tabIndex={-1}>
       <div className="settings-heading"><strong>Instrument settings</strong><button aria-label="Close instrument settings" onClick={() => setOpen(false)}>×</button></div>
       <p className="hint">{kit?.bowed ? `On the 3D Stage at full detail the ${kit.label.toLowerCase()} is a 3D model; at light detail it keeps the 2D fingerboard.` : 'Choose how your instrument looks and responds.'}</p><span className="settings-label">Appearance</span>
@@ -89,6 +95,5 @@ export function StageToolbar({ settings, setSettings, instrument = 'piano', free
       {children}
       </div></>}
       </div>
-    </div>
   );
 }

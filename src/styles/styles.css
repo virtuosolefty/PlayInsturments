@@ -495,46 +495,6 @@ button.danger {
   transition: opacity var(--dur-base) var(--ease-out);
 }
 
-.app.focused .drawer-toggle {
-  opacity: 0.45;
-}
-
-.app.focused .topbar:hover .drawer-toggle {
-  opacity: 1;
-}
-
-/* ========================================================== drawer toggle */
-.drawer-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 11px;
-}
-
-.drawer-toggle.on {
-  border-color: var(--accent-dim);
-  color: var(--text);
-}
-
-.drawer-toggle .bars {
-  width: 13px;
-  height: 9px;
-  border-top: 2px solid currentcolor;
-  border-bottom: 2px solid currentcolor;
-  position: relative;
-  flex: none;
-}
-
-.drawer-toggle .bars::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  border-top: 2px solid currentcolor;
-  transform: translateY(-1px);
-}
-
 /* ================================================================== topbar */
 .topbar {
   display: flex;

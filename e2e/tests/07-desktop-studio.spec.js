@@ -14,6 +14,7 @@ test('themes persist and do not interrupt a live 3D practice session', async ({ 
   await page.locator('.zone-mode button').filter({ hasText: 'Wait for me' }).click();
   await page.locator('.pad-play').click();
   await expect(page.locator('.wait-hint')).toBeVisible();
+  await page.getByRole('button', { name: 'More', exact: true }).click();
   await page.getByRole('button', { name: 'Switch to dark theme' }).focus();
   await page.keyboard.press('Space');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

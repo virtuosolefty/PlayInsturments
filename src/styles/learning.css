@@ -1,5 +1,3 @@
-/* A steady desktop workspace: transitions never move the instrument or notes. */
-.learning-nav[aria-current] { background: var(--accent-soft) !important; color: var(--accent) !important; }
 .learning-home { flex: 1; min-height: 0; overflow-y: auto; background: var(--bg); color: var(--text); }
 .learning-home-inner { max-width: 1180px; margin: auto; padding: 44px 40px 32px; }
 .learning-home-heading { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
@@ -116,7 +114,6 @@
 .lesson-guide-toggle { float: right; min-height: 36px; margin-left: 12px; font-size: 12px; color: var(--accent); background: var(--accent-soft); }
 .guided-lesson .guitar-exercise, .guided-lesson .guitar-chords { display: none; }
 .guided-lesson .studio-header .focus-toggle { display: none; }
-.guided-lesson .stage-toolbar { flex-shrink: 0; }
 .learning-home button, .lesson-bar button, .lesson-guide button { transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease; }
 @media (min-width: 901px) and (max-width: 1350px) { .learning-home-inner { padding: 28px 32px; } .guided-lesson .studio-header { padding: 12px 20px; min-height: 82px; } .guided-lesson .studio-header h2 { max-width: 280px; } .guided-lesson .lesson-guide { padding: 20px; } .guided-lesson .lesson-transport > span { display: none; } .lesson-bar li button { padding-inline: 5px; font-size: 11px; } .lesson-bar li button > span { margin-right: 4px; } }
 @media (max-width: 900px) { .lesson-bar ol { overflow-x: auto; justify-content: start; } .lesson-bar li { flex: none; } .lesson-transport { flex-wrap: wrap; } .lesson-transport > span { display: none; } .learning-home-inner { padding: 24px; } .learning-home-heading { flex-wrap: wrap; gap: 12px; } }

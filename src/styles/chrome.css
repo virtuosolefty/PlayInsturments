@@ -1,0 +1,30 @@
+/* chrome.css — the app's own chrome: the top bar, its menu and the sound group.
+   Everything here reads tokens; nothing names a theme. */
+
+/* ------------------------------------------------------- destinations
+   Learning path, Library and Progress are one tab set with one style. The
+   icons belong to the phone's tab bar and stay hidden up here. */
+.topbar-nav { display: flex; align-items: center; flex-shrink: 0; gap: 3px; padding: 3px; border-radius: 9px; background: var(--seg-trough); border: 1px solid var(--line-soft); }
+.studio-app .topbar .topbar-nav .nav-link { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text-dim); font-size: var(--fs-sm); white-space: nowrap; }
+.topbar-nav .nav-link .icon { display: none; }
+.studio-app .topbar .topbar-nav .nav-link:hover { color: var(--text); }
+.studio-app .topbar .topbar-nav .nav-link:is([aria-current], [aria-expanded="true"]) { background: var(--seg-on); color: var(--text); box-shadow: var(--seg-on-shadow); }
+
+/* ----------------------------------------------------- sound and input
+   One group, two halves: the left opens setup and says whether a controller
+   is connected, the right switches sound on and then shows its level. */
+.sound-input { display: flex; align-items: stretch; min-width: 0; }
+.studio-app .topbar .sound-input .setup-trigger { border-radius: var(--control-r) 0 0 var(--control-r); }
+.studio-app .topbar .sound-input .io-strip { border-radius: 0 var(--control-r) var(--control-r) 0; border-left: 0; }
+
+/* Saving is silent while it works. This is the bar's only word about it. */
+.topbar > .saved-locally { font-size: var(--fs-xs); font-weight: 600; }
+
+/* ----------------------------------------------------------------- more */
+.more-toggle { display: inline-grid; place-items: center; flex: none; width: 36px; min-height: 36px; padding: 0; background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text-dim); }
+.more-toggle:hover, .more-toggle[aria-expanded="true"] { background: var(--pad-face-hover); color: var(--text); }
+.studio-app .popover.topbar-menu { width: 232px; padding: 6px; gap: 2px; }
+.topbar-menu button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 0 10px; border: 0; border-radius: var(--radius-sm); background: transparent; box-shadow: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
+.topbar-menu button:hover { background: var(--bg-2); }
+.topbar-menu button .icon { color: var(--text-dim); }
+.topbar-menu .menu-status { margin: 4px 0 0; padding: 10px 10px 6px; border-top: 1px solid var(--line-soft); font-size: var(--fs-xs); }

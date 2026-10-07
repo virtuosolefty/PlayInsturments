@@ -4,6 +4,9 @@ import { secondsPerBar } from '../lib/passages.js';
 import { loopLabel, moveLoopBoundary } from '../lib/loopSelection.js';
 
 const HEIGHT = 40;
+// With no loop set the timeline is a slim position strip; the canvas is drawn at
+// full height and shown squeezed, so opening a loop does not repaint it.
+const COMPACT_HEIGHT = 16;
 
 const COLORS = {
   // Matched to PianoRoll's laneWhite. The two are screens set into the same
@@ -167,6 +170,8 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
   scoreDurationRef.current = score?.duration ?? 0;
 
   const seek = (e) => {
+    // The strip takes the press as well as the canvas, so the slim timeline has a 24px target.
+    if (e.target !== canvasRef.current && e.target !== wrapRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     onSeek?.(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * (score?.duration ?? 0));
   };
@@ -198,10 +203,10 @@ export default function Minimap({ theme = 'light', score, troubleSpots = [], loo
   const stride = Math.max(1, Math.ceil(bars / 12));
 
   return (
-    <div className="passage-timeline">
+    <div className={`passage-timeline ${loop ? '' : 'compact'}`}>
       <div className="passage-summary"><span role="status">{loopLabel(loop, score)}</span>{loop ? <div><button onClick={() => onSeek?.(loop[0])}>Restart passage</button><button onClick={() => onLoopChange?.(null)}>Clear loop</button></div> : <span className="timeline-hint">Click to jump · use Loop to repeat a passage</span>}</div>
-      <div className="minimap" ref={wrapRef}>
-        <canvas ref={canvasRef} style={{ height: HEIGHT }} onPointerDown={seek} role="slider" tabIndex={0} aria-label="Position in piece" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={Math.max(0, Math.min(duration, engine.songTime ?? 0))} aria-valuetext={`${Math.floor(Math.max(0, engine.songTime ?? 0) / bar) + 1} of ${bars} bars`} onKeyDown={e => {
+      <div className="minimap" ref={wrapRef} onPointerDown={seek}>
+        <canvas ref={canvasRef} style={{ height: loop ? HEIGHT : COMPACT_HEIGHT }} role="slider" tabIndex={0} aria-label="Position in piece" aria-valuemin={0} aria-valuemax={duration} aria-valuenow={Math.max(0, Math.min(duration, engine.songTime ?? 0))} aria-valuetext={`${Math.floor(Math.max(0, engine.songTime ?? 0) / bar) + 1} of ${bars} bars`} onKeyDown={e => {
           if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
           e.preventDefault(); e.stopPropagation();
           onSeek?.(Math.max(0, Math.min(duration, e.key === 'Home' ? 0 : e.key === 'End' ? duration : (engine.songTime ?? 0) + (e.key === 'ArrowRight' ? bar : -bar))));

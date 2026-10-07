@@ -65,7 +65,6 @@
   .studio-app .mode-switch { padding:2px; }
   .studio-app .mode-switch button { font-size:12px; padding:4px 7px; }
   .studio-app .options-toggle { font-size:12px; padding:7px 8px; }
-  .studio-app .stage-toolbar { padding:2px 16px; min-height:32px; }
   .stage-view-switch button { min-height:26px; padding:3px 8px; font-size:12px; }
   .studio-app .studio-footer { padding:5px 16px; min-height:28px; flex-shrink:0; }
   .studio-app .pane.center { overflow-y:auto; }

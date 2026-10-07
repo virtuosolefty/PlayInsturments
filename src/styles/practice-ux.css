@@ -6,7 +6,10 @@
 .settings-heading strong { font-size: 16px; }
 .settings-heading button, .drawer-heading button { width: 36px; height: 36px; padding: 0; font-size: 22px; background: transparent; border-color: transparent; }
 .settings-label { display: block; color: var(--text-dim); font-size: 12px; margin: 16px 0 8px; }
-.instrument-settings-toggle { display: inline-flex; align-items: center; gap: 8px; background: transparent; border-color: transparent; color: var(--text-dim); min-height: 36px; font-size: 12px; }
+/* Beside the instrument picker. The label shows where the header has room for it. */
+.instrument-settings-toggle { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 10px; font-size: 12px; white-space: nowrap; background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text-dim); }
+.instrument-settings-toggle:hover, .instrument-settings-toggle[aria-expanded="true"] { background: var(--pad-face-hover); color: var(--text); }
+@media (max-width: 1399px) { .instrument-settings-toggle span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
 .studio-app .instrument-settings-panel { width: 390px; padding: 20px; display: block; }
 .instrument-settings-panel .stage-view-switch { background: var(--bg-2); border-radius: 8px; padding: 4px; }
 .instrument-settings-panel .stage-view-switch button { flex: 1; min-height: 36px; font-size: 13px; }
@@ -81,11 +84,14 @@
 .timeline-bars { position: relative; height: 18px; margin-top: 3px; font: 10px var(--mono); color: var(--text-faint); }
 .timeline-bars span { position: absolute; }
 .studio-app.focus-view .passage-timeline { display: none; }
+/* With no loop set the timeline is one slim strip showing where you are in the piece. */
+.passage-timeline.compact { padding-block: 2px; }
+.passage-timeline.compact .passage-summary, .passage-timeline.compact .timeline-bars { display: none; }
+.studio-app .passage-timeline.compact .minimap { height: 24px; padding-block: 4px; border: 0; cursor: pointer; }
+.studio-app.guitar-mode .passage-timeline.compact { display: none; }
 
 @media (min-width: 901px) {
   .studio-app .topbar { gap: 10px; }
-  .topbar .nav-link { background: transparent; border-color: transparent; padding: 0 8px; min-height: 36px; font-size: 13px; color: var(--text-dim); white-space: nowrap; }
-  .topbar .nav-link:hover { color: var(--accent); background: var(--accent-soft); }
   .studio-app .pane.left { width: 600px; max-width: calc(100vw - 64px); }
   .studio-app .drawer-tabs { padding: 8px 24px 12px; gap: 4px; }
   .studio-app .drawer-tabs button { min-height: 36px; font-size: 13px; }
@@ -125,8 +131,6 @@
   .studio-app .options-toggle { font-size: 12px; min-height: 36px; background: transparent; border-color: var(--line-soft); }
   .studio-app .popover { padding: 20px; }
   .studio-app .popover .hint, .studio-app .popover .toggle { font-size: 13px; line-height: 1.6; }
-  .studio-app .stage-toolbar { padding: 4px 20px; min-height: 42px; border-bottom: 0; }
-  .studio-app .stage-description { font-size: 12px; }
   .studio-app .piece-hint, .studio-app .live-feedback .hint { font-size: 13px; line-height: 1.7; }
   .studio-app .pane.right .section-title { font-size: 13px; }
   .studio-app .passage-timeline .minimap { display: block; }
@@ -144,10 +148,7 @@
 @media (min-width: 901px) and (max-width: 1099px) {
   .studio-app .topbar { gap: 6px; }
   .studio-app .topbar .brand h1 { display: none; }
-  .studio-app .topbar > .io-strip { flex: 0 1 256px; min-width: 150px; }
-  /* "No sound?" opens the same setup as Instrument setup beside it; dropping it leaves room for a longer
-     "Controller connected" and for a drill's back button. */
-  .studio-app .topbar .sound-help { display: none; }
+  .studio-app .topbar .io-strip { flex: 0 1 200px; min-width: 150px; }
 }
 /* Up to 1099px the header's buttons (learn or free play, the instrument picker, focus) take 520–600px of the row,
    which left the piece title a sliver — 1px wide at 901px, 23px at 701px — with its text running under the buttons.
@@ -157,7 +158,6 @@
   .studio-heading { flex: 1 1 160px; }
 }
 @media (min-width: 901px) and (max-width: 1400px) {
-  .saved-locally { display: none; }
   .studio-app .zone-transport .pad:last-child { width: 36px; min-width: 36px; padding: 0; justify-content: center; }
   .studio-app .zone-transport .pad:last-child .cap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .studio-app .lcd-total { display: none; }
@@ -165,7 +165,6 @@
 @media (min-width: 901px) and (max-height: 800px) {
   .studio-app .studio-header { min-height: 76px; padding-block: 10px; }
   .studio-app .controls { padding-block: 8px; }
-  .studio-app .stage-toolbar { min-height: 36px; padding-block: 0; }
   .studio-app .popover { max-height: min(420px, calc(100vh - 260px)); }
   .studio-app .practice-objective { font-size: 22px; }
 }

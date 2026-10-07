@@ -105,7 +105,7 @@ test('download and restore preserve learning settings and require explicit repla
 test('home keeps all actions reachable in both themes and at desktop zoom',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await seed(page);await page.goto('/');
  await expect(page.locator('.next-lesson-card h3')).toHaveText('Home Five — Right Hand');await page.screenshot({path:'test-results/screens/retention/home-light.png',fullPage:true,animations:'disabled'});
- await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/retention/home-dark.png',fullPage:true,animations:'disabled'});
+ await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/retention/home-dark.png',fullPage:true,animations:'disabled'});
  await page.setViewportSize({width:800,height:600});await page.emulateMedia({reducedMotion:'reduce'});
  await page.getByRole('button',{name:'Download progress backup'}).scrollIntoViewIfNeeded();await expect(page.getByRole('button',{name:'Download progress backup'})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);expect(errors).toEqual([]);

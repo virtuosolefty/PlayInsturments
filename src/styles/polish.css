@@ -32,7 +32,6 @@
   background: radial-gradient(ellipse 60% 120% at 100% 0%, rgb(165 148 255 / 10%), transparent 70%);
 }
 :root[data-theme="dark"] .studio-app .controls { background: var(--bg-1); border-color: var(--line-soft); }
-:root[data-theme="dark"] .studio-app .stage-toolbar { background: var(--bg-1); border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
 :root[data-theme="dark"] .studio-app .instrument-controls { background: var(--bg-1); }
 
 /* Segmented controls: selected = raised surface, not a lighter purple slab. */
@@ -73,26 +72,13 @@
 }
 
 /* Secondary buttons and fields. */
-:root[data-theme="dark"] .studio-app .pad,
-:root[data-theme="dark"] .studio-app .drawer-toggle,
-:root[data-theme="dark"] .studio-app .io-strip,
-:root[data-theme="dark"] .setup-trigger,
-:root[data-theme="dark"] .theme-toggle,
-:root[data-theme="dark"] .focus-toggle,
-:root[data-theme="dark"] .options-toggle,
-:root[data-theme="dark"] .show-feedback {
+:root[data-theme="dark"] .studio-app .pad, :root[data-theme="dark"] .studio-app .io-strip, :root[data-theme="dark"] .setup-trigger, :root[data-theme="dark"] .focus-toggle, :root[data-theme="dark"] .options-toggle, :root[data-theme="dark"] .show-feedback {
   background: var(--bg-2);
   border: 1px solid var(--line-strong);
   color: var(--text-dim);
   box-shadow: var(--lift);
 }
-:root[data-theme="dark"] .studio-app .pad:hover:not(:disabled),
-:root[data-theme="dark"] .studio-app .drawer-toggle:hover,
-:root[data-theme="dark"] .setup-trigger:hover,
-:root[data-theme="dark"] .theme-toggle:hover,
-:root[data-theme="dark"] .focus-toggle:hover,
-:root[data-theme="dark"] .options-toggle:hover,
-:root[data-theme="dark"] .show-feedback:hover { background: var(--bg-3); color: var(--text); }
+:root[data-theme="dark"] .studio-app .pad:hover:not(:disabled), :root[data-theme="dark"] .setup-trigger:hover, :root[data-theme="dark"] .focus-toggle:hover, :root[data-theme="dark"] .options-toggle:hover, :root[data-theme="dark"] .show-feedback:hover { background: var(--bg-3); color: var(--text); }
 :root[data-theme="dark"] select,
 :root[data-theme="dark"] input[type="search"],
 :root[data-theme="dark"] input[type="text"],
@@ -165,8 +151,8 @@
 /* Focus now means focus: header chrome, stage toolbar, keyboard settings and
    footer go, leaving the music, the transport and a way back out. */
 .studio-app.focus-view .topbar,
-.studio-app.focus-view .stage-toolbar,
 .studio-app.focus-view .instrument-controls,
+.studio-app.focus-view .instrument-settings-host,
 .studio-app.focus-view .minimap,
 .studio-app.focus-view .studio-footer,
 .studio-app.focus-view .studio-heading .eyebrow,
@@ -210,7 +196,7 @@
 .empty-state p { margin: 0; color: var(--text-dim); font-size: 12px; line-height: 1.6; }
 
 /* ------------------------------------------------------- micro-motion */
-.studio-app .pad, .options-toggle, .show-feedback, .focus-toggle, .theme-toggle, .setup-trigger, .drawer-toggle, .song {
+.studio-app .pad, .options-toggle, .show-feedback, .focus-toggle, .setup-trigger, .song {
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 .studio-app .pad:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
@@ -225,7 +211,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
    past the window; now the bar takes a second line instead. */
 @media (max-width: 900px) {
   .studio-app .topbar { flex-wrap: wrap; row-gap: 8px; }
-  .studio-app .topbar .saved-locally { display: none; }
 }
 /* A phone held sideways has a few hundred pixels of height, and every line of chrome comes out of the workspace:
    with the top bar on two lines it was left 14px. Here the top bar keeps to one line and scrolls sideways, and the
@@ -242,13 +227,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .studio-app { padding-left: 10px !important; padding-right: 10px !important; }
   .studio-app .topbar .setup-trigger { font-size: 0; gap: 0; padding: 0 10px; }
   .studio-app .topbar .setup-trigger .connection-dot { width: 8px; height: 8px; }
-  .theme-toggle span { display: none; }
   .studio-header { flex-wrap: wrap; padding: 16px !important; }
   .studio-header-actions { flex-wrap: wrap; width: 100%; }
   .studio-app .controls { flex-wrap: wrap; }
   .studio-app .pads { flex-wrap: wrap; }
   .studio-app .zone { min-width: 0; max-width: 100%; }
-  .studio-app .instrument-controls, .stage-toolbar { flex-wrap: wrap; }
+  .studio-app .instrument-controls { flex-wrap: wrap; }
   .live-hud { top: 8px; right: 8px; }
   .hud-progress { display: none; }
 }
@@ -277,7 +261,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 /* Unlocking audio on pointer-down must not move nearby click targets. */
 @media (min-width: 901px) {
-  .studio-app .topbar > .io-strip { width: 256px; max-width: 256px; flex: 0 0 256px; }
+  .studio-app .topbar .io-strip { width: 200px; max-width: 200px; flex: 0 0 200px; }
   .studio-app .topbar .audio-slot { min-width: 0; max-width: 100%; }
   .studio-app .topbar .audio-slot strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

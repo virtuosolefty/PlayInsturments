@@ -89,6 +89,8 @@
   --good: #0f6b7a; --bad: #b53954; --warn: #855610; --info: #2f62ab; --now: #2f62ab;
   --screen: #f5f3ee; --right-hand: #367cb4; --left-hand: #865ac2;
   --pad-face: #fffefa; --pad-face-hover: #f0edf8;
+  /* A segmented control: the well it sits in, and its chosen segment. */
+  --seg-trough: #eeedf5; --seg-on: #fffefa; --seg-on-shadow: 0 2px 5px #25243b12;
   --lift: none; --lift-strong: none;
   --elev-1: 0 2px 5px #25243b06; --elev-2: 0 8px 28px #25243b10; --elev-3: 0 24px 90px #25243b20;
   --studio-shadow: 0 8px 35px #37324b09;
@@ -108,6 +110,7 @@
   --good: #5ad79a; --bad: #ff6b82; --warn: #f5b94f; --info: #6eb4ff; --now: #6eb4ff;
   --screen: #0e0e14; --right-hand: #5ab8ff; --left-hand: #b89cff;
   --pad-face: #1a1a22; --pad-face-hover: #22222c;
+  --seg-trough: #0b0b10; --seg-on: #24242e; --seg-on-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), 0 1px 2px rgb(0 0 0 / 50%);
   --lift: inset 0 1px 0 rgb(255 255 255 / 4%);
   --lift-strong: inset 0 1px 0 rgb(255 255 255 / 7%);
   --elev-1: 0 1px 2px rgb(0 0 0 / 40%), var(--lift);
