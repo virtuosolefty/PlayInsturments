@@ -1,37 +1,14 @@
 /* Desktop studio: shared theme tokens, with desktop layout changes only. */
-:root, :root[data-theme="light"] {
-  --bg: #f2f0eb; --bg-1: #fffefa; --bg-2: #eeedf5; --bg-3: #e0dfeb;
-  --line: #cbcbd7; --line-soft: #e4e2e9;
-  --text: #25243b; --text-dim: #595b70; --text-faint: #696b7b;
-  --accent: #6251b7; --accent-dim: #8b7fcc; --accent-soft: #eeeaf9; --on-accent: #ffffff;
-  --brand: #6251b7; --brand-dim: #d3ccef;
-  --good: #237357; --bad: #b53954; --warn: #986313; --info: #386dba; --now: #386dba;
-  --screen: #f5f3ee; --right-hand: #367cb4; --left-hand: #865ac2;
-  --pad-face: #fffefa; --pad-face-hover: #f0edf8; --pad-rest: none; --pad-press: none;
-  --lift: none; --lift-strong: none; --bezel: none; --bezel-inset: none;
-  --elev-1: 0 2px 5px #25243b06; --elev-2: 0 8px 28px #25243b10; --elev-3: 0 24px 90px #25243b20;
-  --studio-shadow: 0 8px 35px #37324b09;
-}
-:root[data-theme="dark"] {
-  --bg: #191922; --bg-1: #22222e; --bg-2: #2d2d3c; --bg-3: #3c3b50;
-  --line: #4d4b63; --line-soft: #383647;
-  --text: #f2f0fa; --text-dim: #c0bcd0; --text-faint: #aaa6bf;
-  --accent: #b6a2fa; --accent-dim: #8974cb; --accent-soft: #38304e; --on-accent: #221932;
-  --brand: #b6a2fa; --brand-dim: #514168;
-  --good: #80d9af; --bad: #ff8fa5; --warn: #e8c07d; --info: #8cbef0; --now: #8cbef0;
-  --screen: #1a1b25; --right-hand: #79b9ec; --left-hand: #c1a0f2;
-  --pad-face: #2d2d3c; --pad-face-hover: #3b374d; --studio-shadow: 0 8px 35px #00000020;
-}
 body { background: var(--bg); color: var(--text); }
 button, input, select, textarea { color: var(--text); }
 button { box-shadow: none; text-shadow: none; }
-button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 button.primary, .studio-app button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); text-shadow: none; }
 .studio-app .topbar, .studio-app .studio-footer { background: transparent; }
 .studio-app .brand .mark { background: repeating-linear-gradient(90deg, var(--brand) 0 4px, transparent 4px 7px); }
-.studio-app .brand .ver, .studio-heading .eyebrow, .studio-coach .eyebrow, .eyebrow { color: var(--accent); }
+/* Eyebrows label; they are not actions, so they do not take the accent. */
+.studio-app .brand .ver, .studio-heading .eyebrow, .studio-coach .eyebrow, .eyebrow { color: var(--text-dim); }
 .studio-app .pane.center, .studio-app .pane.right, .studio-app .pane.left { background: var(--bg-1); border-color: var(--line-soft); box-shadow: var(--studio-shadow); }
-.studio-app .drawer-toggle, .studio-app .io-strip, .setup-trigger, .theme-toggle, .focus-toggle { background: var(--bg-1); border: 1px solid var(--line); color: var(--text-dim); box-shadow: none; }
+.studio-app .drawer-toggle, .studio-app .io-strip, .setup-trigger, .theme-toggle, .focus-toggle { background: var(--bg-1); border: 1px solid var(--line-strong); color: var(--text-dim); box-shadow: none; }
 .studio-app .io-slot { color: var(--text-dim); }
 .studio-app .io-slot strong { color: var(--text); }
 .studio-app .io-slot .dot { background: var(--good); }
@@ -55,12 +32,12 @@ button.primary, .studio-app button.primary { background: var(--accent); border-c
 .studio-app .mode-switch { background: var(--bg-2); border-color: var(--line-soft); }
 .studio-app .mode-switch button { color: var(--text-dim); }
 .studio-app .mode-switch button.on { background: var(--bg-1); color: var(--accent); }
-.studio-app .pad { border-color: var(--line); background: var(--bg-1); color: var(--text-dim); box-shadow: none; }
+.studio-app .pad { border-color: var(--line-strong); background: var(--bg-1); color: var(--text-dim); box-shadow: none; }
 .studio-app .pad .glyph { color: var(--text-dim); }
 .studio-app .pad.primary, .studio-app .pad.primary .glyph { color: var(--on-accent); }
 .studio-app .pad.primary { background: var(--accent); border-color: var(--accent); }
 .studio-app .section.piece-panel { background: var(--bg-1); }
-.studio-app .piece-panel .eyebrow { color: var(--accent); }
+.studio-app .piece-panel .eyebrow { color: var(--text-dim); }
 .studio-app .piece-composer { color: var(--text-dim); }
 .studio-app .piece-facts > div { border-color: var(--line-soft); }
 .studio-app .piece-facts dd { color: var(--text); }
@@ -96,7 +73,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .studio-app .studio-coach { border-color: var(--line-soft); background: transparent; }
 .studio-coach p, .studio-coach li { color: var(--text-dim); }
 .studio-coach li b { background: var(--accent-soft); color: var(--accent); }
-.studio-app .library-search input { background: var(--bg); border-color: var(--line); color: var(--text); }
+.studio-app .library-search input { background: var(--bg); border-color: var(--line-strong); color: var(--text); }
 .library-intro { padding: 22px 20px 10px; }
 .library-intro h2 { font-size: 23px; letter-spacing: -0.7px; margin: 8px 0 18px; }
 .library-instruments button { flex: 1; min-height: 34px; }
@@ -135,7 +112,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .setup-instrument strong, .setup-instrument span { display: block; }
 .setup-instrument span { font-size: 12px; margin-top: 5px; color: var(--text-dim); }
 .setup-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.setup-inputs button { text-align: left; padding: 16px; background: var(--bg); border: 1px solid var(--line); }
+.setup-inputs button { text-align: left; padding: 16px; background: var(--bg); border: 1px solid var(--line-strong); }
 .setup-inputs button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 .setup-inputs strong, .setup-inputs span { display: block; }
 .setup-inputs strong { font-size: 13px; }
@@ -157,7 +134,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .welcome-studio header h2 { font-size: 28px; letter-spacing: -0.9px; margin: 10px 0; }
 .welcome-studio header p { color: var(--text-dim); font-size: 14px; }
 .welcome-instruments { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.welcome-instruments button { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 22px; background: var(--bg); border-color: var(--line); text-align: left; }
+.welcome-instruments button { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 22px; background: var(--bg); border-color: var(--line-strong); text-align: left; }
 .welcome-instruments button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
 .welcome-instruments svg { height: 30px; width: 30px; color: var(--accent); }
 .welcome-instruments span { font-size: 11px; color: var(--text-dim); }
@@ -167,13 +144,13 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .welcome-steps li strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 5px; }
 .studio-app .guitar-workspace { background: var(--screen); }
 .guitar-study-row label { color: var(--text-dim); }
-.guitar-study-row select { background: var(--bg-1); color: var(--text); border-color: var(--line); }
+.guitar-study-row select { background: var(--bg-1); color: var(--text); border-color: var(--line-strong); }
 .tuning-badge, .tuning-badge b { color: var(--text-dim); }
 .guitar-next { background: var(--accent-soft); border-color: var(--line-soft); }
 .guitar-next strong { color: var(--accent); font-size: 13px; }
 .guitar-next > span, .guitar-next .guitar-tab-key { color: var(--text-dim); }
 .guitar-fret-controls > summary, .guitar-input-note, .guitar-left-toggle, .guitar-chords > span { color: var(--text-dim); font-size: 12px; }
-.guitar-chords button { background: var(--bg-1); color: var(--text); border-color: var(--line); font-size: 12px; }
+.guitar-chords button { background: var(--bg-1); color: var(--text); border-color: var(--line-strong); font-size: 12px; }
 .guitar-chords button[aria-pressed="true"], .guitar-chords .strum-button { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
 .guitar-chords button:disabled { opacity: 0.45; }
 .guitar-stage, .guitar-stage-loading { background: radial-gradient(ellipse at center, var(--bg-1), var(--bg-2)); }

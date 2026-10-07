@@ -13,41 +13,6 @@
    ========================================================================== */
 
 /* ---------------------------------------------------------------- dark */
-:root[data-theme="dark"] {
-  --bg: #0b0b10;
-  --bg-1: #131319;
-  --bg-2: #1a1a22;
-  --bg-3: #24242e;
-  --line: #2c2c38;
-  --line-soft: #1f1f28;
-  --text: #ededf3;
-  --text-dim: #a6a6b5;
-  --text-faint: #8b8b9c;          /* 5.4:1 on --bg-1, clears WCAG AA */
-  --accent: #a594ff;
-  --accent-dim: #6f5fe0;
-  --accent-soft: #1f1b36;
-  --on-accent: #120d2b;
-  --brand: #a594ff;
-  --brand-dim: #3b3368;
-  --good: #5ad79a;
-  --bad: #ff6b82;
-  --warn: #f5b94f;
-  --info: #6eb4ff;
-  --now: #6eb4ff;
-  --screen: #0e0e14;
-  --right-hand: #5ab8ff;
-  --left-hand: #b89cff;
-  --pad-face: #1a1a22;
-  --pad-face-hover: #22222c;
-  --lift: inset 0 1px 0 rgb(255 255 255 / 4%);
-  --lift-strong: inset 0 1px 0 rgb(255 255 255 / 7%);
-  --elev-1: 0 1px 2px rgb(0 0 0 / 40%), var(--lift);
-  --elev-2: 0 8px 24px rgb(0 0 0 / 45%), var(--lift);
-  --elev-3: 0 24px 64px rgb(0 0 0 / 60%), var(--lift-strong);
-  --studio-shadow: 0 0 0 1px rgb(255 255 255 / 2%), 0 24px 60px -24px rgb(0 0 0 / 70%), var(--lift);
-  color-scheme: dark;
-}
-
 :root[data-theme="dark"] body {
   background:
     radial-gradient(1100px 520px at 12% -12%, rgb(124 108 255 / 9%), transparent 62%),
@@ -115,7 +80,7 @@
 :root[data-theme="dark"] .options-toggle,
 :root[data-theme="dark"] .show-feedback {
   background: var(--bg-2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   color: var(--text-dim);
   box-shadow: var(--lift);
 }
@@ -129,7 +94,7 @@
 :root[data-theme="dark"] select,
 :root[data-theme="dark"] input[type="search"],
 :root[data-theme="dark"] input[type="text"],
-:root[data-theme="dark"] .studio-app .library-search input { background: var(--bg); border-color: var(--line); color: var(--text); }
+:root[data-theme="dark"] .studio-app .library-search input { background: var(--bg); border-color: var(--line-strong); color: var(--text); }
 :root[data-theme="dark"] .studio-app .lcd { background: var(--bg); border-color: var(--line-soft); }
 :root[data-theme="dark"] .studio-app .popover,
 :root[data-theme="dark"] .report,

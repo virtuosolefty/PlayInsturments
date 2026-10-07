@@ -6,6 +6,9 @@
 .welcome-brand > span { color: var(--accent); margin-right: 6px; }
 .welcome-nav nav { display: flex; align-items: center; gap: 26px; }
 .welcome-nav a, .welcome-footer a, .learning-public-links a { color: var(--text-dim); text-decoration: none; }
+/* A 44px hit area for links that are only a line of text tall. */
+.welcome-nav nav a, .welcome-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+.welcome-nav button { display: inline-flex; align-items: center; gap: 6px; }
 .welcome-nav a:hover, .welcome-footer a:hover, .learning-public-links a:hover { color: var(--accent); text-decoration: underline; }
 .welcome-nav button { min-height: 40px; background: var(--bg-1); border-color: var(--line-soft); padding: 8px 14px; }
 .welcome-hero { display: grid; grid-template-columns: .92fr 1.08fr; align-items: center; gap: 48px; min-height: 530px; padding-block: 32px 64px; }
@@ -13,7 +16,7 @@
 .welcome-copy h1 em { color: var(--accent); font-style: normal; }
 .welcome-copy > p { color: var(--text-dim); font-size: 17px; line-height: 1.8; max-width: 440px; }
 .welcome-cta { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
-.welcome-cta button { min-height: 48px; padding: 12px 18px; font-size: 14px; background: var(--bg-1); border-color: var(--line); border-radius: 9px; }
+.welcome-cta button { min-height: 48px; padding: 12px 18px; font-size: 14px; background: var(--bg-1); border-color: var(--line-strong); border-radius: 9px; }
 .welcome-cta button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .welcome-cta button.primary span { padding-left: 16px; }
 .welcome-copy .welcome-reassurance { font-size: 12px; margin-top: 16px; }
@@ -62,7 +65,7 @@
 .week-days .done b { background: var(--accent-soft); color: var(--accent); }
 .week-days .today b { border-color: var(--accent); }
 .weekly-practice label { display: grid; gap: 8px; color: var(--text-dim); font-size: 12px; }
-.weekly-practice select { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+.weekly-practice select { background: var(--bg); border: 1px solid var(--line-strong); border-radius: 6px; padding: 8px; }
 .discover-pieces { margin-block: 40px; }
 .discover-pieces > header { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
 .discover-pieces > header > span { font-size: 12px; color: var(--text-dim); padding-bottom: 12px; }
@@ -90,7 +93,7 @@
 .learning-backup > div { flex: 1; }
 .learning-backup h3 { font-size: 17px; }
 .learning-backup p { font-size: 12px; max-width: 470px; }
-.learning-backup button { font-size: 12px; min-height: 40px; border-color: var(--line); background: var(--bg-1); }
+.learning-backup button { font-size: 12px; min-height: 40px; border-color: var(--line-strong); background: var(--bg-1); }
 .learning-public-links { margin-top: 28px; display: flex; gap: 24px; font-size: 12px; }
 .home-message { padding: 12px 18px; background: var(--accent-soft); border-radius: 8px; overflow-wrap: anywhere; }
 .saved-locally.save-problem { color: var(--bad); }

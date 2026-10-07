@@ -167,7 +167,7 @@
 .bow-card .bow-notes { display:flex; flex-direction:column; gap:10px; }
 .bow-note-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
 .bow-note-list button, .bow-open-strings button { width:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
-.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line); border-radius:6px; background:var(--bg-1); }
+.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line-strong); border-radius:6px; background:var(--bg-1); }
 .bow-note-list b { font-size:14px; font-weight:650; }
 .bow-note-list small { font:10px var(--mono); color:var(--text-faint); }
 .bow-note-list button.sounding, .bow-open-strings button.sounding { background:#167b63; color:#fff; border-color:#167b63; }

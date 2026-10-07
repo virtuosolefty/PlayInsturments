@@ -61,7 +61,7 @@
 .session-goal { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; padding: 12px 0; border-block: 1px solid var(--line-soft); font-size: 13px; }
 .session-goal strong { font-weight: 600; white-space: nowrap; }
 .coach-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.coach-actions button { min-height: 36px; font-size: 13px; background: transparent; border-color: var(--line); color: var(--accent); padding: 8px 10px; }
+.coach-actions button { min-height: 36px; font-size: 13px; background: transparent; border-color: var(--line-strong); color: var(--accent); padding: 8px 10px; }
 .studio-app .piece-best { margin-top: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--text-dim); font-size: 13px; }
 .piece-details { border-top: 1px solid var(--line-soft); margin-top: 24px; }
 .piece-details summary { font-size: 13px; cursor: pointer; padding: 16px 0; color: var(--text-dim); }

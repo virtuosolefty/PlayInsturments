@@ -52,7 +52,7 @@
 .learning-stage-lessons button:disabled { opacity: .65; }
 .learning-home-footer { display: flex; gap: 12px; align-items: center; margin-top: 28px; }
 .learning-home-footer > span { font-size: 13px; color: var(--text-dim); margin-right: auto; }
-.learning-home-footer button { background: transparent; border-color: var(--line); }
+.learning-home-footer button { background: transparent; border-color: var(--line-strong); }
 .daily-finished { display: flex; gap: 12px; flex-direction: column; padding: 20px 24px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); margin-bottom: 24px; font-size: 14px; }
 .learning-summary { padding: 24px; border-bottom: 1px solid var(--line-soft); }
 .learning-summary h3 { font-size: 20px; margin: 12px 0; }

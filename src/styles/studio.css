@@ -1,25 +1,6 @@
 /* Studio layer: presentation only; timing and scoring stay in the engine. */
-:root {
-  --bg: #0c1016;
-  --bg-1: #141a23;
-  --bg-2: #202935;
-  --bg-3: #2d3947;
-  --line: #35414f;
-  --line-soft: #252e3b;
-  --text: #edf2f8;
-  --text-dim: #abb8c9;
-  --text-faint: #95a4b8;
-  --accent: #78e0c8;
-  --accent-dim: #448d7e;
-  --panel-grain: none;
-  --pad-face: linear-gradient(180deg, #273140, #202834);
-  --pad-face-hover: linear-gradient(180deg, #344153, #273342);
-  --pad-rest: inset 0 1px 0 #ffffff0a;
-  --brand: #78e0c8;
-}
 body { background: #10141b; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #aff7e5; outline-offset: 4px; }
 .studio-app { padding: 0 20px 16px; gap: 10px; }
 .studio-app .topbar { background: transparent; border: 0; padding: 17px 0 10px; box-shadow: none; gap: 20px; }
 .studio-app .brand { order: -1; gap: 10px; }
