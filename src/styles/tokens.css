@@ -1,0 +1,184 @@
+/* ============================================================ design tokens
+   The one place a token is declared. Loaded first from main.jsx; no other
+   stylesheet sets these on :root. Component rules read tokens, and the two
+   theme blocks below are the only thing that changes between light and dark.
+
+   ------------------------------------------------------- colour meanings
+   Four hues, four jobs, and nothing borrowing another's:
+
+     violet (--accent)  the app's own surface — what you can click, what you
+                        have chosen, and its readouts about your progress
+     blue   (--now)     the music's position — where the piece is now, what
+                        to play next, which piece to start
+     good / bad         the verdict on what you actually played
+     amber  (--warn)    difficulty, and caution */
+
+:root {
+  /* Radii: keycaps and thin marks, chips and inner segments, controls (--control-r),
+     cards and panes, hero cards, and fully round for dots and legends. */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /* Three control heights. A segmented control is as tall as a button, so its
+     segments take the small step; the one primary action on a view takes the
+     large one. */
+  --control-h-sm: 32px;
+  --control-h: 40px;
+  --control-h-lg: 48px;
+  --control-r: 8px;
+  --control-pad: 0 12px;
+
+  /* Loaded in main.jsx. The stack still names system faces after them: if the
+     woff2 is slow or blocked, the app should render in something rather than
+     wait. */
+  --mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Type scale. 11px is the floor: this is an app you read from a metre away
+     while sitting at a keyboard, not from phone distance. */
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 24px;
+  --fs-2xl: 30px;
+  --fs-3xl: 36px;
+  --fs-display: 96px;
+
+  /* Three weights, and two trackings: tight for headings, open for uppercase labels. */
+  --fw-regular: 400;
+  --fw-medium: 550;
+  --fw-bold: 650;
+  --tracking-tight: -0.03em;
+  --tracking-caps: 0.08em;
+
+  /* Spacing, in multiples of four. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Layers, lowest first. A scrim sits one below its panel. */
+  --z-drawer: 20;
+  --z-nav: 30;
+  --z-popover: 40;
+  --z-toast: 50;
+  --z-dialog: 100;
+  --z-top: 300;
+
+  /* Motion. `--ease-out` for things arriving, `--ease-spring` for things that
+     should feel physical. */
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* One value in both themes. */
+  --now-dim: #35659f;
+
+  /* The stage: one dark room in both themes, so notes and highlights read as
+     light. The canvases read these through lib/stageColors.js. Blue and amber
+     are the two hands; violet stays the interface's own colour. */
+  --stage: #080710;
+  --note-right: #5ab8ff;
+  --note-left: #ffb84d;
+  --hit: #5ad79a;
+  --miss: #ff6b82;
+  --late: #f5b94f;
+  --hit-line: #f8efff;
+  --shadow: var(--elev-3);
+  --guitar-played: #167b63;
+
+  /* Left from the hardware look. They resolve to `none` in both themes but
+     rules in styles.css still read them inside shadow and background lists. */
+  --panel-grain: none;
+  --pad-rest: none;
+  --pad-press: none;
+  --bezel-inset: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur-base: 1ms;
+    --dur-slow: 1ms;
+  }
+}
+
+/* ---------------------------------------------------------------- light */
+:root, :root[data-theme="light"] {
+  --bg: #f2f0eb; --bg-1: #fffefa; --bg-2: #eeedf5; --bg-3: #e0dfeb;
+  /* --line and --line-soft divide; --line-strong is the edge of a control,
+     and holds 3:1 against --bg, --bg-1, --bg-2 and --accent-soft. */
+  --line: #cbcbd7; --line-soft: #e4e2e9; --line-strong: #80809a;
+  /* --text-faint, --warn and --now hold 4.5:1 on every surface up to --bg-3. */
+  --text: #25243b; --text-dim: #595b70; --text-faint: #5f6174;
+  --accent: #6251b7; --accent-dim: #8b7fcc; --accent-soft: #eeeaf9; --on-accent: #ffffff;
+  --brand: #6251b7;
+  /* --good sits toward blue so it does not share a lightness and an axis with
+     --bad for a red–green colour-blind player. */
+  --good: #0f6b7a; --bad: #b53954; --warn: #855610; --info: #2f62ab; --now: #2f62ab; --now-soft: #e4ecf8;
+  --screen: #f5f3ee;
+  --pad-face: #fffefa; --pad-face-hover: #f0edf8;
+  /* A segmented control: the well it sits in, and its chosen segment. */
+  --seg-trough: #eeedf5; --seg-on: #fffefa; --seg-on-shadow: 0 2px 5px #25243b12;
+  --lift: none; --lift-strong: none;
+  --elev-1: 0 2px 5px #25243b06; --elev-2: 0 8px 28px #25243b10; --elev-3: 0 24px 90px #25243b20;
+  --studio-shadow: 0 8px 35px #37324b09;
+  /* Surfaces and states that differ by more than a colour between the themes. */
+  --app-wash: none; --header-wash: none;
+  --primary-bg: #6251b7; --primary-border: #6251b7; --primary-shadow: none;
+  --armed-bg: #0f6b7a; --armed-border: #0f6b7a; --armed-text: #ffffff; --armed-shadow: none;
+  --field-bg: #eeedf5; --overlay-bg: #fffefa;
+  --scrim: rgb(37 36 59 / 38%); --scrim-blur: none;
+  --selection: rgb(98 81 183 / 22%); --scrollbar: #c5c3d2;
+  --staff-filter: brightness(0.3);
+  --guitar-root: #a36032;
+  color-scheme: light;
+}
+
+/* ----------------------------------------------------------------- dark
+   A near-black base with only a trace of hue, surfaces separated by small
+   luminance steps, hairline borders, a 1px top highlight on raised surfaces,
+   and exactly one saturated accent.
+
+   .stage-dark gives the same values to a stage and everything on it, so the
+   piano, guitar, violin and cello play in the same dark room in both themes. */
+:root[data-theme="dark"], .stage-dark {
+  --bg: #0b0b10; --bg-1: #131319; --bg-2: #1a1a22; --bg-3: #24242e;
+  --line: #2c2c38; --line-soft: #1f1f28; --line-strong: #686880;
+  --text: #ededf3; --text-dim: #a6a6b5; --text-faint: #8b8b9c;
+  --accent: #a594ff; --accent-dim: #6f5fe0; --accent-soft: #1f1b36; --on-accent: #120d2b;
+  --brand: #a594ff;
+  --good: #5ad79a; --bad: #ff6b82; --warn: #f5b94f; --info: #6eb4ff; --now: #6eb4ff; --now-soft: #10203a;
+  --screen: #0e0e14;
+  --pad-face: #1a1a22; --pad-face-hover: #22222c;
+  --seg-trough: #0b0b10; --seg-on: #24242e; --seg-on-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), 0 1px 2px rgb(0 0 0 / 50%);
+  --lift: inset 0 1px 0 rgb(255 255 255 / 4%);
+  --lift-strong: inset 0 1px 0 rgb(255 255 255 / 7%);
+  --elev-1: 0 1px 2px rgb(0 0 0 / 40%), var(--lift);
+  --elev-2: 0 8px 24px rgb(0 0 0 / 45%), var(--lift);
+  --elev-3: 0 24px 64px rgb(0 0 0 / 60%), var(--lift-strong);
+  --studio-shadow: 0 0 0 1px rgb(255 255 255 / 2%), 0 24px 60px -24px rgb(0 0 0 / 70%), var(--lift);
+  --app-wash: radial-gradient(1100px 520px at 12% -12%, rgb(124 108 255 / 9%), transparent 62%), radial-gradient(900px 480px at 100% 0%, rgb(90 184 255 / 5%), transparent 60%);
+  --header-wash: radial-gradient(ellipse 60% 120% at 100% 0%, rgb(165 148 255 / 10%), transparent 70%);
+  --primary-bg: linear-gradient(180deg, #b6a9ff, #9582ff); --primary-border: #b6a9ff;
+  --primary-shadow: 0 8px 24px -8px rgb(149 130 255 / 65%), inset 0 1px 0 rgb(255 255 255 / 35%);
+  --armed-bg: linear-gradient(180deg, #6ee7b0, #3fcf8e); --armed-border: #6ee7b0; --armed-text: #06281a;
+  --armed-shadow: 0 8px 24px -8px rgb(63 207 142 / 60%), inset 0 1px 0 rgb(255 255 255 / 35%);
+  --field-bg: #0b0b10; --overlay-bg: #16161d;
+  --scrim: rgb(5 5 8 / 62%); --scrim-blur: blur(3px);
+  --selection: rgb(165 148 255 / 35%); --scrollbar: #2e2e3a;
+  --staff-filter: none;
+  --guitar-root: #ba7747;
+  color-scheme: dark;
+}
+
+.stage-dark { color: var(--text); }

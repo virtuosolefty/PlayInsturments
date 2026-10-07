@@ -130,7 +130,7 @@ test('short desktop layouts, themes and reduced motion preserve usable 3D instru
   test.setTimeout(60_000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await seed(page,{renderer:'gl',learningView:'home'});await page.goto('/');
   await page.screenshot({path:'test-results/screens/learning/home-light.png'});
-  await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/learning/home-dark.png'});
+  await page.getByRole('button',{name:'More',exact:true}).click();await page.getByRole('button',{name:'Switch to dark theme'}).click();await page.screenshot({path:'test-results/screens/learning/home-dark.png'});
   await page.setViewportSize({width:1280,height:720});
   await page.getByRole('button',{name:'Start my first lesson'}).click();
   await expect(page.locator('.roll-gl canvas').first()).toBeVisible();

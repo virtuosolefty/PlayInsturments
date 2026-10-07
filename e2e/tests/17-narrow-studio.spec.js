@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
  * The studio on tablets, phones and small laptops. Before this, from 701px to
@@ -8,7 +9,6 @@ import { test, expect } from '@playwright/test';
  */
 
 const stage = page => page.locator('.guitar-stage');
-const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
 
 function open(page, { instrument = 'guitar', free = true } = {}) {
   return async () => {
@@ -94,6 +94,36 @@ test.describe('on a phone', () => {
     expect(picks.x + picks.width).toBeLessThanOrEqual(box.x + box.width);
     const topBar = await page.locator('.guitar-stage-top').boundingBox();
     expect(topBar.y + topBar.height).toBeLessThanOrEqual(strings[0].top);
+  });
+
+  test('the instrument gets the screen: one-row bars, a tab bar at the bottom, and 44px controls', async ({ page }) => {
+    await open(page)();
+    await expect(stage(page).locator('canvas')).toBeVisible();
+    expect((await page.locator('#practice-stage').boundingBox()).y).toBeLessThanOrEqual(140);
+    expect((await page.locator('.topbar').boundingBox()).height).toBeLessThanOrEqual(64);
+    const tabs = await page.getByRole('navigation', { name: 'Main' }).boundingBox();
+    expect(Math.round(tabs.y + tabs.height)).toBe(844);
+    const short = await page.evaluate(() => [...document.querySelectorAll('.topbar button, .studio-header button')]
+      .filter(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden')
+      .map(el => ({ name: el.textContent.trim() || el.getAttribute('aria-label'), height: Math.round(el.getBoundingClientRect().height) }))
+      .filter(button => button.height < 44));
+    expect(short).toEqual([]);
+  });
+
+  test('the header sheet changes the instrument, then closes', async ({ page }) => {
+    await open(page)();
+    const toggle = page.getByRole('button', { name: /Change instrument or workspace/ });
+    const picker = page.getByRole('group', { name: 'Practice instrument' });
+    await expect(toggle).toContainText('Guitar · Free play');
+    await expect(picker).toBeHidden();
+    await toggle.click();
+    await picker.getByRole('button', { name: 'Violin', exact: true }).click();
+    await expect(toggle).toContainText('Violin · Free play');
+    await expect(picker).toBeHidden();
+    await toggle.click();
+    await expect(picker).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(picker).toBeHidden();
   });
 
   test('the chord explorer can be reached and played, laid out in one column', async ({ page }) => {

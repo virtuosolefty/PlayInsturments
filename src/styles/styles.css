@@ -1,179 +1,4 @@
-/* ============================================================ design tokens */
-:root {
-  /* Surfaces. The steps used to sit within a few points of each other, which
-     read as one flat tone with borders drawn on top. Widened, and raised
-     surfaces get a hairline top highlight so they catch light like panels
-     rather than like rectangles.
-
-     The blue cast came out in the studio pass. Navy surfaces plus a teal accent
-     read as one continuous wash; neutral graphite lets the accent be the only
-     saturated thing in the chrome, which is what makes it look like a painted
-     metal panel rather than a tinted card. Luminance is unchanged at every
-     step, so the contrast ratios the text tokens were measured against hold. */
-  --bg: #07090b;
-  --bg-1: #111418;
-  --bg-2: #1c2027;
-  --bg-3: #2b3038;
-  --line: #3a4049;
-  --line-soft: #22262c;
-  --lift: inset 0 1px 0 rgb(255 255 255 / 6%);
-  --lift-strong: inset 0 1px 0 rgb(255 255 255 / 9%);
-
-  --text: #e8edf5;
-  --text-dim: #98a4b8;
-  /* Lifted from #6b7789, which measured 4.34:1 on the panel background and so
-     missed the 4.5:1 that WCAG AA asks of small text. It carries labels and
-     hints — the smallest type in the app — which is exactly where the margin
-     should not be thin. Still clearly quieter than --text-dim. */
-  --text-faint: #7f8a9c;
-
-  /* ------------------------------------------------------- colour meanings
-     Four hues, four jobs, and nothing borrowing another's:
-
-       teal  (--accent)  the app's own surface — what you can click, what you
-                         have chosen, and its readouts about your progress
-       blue  (--now)     the music's position — where the piece is now, what
-                         to play next, which piece to start
-       green/red         the verdict on what you actually played
-       amber (--warn)    difficulty, and caution
-
-     Teal used to carry "chosen" and "recommended" at once, which rendered the
-     selected piece and the suggested one identically on adjacent rows of the
-     same list — the two states it is least useful to confuse. */
-  --accent: #4dd4c0;
-  --accent-dim: #2b8f83;
-  --right-hand: #4dc3ff;
-  --left-hand: #a78bfa;
-
-  --good: #45d68a;
-  --warn: #f2b544;
-  --bad: #ff5d6c;
-  --info: #6aa8ff;
-  /* The wait hint has always said "play this now" in this blue; --now just
-     gives the convention a name so the rest of the app can keep it. */
-  --now: var(--info);
-  --now-dim: #35659f;
-
-  /* ----------------------------------------------------------- brand red
-     The one hue in the app that never means anything. Red is already spoken
-     for — it is the verdict on a note you got wrong, on the roll and in the
-     scoreboard — so a red control would be asking the same colour to mean
-     "press me" and "you played that wrong" at the same moment, during the one
-     activity where both are on screen at once.
-
-     So --brand is allowed only where it cannot be read as state: the mark in
-     the top left, legends screenprinted on the bezel, and the record LED. Not
-     on a button, not on a toggle, not on anything that lights up. */
-  --brand: #e0453f;
-  --brand-dim: #7e2a27;
-
-  --radius: 10px;
-  --radius-sm: 6px;
-
-  /* ------------------------------------------------------------- elevation
-     Three steps rather than one shadow reused everywhere. Dark interfaces
-     carry depth almost entirely in the top highlight — the shadow says how far
-     off the page something is, the highlight says it is a surface catching
-     light rather than a lighter rectangle. */
-  --elev-1: 0 1px 2px rgb(0 0 0 / 30%), var(--lift);
-  --elev-2: 0 4px 14px rgb(0 0 0 / 38%), var(--lift);
-  --elev-3: 0 18px 48px rgb(0 0 0 / 55%), var(--lift-strong);
-  --shadow: var(--elev-3);
-
-  /* -------------------------------------------------------------- hardware
-     The studio look is the elevation model above pushed one step further, not
-     a new one: a panel is a surface catching light, a screen is a hole cut in
-     that surface. Everything below is built from those two ideas.
-
-     --panel-grain is a gradient rather than an image on purpose. Nothing in
-     this app loads from a network, and a noise PNG would be the only asset
-     that had to. */
-  --panel-grain: repeating-linear-gradient(
-    93deg,
-    rgb(255 255 255 / 1.4%) 0px,
-    rgb(255 255 255 / 0%) 1px,
-    rgb(0 0 0 / 2%) 2px,
-    rgb(255 255 255 / 0%) 4px
-  );
-
-  /* The screen. Darker and slightly cooler than the graphite around it — a lit
-     panel set into metal, rather than a lighter rectangle drawn on it. Mirrored
-     in PianoRoll's COLORS.bg, which cannot read a custom property. */
-  --screen: #06080c;
-
-  /* The lip around a screen, and the shadow that lip casts onto it. Applied to
-     the frame and the screen respectively, so neither costs layout height —
-     both are shadows, and the roll is a flex child that would give up pixels
-     to any padding added above it. */
-  --bezel: 0 1px 0 rgb(255 255 255 / 7%) inset, 0 -1px 0 rgb(0 0 0 / 50%) inset,
-    0 2px 10px rgb(0 0 0 / 45%);
-  --bezel-inset: inset 0 0 0 1px rgb(0 0 0 / 70%), inset 0 3px 12px rgb(0 0 0 / 65%),
-    inset 0 -1px 0 rgb(255 255 255 / 4%);
-
-  /* Pads. A pad at rest is a slightly domed face; a lit pad is the same face
-     with the accent burning through it from underneath. The glow is a shadow,
-     so lighting up never changes a pad's size and never reflows the row. */
-  --pad-face: linear-gradient(180deg, #31363f 0%, #23272e 55%, #1b1e24 100%);
-  --pad-face-hover: linear-gradient(180deg, #3a4049 0%, #2a2f36 55%, #21252b 100%);
-  --pad-rest: 0 2px 0 rgb(0 0 0 / 55%), 0 3px 8px rgb(0 0 0 / 40%), var(--lift-strong);
-  --pad-press: inset 0 2px 6px rgb(0 0 0 / 60%), 0 1px 0 rgb(0 0 0 / 40%);
-
-  /* --------------------------------------------------------------- controls
-     One height and one radius for everything in a toolbar. They used to be
-     derived independently, which put 29px, 38px and 16px boxes with 4px, 6px
-     and 0px corners in the same row — the eye reads that as misalignment
-     without being able to say why. */
-  --control-h: 34px;
-  --control-r: 8px;
-  --control-pad: 0 12px;
-
-  /* Loaded in main.jsx. The stack still names system faces after them: if the
-     woff2 is slow or blocked, the app should render in something rather than
-     wait, which is also why the @font-face rules use font-display: swap. */
-  --mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-  /* ---------------------------------------------------------- type scale
-     Seven steps, and nothing off-scale. This replaced nineteen hand-picked
-     sizes between 9 and 30px — sizes that close together read as accidental
-     rather than deliberate, and nothing lined up optically between panels.
-     The bottom of the range also moved up: this is an app you read from a
-     metre away while sitting at a keyboard, not from phone distance. */
-  --fs-2xs: 11px;
-  --fs-xs: 12px;
-  --fs-sm: 13px;
-  --fs-md: 15px;
-  --fs-lg: 18px;
-  --fs-xl: 22px;
-  --fs-2xl: 30px;
-  --fs-display: 96px;
-
-  /* --------------------------------------------------------- spacing scale
-     Multiples of four. Ad-hoc padding was why nothing grid-aligned. */
-  --sp-1: 4px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --sp-6: 32px;
-
-  /* -------------------------------------------------------------- motion
-     One vocabulary, so everything in the app moves the same way. `--ease-out`
-     for things arriving, `--ease-spring` for things that should feel physical. */
-  --dur-fast: 120ms;
-  --dur-base: 220ms;
-  --dur-slow: 420ms;
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --dur-fast: 1ms;
-    --dur-base: 1ms;
-    --dur-slow: 1ms;
-  }
-}
+/* Design tokens live in tokens.css. */
 
 /* ================================================================== resets */
 *,
@@ -221,7 +46,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: calc(var(--z-top) + 1);
   pointer-events: none;
   opacity: 0.028;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -249,7 +74,7 @@ input {
 button {
   box-shadow: var(--elev-1);
   cursor: pointer;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   background: var(--bg-2);
   color: var(--text);
   border-radius: var(--control-r);
@@ -264,7 +89,7 @@ button {
 
 button:hover:not(:disabled) {
   background: var(--bg-3);
-  border-color: #3a465c;
+  border-color: var(--text-dim);
   box-shadow: var(--elev-2);
 }
 
@@ -274,18 +99,18 @@ button:active:not(:disabled) {
 }
 
 /* ------------------------------------------------------------------ focus
-   The entire stylesheet used to contain one :focus rule, and it was a hover
-   reveal rather than a ring — so tabbing through the app showed nothing at
-   all. `:focus-visible` rather than `:focus`, so a ring appears for the
-   keyboard and never after a mouse click.
-
-   Two-tone: a dark halo under a teal ring, so it stays legible whether the
-   control sits on the near-black roll or on a raised panel. */
-:where(button, a, select, summary, [role='tab'], input, [tabindex]):focus-visible {
+   The one focus ring in the app. `:focus-visible` rather than `:focus`, so
+   a ring appears for the keyboard and never after a mouse click. Tabs and
+   anything made focusable with tabindex get it at zero specificity, so a
+   canvas or a stage can pull its own ring inside. */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+:where([role='tab'], [tabindex]):focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: var(--control-r);
-  box-shadow: 0 0 0 4px rgb(8 11 17 / 85%);
+  outline-offset: 3px;
 }
 
 /* The roll takes the whole viewport and has no border of its own to offset
@@ -304,7 +129,7 @@ button.primary {
   background: linear-gradient(180deg, #4dd4c0, #2fae9c);
   border-color: #2fae9c;
   color: #04211d;
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 button.primary:hover:not(:disabled) {
@@ -331,7 +156,7 @@ button.danger {
 
 ::-webkit-scrollbar-thumb {
   background: #2c3648;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -429,7 +254,7 @@ button.danger {
 
 .pane.left {
   position: absolute;
-  z-index: 20;
+  z-index: var(--z-drawer);
   top: 0;
   bottom: 0;
   left: 0;
@@ -449,7 +274,7 @@ button.danger {
 .scrim {
   position: absolute;
   inset: 0;
-  z-index: 15;
+  z-index: calc(var(--z-drawer) - 1);
   background: rgb(4 6 10 / 55%);
   animation: fade-in 0.2s ease;
 }
@@ -477,15 +302,15 @@ button.danger {
 
 /* The brand is the first thing to go: it is decoration next to a song title,
    a device status and a transport. */
-@media (max-width: 1180px) {
+@media (max-width: 1200px) {
   .brand h1,
   .brand .ver {
     display: none;
   }
 
   .topbar {
-    gap: 10px;
-    padding: 8px 12px;
+    gap: var(--sp-2);
+    padding: var(--sp-2) var(--sp-3);
   }
 
   /* The top bar does not wrap, so anything that will not shrink pushes the
@@ -529,8 +354,8 @@ button.danger {
   }
 
   .controls {
-    gap: 8px;
-    padding: 6px 10px;
+    gap: var(--sp-2);
+    padding: 6px var(--sp-2);
   }
 
   /* The deck has to survive here without wrapping, and a wrapped row costs the
@@ -539,16 +364,16 @@ button.danger {
      up across the room, which is where the words earn their space. */
   .zone + .zone,
   .spacer + .zone {
-    padding-left: 8px;
+    padding-left: var(--sp-2);
   }
 
   .pad {
     min-width: 46px;
-    padding: 0 7px;
+    padding: 0 var(--sp-2);
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .app-body {
     grid-template-columns: minmax(0, 1fr) 288px;
   }
@@ -581,7 +406,7 @@ button.danger {
      other edge, so there is one idiom for "a panel that covers the roll". */
   .pane.right {
     position: absolute;
-    z-index: 20;
+    z-index: var(--z-drawer);
     top: 0;
     bottom: 0;
     right: 0;
@@ -615,8 +440,8 @@ button.danger {
    something works. Amber, which this app already uses for caution, and never
    red — red is the verdict on a note you played. */
 .warn-hint {
-  margin-top: 8px;
-  padding: 8px 10px;
+  margin-top: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2);
   border-radius: var(--radius-sm);
   border-left: 2px solid var(--warn);
   background: rgb(242 181 68 / 9%);
@@ -647,9 +472,9 @@ button.danger {
 .popover-label {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
 }
 
 /* ============================================================== focus mode
@@ -670,52 +495,12 @@ button.danger {
   transition: opacity var(--dur-base) var(--ease-out);
 }
 
-.app.focused .drawer-toggle {
-  opacity: 0.45;
-}
-
-.app.focused .topbar:hover .drawer-toggle {
-  opacity: 1;
-}
-
-/* ========================================================== drawer toggle */
-.drawer-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 11px;
-}
-
-.drawer-toggle.on {
-  border-color: var(--accent-dim);
-  color: var(--text);
-}
-
-.drawer-toggle .bars {
-  width: 13px;
-  height: 9px;
-  border-top: 2px solid currentcolor;
-  border-bottom: 2px solid currentcolor;
-  position: relative;
-  flex: none;
-}
-
-.drawer-toggle .bars::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  border-top: 2px solid currentcolor;
-  transform: translateY(-1px);
-}
-
 /* ================================================================== topbar */
 .topbar {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
   background: var(--bg-1) var(--panel-grain);
   border-bottom: 1px solid var(--line);
   box-shadow: var(--lift-strong);
@@ -724,8 +509,8 @@ button.danger {
 .brand {
   display: flex;
   align-items: baseline;
-  gap: 9px;
-  margin-right: 4px;
+  gap: var(--sp-2);
+  margin-right: var(--sp-1);
 }
 
 /* The only red in the app, and the only place it is allowed: it identifies the
@@ -736,7 +521,7 @@ button.danger {
 .brand .mark {
   width: 9px;
   height: 9px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   flex: none;
   align-self: center;
   background: var(--brand);
@@ -747,8 +532,8 @@ button.danger {
 
 .brand h1 {
   font-size: var(--fs-md);
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-tight);
   margin: 0;
 }
 
@@ -767,11 +552,11 @@ button.danger {
   display: inline-flex;
   align-items: center;
   height: var(--control-h);
-  gap: 7px;
-  padding: 0 12px;
-  border-radius: 999px;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-pill);
   background: var(--bg-2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   font-size: var(--fs-sm);
   color: var(--text-dim);
   white-space: nowrap;
@@ -807,7 +592,7 @@ button.danger {
   color: var(--text);
   max-width: 168px;
   min-height: 0;
-  padding: 0 20px 0 0;
+  padding: 0 var(--sp-4) 0 0;
   background-position: right 2px center;
 }
 
@@ -848,7 +633,7 @@ button.danger {
 
 .drawer-tabs button.on {
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   border-bottom-color: var(--accent);
 }
 
@@ -862,7 +647,7 @@ button.danger {
   color: var(--accent);
   text-transform: none;
   letter-spacing: 0;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .rated-list {
@@ -904,7 +689,7 @@ button.danger {
 /* ============================================================ side sections */
 .section {
   border-bottom: 1px solid var(--line-soft);
-  padding: 12px 14px;
+  padding: var(--sp-3) var(--sp-3);
 }
 
 .section:last-child {
@@ -914,18 +699,18 @@ button.danger {
 .section-title {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
-  font-weight: 650;
-  margin: 0 0 10px;
+  font-weight: var(--fw-bold);
+  margin: 0 0 var(--sp-2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .section-title button {
-  padding: 2px 7px;
+  padding: 2px var(--sp-2);
   font-size: var(--fs-xs);
   text-transform: none;
   letter-spacing: 0;
@@ -937,9 +722,9 @@ button.danger {
 .section.fold > summary {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
   cursor: pointer;
   list-style: none;
   display: flex;
@@ -953,7 +738,7 @@ button.danger {
 
 .section.fold > summary::before {
   content: '▸';
-  font-size: 9px;
+  font-size: var(--fs-2xs);
   transition: transform var(--dur-fast) var(--ease-out);
 }
 
@@ -966,7 +751,7 @@ button.danger {
 }
 
 .section.fold[open] > summary {
-  margin-bottom: 10px;
+  margin-bottom: var(--sp-2);
 }
 
 /* =========================================================== keyboard panel */
@@ -982,7 +767,7 @@ button.danger {
 }
 
 .device-name {
-  margin: 7px 0 10px;
+  margin: var(--sp-2) 0 var(--sp-2);
 }
 
 .octave-row {
@@ -990,7 +775,7 @@ button.danger {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   background: var(--bg-1);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -998,7 +783,7 @@ button.danger {
 }
 
 .octave-row button {
-  padding: 3px 9px;
+  padding: 3px var(--sp-2);
   font-size: var(--fs-sm);
 }
 
@@ -1053,15 +838,15 @@ button.linky:hover:not(:disabled) {
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   padding: 2px;
-  margin: 10px 0 8px;
+  margin: var(--sp-2) 0 var(--sp-2);
 }
 
 .fit-switch button {
   border: 0;
   background: transparent;
-  padding: 6px 4px;
+  padding: 6px var(--sp-1);
   font-size: var(--fs-xs);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   color: var(--text-dim);
 }
 
@@ -1072,7 +857,7 @@ button.linky:hover:not(:disabled) {
 .fit-switch button.on {
   background: var(--bg-3);
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .fit-switch button:disabled {
@@ -1084,8 +869,8 @@ button.linky:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
 }
 
 .flame {
@@ -1149,7 +934,7 @@ button.linky:hover:not(:disabled) {
 }
 
 .goal-field {
-  margin-top: 10px;
+  margin-top: var(--sp-2);
 }
 
 .goal-field input[type='range'] {
@@ -1158,7 +943,7 @@ button.linky:hover:not(:disabled) {
 
 .fit-note {
   border-left: 2px solid var(--line);
-  padding-left: 9px;
+  padding-left: var(--sp-2);
 }
 
 .fit-note.fits {
@@ -1176,12 +961,12 @@ button.linky:hover:not(:disabled) {
 .fit-badge {
   font-family: var(--mono);
   font-size: var(--fs-2xs);
-  padding: 1px 5px;
-  border-radius: 999px;
+  padding: 1px var(--sp-1);
+  border-radius: var(--radius-pill);
   margin-left: 6px;
   vertical-align: 1px;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .fit-badge.fits {
@@ -1203,7 +988,7 @@ button.linky:hover:not(:disabled) {
   font-size: var(--fs-2xs);
   text-transform: none;
   letter-spacing: 0;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 /* ============================================================== collections */
@@ -1219,7 +1004,7 @@ button.linky:hover:not(:disabled) {
   gap: var(--sp-1);
   padding: var(--sp-1) var(--sp-2);
   font-size: var(--fs-xs);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-1);
   color: var(--text-dim);
 }
@@ -1337,7 +1122,7 @@ button.linky:hover:not(:disabled) {
 .piece-panel .eyebrow {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
 }
 
@@ -1345,7 +1130,7 @@ button.linky:hover:not(:disabled) {
   margin: 0;
   font-size: var(--fs-xl);
   line-height: 1.15;
-  letter-spacing: -0.015em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .piece-composer {
@@ -1448,7 +1233,7 @@ button.linky:hover:not(:disabled) {
 .song-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--sp-1);
 }
 
 /* One row, one line. Title and composer share the elastic half and ellipsize
@@ -1459,7 +1244,7 @@ button.linky:hover:not(:disabled) {
   border: 1px solid transparent;
   background: transparent;
   border-radius: var(--radius-sm);
-  padding: 5px 9px;
+  padding: var(--sp-1) var(--sp-2);
   display: flex;
   align-items: center;
   gap: var(--sp-3);
@@ -1483,7 +1268,7 @@ button.linky:hover:not(:disabled) {
   flex: 1;
   min-width: 0;
   font-size: var(--fs-md);
-  font-weight: 550;
+  font-weight: var(--fw-medium);
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
@@ -1493,7 +1278,7 @@ button.linky:hover:not(:disabled) {
 .song .by {
   margin-left: 6px;
   font-size: var(--fs-xs);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: var(--text-faint);
 }
 
@@ -1502,7 +1287,7 @@ button.linky:hover:not(:disabled) {
   font-size: var(--fs-xs);
   color: var(--text-faint);
   display: flex;
-  gap: 5px;
+  gap: var(--sp-1);
   align-items: center;
 }
 
@@ -1516,9 +1301,9 @@ button.linky:hover:not(:disabled) {
   align-items: center;
   height: 18px;
   flex: none;
-  padding: 0 7px;
+  padding: 0 var(--sp-2);
   margin: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: var(--fs-2xs);
   line-height: 1;
   white-space: nowrap;
@@ -1538,9 +1323,9 @@ button.linky:hover:not(:disabled) {
   display: inline-flex;
   align-items: center;
   height: 18px;
-  margin-left: 7px;
-  padding: 0 7px;
-  border-radius: 999px;
+  margin-left: var(--sp-2);
+  padding: 0 var(--sp-2);
+  border-radius: var(--radius-pill);
   background: rgb(242 181 68 / 14%);
   color: var(--warn);
   vertical-align: 1px;
@@ -1550,7 +1335,7 @@ button.linky:hover:not(:disabled) {
    own. Green for approachable, amber for a step up, red for a real climb. */
 .level {
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: var(--fs-2xs);
   white-space: nowrap;
   flex: none;
@@ -1577,14 +1362,14 @@ button.linky:hover:not(:disabled) {
 
 .stars {
   color: var(--warn);
-  letter-spacing: 1px;
+  letter-spacing: var(--tracking-caps);
   font-size: var(--fs-2xs);
 }
 
 .file-drop {
   border: 1px dashed var(--line);
   border-radius: var(--radius-sm);
-  padding: 14px 10px;
+  padding: var(--sp-3) var(--sp-2);
   text-align: center;
   color: var(--text-faint);
   font-size: var(--fs-sm);
@@ -1623,8 +1408,8 @@ button.linky:hover:not(:disabled) {
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px;
+  gap: var(--sp-2);
+  padding: 6px var(--sp-3);
   background: var(--bg-1) var(--panel-grain);
   border-bottom: 1px solid var(--line);
   box-shadow: var(--lift-strong), 0 8px 18px rgb(0 0 0 / 32%);
@@ -1634,14 +1419,14 @@ button.linky:hover:not(:disabled) {
 .zone {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   min-width: 0;
 }
 
 .zone-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-2);
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -1650,7 +1435,7 @@ button.linky:hover:not(:disabled) {
    metal on the far side of it. */
 .zone + .zone,
 .spacer + .zone {
-  padding-left: 10px;
+  padding-left: var(--sp-2);
   border-left: 1px solid #0c0e12;
   box-shadow: inset 1px 0 0 rgb(255 255 255 / 5%);
 }
@@ -1729,9 +1514,9 @@ button.linky:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: 40px;
+  height: var(--control-h);
   min-width: 54px;
-  padding: 0 9px;
+  padding: 0 var(--sp-2);
   border: 1px solid #0d0f13;
   border-radius: var(--control-r);
   background: var(--pad-face);
@@ -1771,8 +1556,8 @@ button.linky:hover:not(:disabled) {
 .pad .cap {
   font-size: var(--fs-2xs);
   line-height: 1;
-  font-weight: 650;
-  letter-spacing: 0.07em;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
 }
 
@@ -1844,7 +1629,7 @@ button.linky:hover:not(:disabled) {
 .lcd-bpm {
   font-size: var(--fs-2xs);
   color: var(--text-dim);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--tracking-caps);
 }
 
 /* A segmented group is one control, so it occupies one control's height. Its
@@ -1866,7 +1651,7 @@ button.linky:hover:not(:disabled) {
 .mode-switch button {
   border: 0;
   background: transparent;
-  padding: 0 11px;
+  padding: 0 var(--sp-3);
   min-height: 0;
   font-size: var(--fs-sm);
   border-radius: calc(var(--control-r) - 3px);
@@ -1877,7 +1662,7 @@ button.linky:hover:not(:disabled) {
 .mode-switch button.on {
   background: var(--bg-3);
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   box-shadow: var(--elev-1);
 }
 
@@ -1915,17 +1700,17 @@ button.linky:hover:not(:disabled) {
 .io-slot {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--sp-2);
   min-width: 0;
   min-height: 0;
   height: 100%;
-  padding: 0 11px;
+  padding: 0 var(--sp-3);
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
   font-size: var(--fs-sm);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: var(--text-dim);
   white-space: nowrap;
 }
@@ -1943,13 +1728,13 @@ button.io-slot:hover {
 .io-label {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
   flex: none;
 }
 
 .io-slot strong {
-  font-weight: 550;
+  font-weight: var(--fw-medium);
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2004,7 +1789,7 @@ button.io-slot:hover {
 .level-meter i {
   width: 2px;
   height: 100%;
-  border-radius: 1px;
+  border-radius: var(--radius-xs);
   background: var(--good);
   opacity: 0.18;
   transition: opacity 60ms linear;
@@ -2027,7 +1812,7 @@ button.io-slot:hover {
   color: var(--text);
   max-width: 150px;
   min-height: 0;
-  padding: 0 20px 0 0;
+  padding: 0 var(--sp-4) 0 0;
   background-position: right 2px center;
 }
 
@@ -2038,7 +1823,7 @@ button.io-slot:hover {
 .field {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--sp-2);
   font-size: var(--fs-sm);
   color: var(--text-dim);
 }
@@ -2091,13 +1876,13 @@ button.io-slot:hover {
 .popover-scrim {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  z-index: var(--z-popover);
 }
 
 .popover {
   box-shadow: var(--shadow), var(--lift-strong);
   position: absolute;
-  z-index: 41;
+  z-index: calc(var(--z-popover) + 1);
   top: calc(100% + var(--sp-2));
   right: 0;
   width: 244px;
@@ -2172,7 +1957,7 @@ button.io-slot:hover {
 .wrong-notes {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--sp-1);
   margin-top: 6px;
 }
 
@@ -2182,8 +1967,8 @@ button.io-slot:hover {
   gap: 3px;
   font-family: var(--mono);
   font-size: var(--fs-xs);
-  padding: 2px 7px;
-  border-radius: 999px;
+  padding: 2px var(--sp-2);
+  border-radius: var(--radius-pill);
   background: rgb(255 93 108 / 13%);
   border: 1px solid rgb(255 93 108 / 30%);
   color: #ff97a1;
@@ -2241,7 +2026,7 @@ button.io-slot:hover {
   background: rgb(10 14 20 / 88%);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 18px 22px;
+  padding: var(--sp-4) var(--sp-5);
   text-align: center;
   max-width: 420px;
   box-shadow: var(--shadow);
@@ -2254,7 +2039,7 @@ button.io-slot:hover {
 }
 
 .banner p {
-  margin: 0 0 12px;
+  margin: 0 0 var(--sp-3);
   color: var(--text-dim);
   font-size: var(--fs-sm);
 }
@@ -2277,13 +2062,13 @@ button.io-slot:hover {
    hardware rather than as dots. */
 .beat-pads {
   display: flex;
-  gap: 7px;
+  gap: var(--sp-2);
 }
 
 .beat-pads i {
   width: 26px;
   height: 8px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: #10141a;
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 80%);
   transition:
@@ -2304,7 +2089,7 @@ button.io-slot:hover {
 
 .count-in .beat {
   font-size: var(--fs-display);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   /* A live pulse is the music's position, not a control — the same blue the
@@ -2316,7 +2101,7 @@ button.io-slot:hover {
 
 .count-in .hint {
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: var(--tracking-caps);
   font-size: var(--fs-2xs);
 }
 
@@ -2331,11 +2116,11 @@ button.io-slot:hover {
 .report-overlay {
   position: absolute;
   inset: 0;
-  z-index: 12;
+  z-index: var(--z-dialog);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: var(--sp-4);
   background: rgb(6 9 14 / 80%);
   overflow-y: auto;
   animation: fade-in 0.18s ease;
@@ -2356,7 +2141,7 @@ button.io-slot:hover {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow), var(--lift-strong);
-  padding: 20px 22px;
+  padding: var(--sp-4) var(--sp-5);
   animation: report-in var(--dur-base) var(--ease-spring) both;
 }
 
@@ -2369,7 +2154,7 @@ button.io-slot:hover {
 
 .report header {
   text-align: center;
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-3);
   position: relative;
 }
 
@@ -2381,7 +2166,7 @@ button.io-slot:hover {
   position: absolute;
   right: 0;
   top: -4px;
-  padding: 4px 9px;
+  padding: var(--sp-1) var(--sp-2);
   font-size: var(--fs-2xs);
   color: var(--text-faint);
   background: transparent;
@@ -2389,13 +2174,13 @@ button.io-slot:hover {
   box-shadow: none;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--sp-1);
 }
 
 .speak-toggle:hover:not(:disabled) {
   color: var(--text-dim);
   background: var(--bg-2);
-  border-color: var(--line);
+  border-color: var(--line-strong);
 }
 
 .speak-toggle.on {
@@ -2406,7 +2191,7 @@ button.io-slot:hover {
 
 /* The word is the affordance; the speaker glyph alone reads as a volume
    control. It goes at the narrow widths where the title needs the room. */
-@media (max-width: 520px) {
+@media (max-width: 600px) {
   .speak-toggle span {
     display: none;
   }
@@ -2416,16 +2201,16 @@ button.io-slot:hover {
   font-size: var(--fs-xs);
   color: var(--text-faint);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-caps);
 }
 
 .report h2 {
-  margin: 4px 0 8px;
+  margin: var(--sp-1) 0 var(--sp-2);
   font-size: var(--fs-xl);
 }
 
 .report .blurb {
-  margin: 8px 0 0;
+  margin: var(--sp-2) 0 0;
   color: var(--text-dim);
   font-size: var(--fs-sm);
 }
@@ -2452,7 +2237,7 @@ button.io-slot:hover {
 .stars-row {
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: var(--sp-1);
   font-size: var(--fs-2xl);
   line-height: 1;
 }
@@ -2476,8 +2261,8 @@ button.io-slot:hover {
 
 .incomplete-mark {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--radius-pill);
   background: rgb(242 181 68 / 14%);
   color: var(--warn);
   font-family: var(--mono);
@@ -2489,7 +2274,7 @@ button.io-slot:hover {
   align-items: baseline;
   justify-content: center;
   gap: 6px;
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-4);
 }
 
 .report-score strong {
@@ -2511,13 +2296,13 @@ button.io-slot:hover {
 
 .report-score em.best {
   color: var(--good);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .report-bands {
   display: grid;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
 }
 
 .band-head {
@@ -2525,7 +2310,7 @@ button.io-slot:hover {
   justify-content: space-between;
   align-items: baseline;
   font-size: var(--fs-sm);
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-1);
 }
 
 .band-head strong {
@@ -2535,7 +2320,7 @@ button.io-slot:hover {
 
 .band .meter {
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--bg-3);
   overflow: hidden;
 }
@@ -2543,7 +2328,7 @@ button.io-slot:hover {
 .band .meter i {
   display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   animation: band-fill var(--dur-slow) var(--ease-out) both;
   animation-delay: var(--band-delay, 0ms);
 }
@@ -2587,23 +2372,23 @@ button.io-slot:hover {
 .report-section h3 {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
-  margin: 0 0 8px;
+  margin: 0 0 var(--sp-2);
 }
 
 .passage-list {
   display: grid;
-  gap: 4px;
+  gap: var(--sp-1);
 }
 
 .passage {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: var(--sp-2);
   text-align: left;
-  padding: 8px 10px;
+  padding: var(--sp-2) var(--sp-2);
   background: var(--bg);
   border: 1px solid var(--line-soft);
 }
@@ -2632,9 +2417,9 @@ button.io-slot:hover {
 .report-next {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 16px 0 12px;
-  padding: 12px 14px;
+  gap: var(--sp-3);
+  margin: var(--sp-4) 0 var(--sp-3);
+  padding: var(--sp-3) var(--sp-3);
   border-radius: var(--radius-sm);
   /* The recommendation, in the same blue as "next up" in the library — both
      are the app pointing at what to do, and they are seen minutes apart. */
@@ -2661,7 +2446,7 @@ button.io-slot:hover {
 .report-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 /* ============================================================= welcome card
@@ -2670,7 +2455,7 @@ button.io-slot:hover {
    `fixed` instead of inheriting the roll's containing block. */
 .first-run-overlay {
   position: fixed;
-  z-index: 40;
+  z-index: var(--z-popover);
 }
 
 .first-run {
@@ -2679,7 +2464,7 @@ button.io-slot:hover {
 
 .first-run-steps {
   list-style: none;
-  margin: 4px 0 18px;
+  margin: var(--sp-1) 0 var(--sp-4);
   padding: 0;
   display: grid;
   gap: var(--sp-4);
@@ -2699,7 +2484,7 @@ button.io-slot:hover {
   display: grid;
   place-items: center;
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   background: var(--bg-3);
   color: var(--text-dim);
 }
@@ -2718,7 +2503,7 @@ button.io-slot:hover {
 
 .first-run-steps strong {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .first-run-steps span {
@@ -2736,11 +2521,11 @@ button.io-slot:hover {
 .modal-scrim {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: calc(var(--z-dialog) - 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: var(--sp-4);
   background: rgb(6 9 14 / 72%);
   animation: fade-in 0.18s ease;
 }
@@ -2752,16 +2537,16 @@ button.io-slot:hover {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px 22px;
+  padding: var(--sp-4) var(--sp-5);
 }
 
 .modal h3 {
-  margin: 0 0 10px;
+  margin: 0 0 var(--sp-2);
   font-size: var(--fs-lg);
 }
 
 .modal p {
-  margin: 0 0 10px;
+  margin: 0 0 var(--sp-2);
   font-size: var(--fs-sm);
   color: var(--text-dim);
 }
@@ -2769,8 +2554,8 @@ button.io-slot:hover {
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
 }
 
 .calib-beat {
@@ -2778,14 +2563,14 @@ button.io-slot:hover {
   font-family: var(--mono);
   font-size: var(--fs-2xl);
   color: var(--now);
-  margin: 10px 0 4px;
+  margin: var(--sp-2) 0 var(--sp-1);
 }
 
 .calib-dots {
   display: flex;
   justify-content: center;
-  gap: 5px;
-  margin-top: 12px;
+  gap: var(--sp-1);
+  margin-top: var(--sp-3);
 }
 
 .calib-dots i {
@@ -2808,16 +2593,16 @@ button.io-slot:hover {
    should not feel like different features. */
 .calib-pass {
   text-align: center;
-  margin: 12px 0 2px;
+  margin: var(--sp-3) 0 2px;
 }
 
 .calib-pass .calib-step {
   display: block;
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
-  margin-bottom: 4px;
+  margin-bottom: var(--sp-1);
 }
 
 .calib-pass strong {
@@ -2831,8 +2616,8 @@ button.io-slot:hover {
    this app judges you against is written in ppp to fff. A screen, like the
    roll and the minimap, because it is a readout and not a control. */
 .velocity-curve {
-  margin-top: 8px;
-  padding: 8px 10px;
+  margin-top: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2);
   border-radius: var(--radius-sm);
   background: var(--screen);
   box-shadow: var(--bezel-inset);
@@ -2852,7 +2637,7 @@ button.io-slot:hover {
 .velocity-curve .axis {
   fill: var(--text-faint);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: var(--fs-2xs);
 }
 
 /* What no correction would look like, so the curve reads as a departure. */
@@ -2884,7 +2669,7 @@ button.io-slot:hover {
 }
 
 .calib-manual {
-  margin-top: 12px;
+  margin-top: var(--sp-3);
 }
 
 .calib-manual input[type='range'] {
@@ -2896,7 +2681,7 @@ button.io-slot:hover {
   margin-left: 6px;
   color: var(--warn);
   font-size: var(--fs-2xs);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-caps);
   vertical-align: 1px;
 }
 
@@ -2905,9 +2690,9 @@ button.io-slot:hover {
    than competing with them, and a learner working a hard piece up slowly
    should see progress, not a rebuke. */
 .at-rate {
-  margin-left: 5px;
-  padding: 0 5px;
-  border-radius: 999px;
+  margin-left: var(--sp-1);
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-pill);
   background: var(--bg-3);
   color: var(--text-faint);
   font-family: var(--mono);
@@ -2925,12 +2710,12 @@ button.io-slot:hover {
 .next-up {
   color: var(--now);
   background: rgb(106 168 255 / 14%);
-  border-radius: 999px;
-  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  padding: 1px var(--sp-2);
   font-size: var(--fs-2xs);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   flex: none;
 }
 
@@ -2939,11 +2724,11 @@ button.io-slot:hover {
   left: 50%;
   top: 14px;
   transform: translateX(-50%);
-  background: rgb(106 168 255 / 14%);
-  border: 1px solid rgb(106 168 255 / 45%);
-  color: #b9d5ff;
-  padding: 6px 14px;
-  border-radius: 999px;
+  background: var(--now-soft);
+  border: 1px solid var(--now-dim);
+  color: var(--now);
+  padding: 6px var(--sp-3);
+  border-radius: var(--radius-pill);
   font-size: var(--fs-sm);
   font-family: var(--mono);
   pointer-events: none;
@@ -2971,9 +2756,9 @@ button.io-slot:hover {
 .perf-head {
   display: grid;
   grid-template-columns: 104px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--sp-3);
   align-items: center;
-  padding: 12px 12px 13px;
+  padding: var(--sp-3) var(--sp-3) var(--sp-3);
   border-radius: var(--radius);
   background: var(--screen);
   box-shadow: var(--bezel-inset);
@@ -3021,7 +2806,7 @@ button.io-slot:hover {
 
 .ring-read strong {
   font-size: var(--fs-xl);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
   line-height: 1;
 }
 
@@ -3033,7 +2818,7 @@ button.io-slot:hover {
 .perf-side {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--sp-2);
   min-width: 0;
 }
 
@@ -3042,16 +2827,16 @@ button.io-slot:hover {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--sp-2);
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
 }
 
 .needle-head em {
   font-style: normal;
-  font-weight: 650;
+  font-weight: var(--fw-bold);
   color: var(--warn);
 }
 
@@ -3063,7 +2848,7 @@ button.io-slot:hover {
    non-verdict is the whole bug this state exists to stop. */
 .needle-head em.unmeasured {
   color: var(--text-faint);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .needle-track.empty {
@@ -3078,8 +2863,8 @@ button.io-slot:hover {
 .needle-track {
   position: relative;
   height: 10px;
-  margin-top: 5px;
-  border-radius: 3px;
+  margin-top: var(--sp-1);
+  border-radius: var(--radius-xs);
   overflow: visible;
   background: linear-gradient(
     90deg,
@@ -3108,7 +2893,7 @@ button.io-slot:hover {
   top: -3px;
   bottom: -3px;
   width: 3px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--text);
   box-shadow: 0 0 8px rgb(232 237 245 / 60%);
   transform: translateX(-50%);
@@ -3118,7 +2903,7 @@ button.io-slot:hover {
 .needle-scale {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
+  margin-top: var(--sp-1);
   font-size: var(--fs-2xs);
   font-family: var(--mono);
   color: var(--text-faint);
@@ -3131,7 +2916,7 @@ button.io-slot:hover {
 .leds {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px 10px;
+  gap: var(--sp-1) var(--sp-2);
 }
 
 .led {
@@ -3140,7 +2925,7 @@ button.io-slot:hover {
   gap: 6px;
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
 }
 
@@ -3156,7 +2941,7 @@ button.io-slot:hover {
 .led b {
   margin-left: auto;
   font-family: var(--mono);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
 }
 
 .led.on {
@@ -3173,16 +2958,16 @@ button.io-slot:hover {
 .gauges {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: var(--sp-2);
 }
 
 .gauges.secondary {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 8px;
+  margin-top: var(--sp-2);
 }
 
 .gauges.secondary .gauge {
-  padding: 7px 8px;
+  padding: var(--sp-2) var(--sp-2);
 }
 
 .gauges.secondary .value {
@@ -3194,20 +2979,20 @@ button.io-slot:hover {
   background: var(--bg-1);
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-sm);
-  padding: 9px 10px;
+  padding: var(--sp-2) var(--sp-2);
 }
 
 .gauge .label {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: var(--tracking-caps);
   color: var(--text-faint);
 }
 
 .gauge .value {
   font-family: var(--mono);
   font-size: var(--fs-lg);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   line-height: 1.25;
 }
 
@@ -3228,7 +3013,7 @@ button.io-slot:hover {
 .meter {
   height: 6px;
   background: var(--screen);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
   margin-top: 6px;
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 70%);
@@ -3264,7 +3049,7 @@ button.io-slot:hover {
   gap: 0;
   max-height: 260px;
   overflow-y: auto;
-  padding: 5px 0;
+  padding: var(--sp-1) 0;
   border-radius: var(--radius-sm);
   background: var(--screen);
   box-shadow: var(--bezel-inset);
@@ -3277,9 +3062,9 @@ button.io-slot:hover {
 .event {
   display: grid;
   grid-template-columns: 38px 42px minmax(0, 1fr);
-  gap: 8px;
+  gap: var(--sp-2);
   align-items: baseline;
-  padding: 3px 9px 3px 7px;
+  padding: 3px var(--sp-2) 3px var(--sp-2);
   border-left: 2px solid transparent;
   font-size: var(--fs-sm);
   animation: slide-in 0.16s ease-out;
@@ -3300,7 +3085,7 @@ button.io-slot:hover {
 
 .event .note {
   order: 2;
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   color: var(--text-dim);
 }
 
@@ -3361,7 +3146,7 @@ button.io-slot:hover {
   align-items: flex-end;
   gap: 3px;
   height: 46px;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 
 .spark i {
@@ -3402,7 +3187,7 @@ button.io-slot:hover {
 
 .hear-bit {
   flex: none;
-  padding: 0 11px;
+  padding: 0 var(--sp-3);
   background: var(--bg-1);
   border-color: var(--line-soft);
   color: var(--text-dim);
@@ -3418,12 +3203,12 @@ button.io-slot:hover {
 .trouble button {
   display: grid;
   grid-template-columns: 52px 1fr auto;
-  gap: 8px;
+  gap: var(--sp-2);
   align-items: center;
   text-align: left;
   background: var(--bg-1);
   border-color: var(--line-soft);
-  padding: 6px 8px;
+  padding: 6px var(--sp-2);
   font-size: var(--fs-sm);
 }
 
@@ -3449,7 +3234,7 @@ button.io-slot:hover {
 .kv {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--sp-2);
   font-size: var(--fs-sm);
   padding: 3px 0;
   border-bottom: 1px dashed var(--line-soft);
@@ -3470,7 +3255,7 @@ button.io-slot:hover {
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: var(--sp-2) var(--sp-3);
   font-size: var(--fs-xs);
   color: var(--text-faint);
 }
@@ -3479,8 +3264,8 @@ button.io-slot:hover {
   display: inline-block;
   width: 9px;
   height: 9px;
-  border-radius: 2px;
-  margin-right: 5px;
+  border-radius: var(--radius-xs);
+  margin-right: var(--sp-1);
   vertical-align: -1px;
 }
 
@@ -3496,8 +3281,8 @@ button.io-slot:hover {
   background: var(--bg-2);
   border: 1px solid var(--line);
   border-bottom-width: 2px;
-  border-radius: 4px;
-  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+  padding: 1px var(--sp-1);
 }
 
 .toast {
@@ -3509,17 +3294,17 @@ button.io-slot:hover {
   border: 1px solid var(--line);
   border-left: 3px solid var(--bad);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  padding: var(--sp-2) var(--sp-3);
   font-size: var(--fs-sm);
   box-shadow: var(--shadow);
-  z-index: 50;
+  z-index: var(--z-toast);
   max-width: 520px;
 }
 
 /* ========================================================== keyboard map */
 .keyboard-map {
   margin: var(--sp-2) 0;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
   cursor: pointer;
   background: var(--bg);
@@ -3576,7 +3361,7 @@ button.io-slot:hover {
 
 .daily-bar {
   height: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-2);
   overflow: hidden;
   margin-bottom: var(--sp-3);
@@ -3614,14 +3399,14 @@ button.io-slot:hover {
 .daily-kind {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 650;
+  letter-spacing: var(--tracking-caps);
+  font-weight: var(--fw-bold);
   color: var(--text-faint);
 }
 
 .daily-name {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-bold);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3666,13 +3451,13 @@ button.io-slot:hover {
   gap: var(--sp-2);
   margin: 0;
   font-size: var(--fs-sm);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
 }
 
 .path-cleared {
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   color: var(--good);
 }
 
@@ -3699,7 +3484,7 @@ button.io-slot:hover {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  padding: 5px 8px;
+  padding: var(--sp-1) var(--sp-2);
   margin-bottom: 2px;
   background: transparent;
   border-color: transparent;
@@ -3749,7 +3534,7 @@ button.io-slot:hover {
   flex: none;
   font-size: var(--fs-2xs);
   color: var(--warn);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-caps);
 }
 
 /* Four pips: how far up the tempo ladder this exercise has been taken. */
@@ -3762,7 +3547,7 @@ button.io-slot:hover {
 .rungs i {
   width: 5px;
   height: 5px;
-  border-radius: 1px;
+  border-radius: var(--radius-xs);
   background: var(--bg-3);
 }
 
@@ -3785,7 +3570,7 @@ button.io-slot:hover {
   flex: none;
   font-size: var(--fs-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--tracking-caps);
   color: var(--warn);
 }
 
@@ -3849,7 +3634,7 @@ button.io-slot:hover {
 
 .badge-name {
   font-size: var(--fs-xs);
-  font-weight: 650;
+  font-weight: var(--fw-bold);
 }
 
 .badge.earned .badge-name {
@@ -3873,8 +3658,8 @@ select {
   -webkit-appearance: none;
   width: 100%;
   min-height: var(--control-h);
-  padding: 0 34px 0 12px;
-  border: 1px solid var(--line);
+  padding: 0 var(--sp-6) 0 var(--sp-3);
+  border: 1px solid var(--line-strong);
   border-radius: var(--control-r);
   background-color: var(--bg-2);
   /* The chevron, drawn rather than inherited. Two strokes as a data URI keeps
@@ -3911,14 +3696,14 @@ input[type='range'] {
    containing a vendor pseudo-element is dropped whole by the other engine. */
 input[type='range']::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-3);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 45%);
 }
 
 input[type='range']::-moz-range-track {
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--bg-3);
   box-shadow: inset 0 1px 2px rgb(0 0 0 / 45%);
 }
@@ -3990,7 +3775,7 @@ input[type='checkbox'] {
   border-radius: 50%;
   border: 1px solid currentcolor;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--fs-2xs);
   font-style: italic;
   line-height: 12px;
   text-align: center;
@@ -4002,14 +3787,14 @@ input[type='checkbox'] {
 
 .explain[open] > summary {
   color: var(--text-dim);
-  margin-bottom: 5px;
+  margin-bottom: var(--sp-1);
 }
 
 .explain-body {
   font-size: var(--fs-sm);
   color: var(--text-faint);
   line-height: 1.5;
-  padding-left: 20px;
+  padding-left: var(--sp-4);
   border-left: 1px solid var(--line-soft);
 }
 
@@ -4031,7 +3816,7 @@ input[type='checkbox'] {
 
 .tiny-action {
   min-height: 24px;
-  padding: 0 9px;
+  padding: 0 var(--sp-2);
   font-size: var(--fs-2xs);
   border-radius: var(--radius-sm);
   color: var(--text-dim);
@@ -4132,7 +3917,7 @@ input[type='checkbox'] {
 .boundary {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-dialog);
   display: grid;
   place-items: center;
   padding: var(--sp-4);
@@ -4193,9 +3978,9 @@ input[type='checkbox'] {
   position: fixed;
   right: 12px;
   bottom: 12px;
-  z-index: 200;
+  z-index: calc(var(--z-dialog) + 1);
   width: 250px;
-  padding: 12px 14px;
+  padding: var(--sp-3) var(--sp-3);
   border-radius: var(--radius);
   background: var(--bg-1);
   border: 1px solid var(--line);
@@ -4204,7 +3989,7 @@ input[type='checkbox'] {
 }
 
 .tuning-panel h3 {
-  margin: 0 0 10px;
+  margin: 0 0 var(--sp-2);
   font-size: var(--fs-sm);
   display: flex;
   justify-content: space-between;
@@ -4214,12 +3999,12 @@ input[type='checkbox'] {
 .tuning-panel h3 span {
   font-size: var(--fs-2xs);
   color: var(--text-faint);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
 }
 
 .tuning-panel label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: var(--sp-2);
 }
 
 .tuning-panel label > span {

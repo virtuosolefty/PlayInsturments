@@ -14,6 +14,7 @@ test('themes persist and do not interrupt a live 3D practice session', async ({ 
   await page.locator('.zone-mode button').filter({ hasText: 'Wait for me' }).click();
   await page.locator('.pad-play').click();
   await expect(page.locator('.wait-hint')).toBeVisible();
+  await page.getByRole('button', { name: 'More', exact: true }).click();
   await page.getByRole('button', { name: 'Switch to dark theme' }).focus();
   await page.keyboard.press('Space');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
@@ -73,6 +74,20 @@ test('unified library favorites and last selected piece survive reload', async (
   await page.locator('.song-list .song:visible').first().click();
   await page.reload();
   await expect(page.locator('.piece-title')).toHaveText('Ode to Joy');
+});
+
+test('the stage takes most of a small laptop window, and saving is a line in the More menu', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const stage = await page.locator('#practice-stage').boundingBox();
+  expect(stage.height / 720).toBeGreaterThanOrEqual(0.55);
+  await expect(page.locator('.topbar > .saved-locally')).toHaveCount(0);
+  await page.getByRole('button', { name: 'More', exact: true }).click();
+  const menu = page.getByRole('dialog', { name: 'More' });
+  await expect(menu).toContainText('Saved on this device');
+  await expect(menu.getByRole('button', { name: 'Help', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'More', exact: true })).toBeFocused();
 });
 
 test('setup tests input without grading and contains keyboard focus', async ({ page }) => {

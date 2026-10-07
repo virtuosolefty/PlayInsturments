@@ -1,5 +1,15 @@
 # Practice Deck
 
+## Styling: tokens, the stage and the phone layout
+
+Added in the October 2026 design pass. The design system it follows is a Claude artifact; its **Recommended changes** section lists the twenty changes and the measurements behind them.
+
+- **Tokens.** `src/styles/tokens.css` is loaded first and is the only stylesheet that knows which theme is showing. It holds colours, the type scale (nine sizes from 11px, three weights, two trackings), spacing (4 to 32px), radii, three control heights (32, 40 and 48px), six z-index layers and the per-theme surfaces such as `--primary-bg` and `--seg-trough`. Every other stylesheet reads tokens. Do not add a `[data-theme]` selector outside this file; add a token.
+- **The stage is dark in both themes.** The piano roll, the guitar workspace and the violin and cello workspaces carry the class `stage-dark`, which gives them the dark token values, so labels and overlays on a stage need no theme rules. `src/lib/stageColors.js` reads the stage colours (`--note-right`, `--note-left`, `--hit`, `--miss`, `--late`, `--hit-line`, `--stage`) for the canvases, with the same values built in for tests. Hands are blue and amber. Violet is the interface colour and `--now` blue is the music position and the next note.
+- **Chrome.** `chrome.css` holds the top bar (three destinations, the sound and input group, the More menu), the shared control rules and the one-line footer. Instrument settings sits beside the instrument picker; the stage caption is the left half of the footer.
+- **Breakpoints** are 600, 900, 1200 and 1440px. `phone.css` raises every control to 44px at 900px and below, and at 600px and below on an upright phone moves the destinations to a bottom tab bar and the header controls into a sheet (the button reads "Piano · Learn").
+- **Browser tests.** `e2e/helpers/workspace.js` chooses Learn or Free play at any width. Help and the theme switch are inside More, so a test opens More first.
+
 ## Violin and cello
 
 Choose **Violin** or **Cello** in the instrument picker (or open `/violin/` and `/cello/`).

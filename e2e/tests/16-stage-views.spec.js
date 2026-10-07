@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
  * The guitar stage's camera views: lessons look through a fixed long lens
@@ -6,7 +7,6 @@ import { test, expect } from '@playwright/test';
  */
 
 const stage = page => page.locator('.guitar-stage');
-const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
 const resetButton = page => page.getByRole('button', { name: 'Reset view', exact: true });
 const fretLabel = (page, n) => page.locator('.guitar-position-label.fret').getByText(String(n), { exact: true });
 

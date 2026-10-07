@@ -246,7 +246,7 @@ export default function RollGL({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fixedRange, theme, keyboardHeight]);
 
-  return <div className="roll-gl playable-piano" ref={wrapRef} role="grid" aria-label="Piano keyboard. Arrow keys select notes; hold Enter or Space to play." aria-activedescendant={input.prefix+'-note-'+input.selected} tabIndex={0} {...input.handlers}><canvas className="roll-text" ref={textRef} aria-hidden="true"/><PianoAccess input={input}/></div>;
+  return <div className="roll-gl playable-piano stage-dark" ref={wrapRef} role="grid" aria-label="Piano keyboard. Arrow keys select notes; hold Enter or Space to play." aria-activedescendant={input.prefix+'-note-'+input.selected} tabIndex={0} {...input.handlers}><canvas className="roll-text" ref={textRef} aria-hidden="true"/><PianoAccess input={input}/></div>;
 }
 
 /** Crisp projected rims and labels over the physical Three.js key faces. */

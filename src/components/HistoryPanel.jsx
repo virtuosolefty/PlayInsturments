@@ -4,6 +4,7 @@
  */
 
 import { useState } from 'react';
+import Icon from './Icon.jsx';
 import { getSongHistory } from '../lib/storage.js';
 
 /** An unmeasured ratio is not zero per cent — see timingAccuracy in matcher.js. */
@@ -144,7 +145,7 @@ export default function HistoryPanel({
                       title="Hear these four bars played to you"
                       aria-label={`Hear the bars at ${spot.time.toFixed(1)} seconds`}
                     >
-                      ♪
+                      <Icon name="music" size={14} />
                     </button>
                   )}
                 </div>

@@ -1,0 +1,84 @@
+/* phone.css — touch sizes and the upright-phone layout. Loaded last. */
+
+/* The header sheet and the setup icon exist for phones; a wider screen shows
+   the same controls in the header itself. */
+.header-sheet-toggle, .header-sheet-scrim, .setup-trigger .setup-icon { display: none; }
+
+/* ---------------------------------------------------------------- touch
+   At 900px and below, everything pressable is at least 44px tall. */
+@media (max-width: 900px) {
+  :root { --control-h-sm: 44px; --control-h: 44px; }
+}
+
+/* ---------------------------------------------------------------- phone
+   A phone held upright. The three destinations are a tab bar along the
+   bottom, the top bar is one row, and the header keeps the title and one
+   button that opens the instrument, workspace and view controls as a sheet.
+   The point of all of it: the instrument gets the screen. */
+@media (max-width: 600px) and (min-height: 521px) {
+  .studio-app { padding-bottom: calc(68px + env(safe-area-inset-bottom)) !important; }
+
+  .studio-app .topbar { flex-wrap: nowrap; gap: var(--sp-2); padding: var(--sp-2) 0; }
+  .studio-app .topbar .brand { display: flex; }
+  .studio-app .topbar .brand h1 { display: none; }
+  .studio-app .topbar .spacer { flex: 0 0 0; }
+  .studio-app .topbar .back-to-piece { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sound-input { flex: 1; }
+  .studio-app .topbar .sound-input .io-strip { flex: 1; min-width: 0; }
+  .studio-app .topbar .sound-input .setup-trigger { gap: 6px; padding: 0 var(--sp-3); }
+  .setup-trigger .setup-icon { display: inline-block; }
+  .setup-trigger .setup-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .topbar-nav { position: fixed; z-index: var(--z-nav); inset: auto 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-1); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); border-radius: 0; background: var(--bg-1); }
+  .studio-app .topbar .topbar-nav .nav-link { flex-direction: column; justify-content: center; gap: 3px; min-height: 52px; padding: 0 var(--sp-1); font-size: var(--fs-2xs); }
+  .topbar-nav .nav-link .icon { display: block; }
+  .studio-app .topbar .topbar-nav .nav-link:is([aria-current], [aria-expanded="true"]) { background: var(--seg-trough); box-shadow: none; font-weight: var(--fw-bold); }
+  .topbar-nav .nav-link:is([aria-current], [aria-expanded="true"]) .icon { color: var(--accent); }
+
+  .studio-app .studio-header { flex-wrap: nowrap !important; align-items: center; gap: var(--sp-2); min-height: 0; padding: var(--sp-2) var(--sp-3) !important; }
+  .studio-app .studio-heading { flex: 1 1 0; min-width: 0; }
+  .studio-app .studio-heading h2 { max-width: none; margin: 0; font-size: var(--fs-lg); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .studio-app .studio-heading p { max-width: none; margin: 2px 0 0; font-size: var(--fs-2xs); }
+  .header-sheet-toggle { display: inline-flex; align-items: center; flex: none; gap: 6px; max-width: 58%; min-height: var(--control-h); padding: 0 var(--sp-2); background: var(--pad-face); border: 1px solid var(--line-strong); color: var(--text); font-size: var(--fs-xs); white-space: nowrap; }
+  .header-sheet-toggle svg { flex: none; width: 18px; height: 18px; color: var(--accent); }
+  .header-sheet-toggle span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .header-sheet-toggle .icon { width: 14px; height: 14px; color: var(--text-dim); }
+  .header-sheet-scrim { display: block; position: fixed; z-index: var(--z-popover); inset: 0; background: rgb(0 0 0 / 45%); }
+  .studio-app .studio-header-actions { display: none; }
+  .studio-app .studio-header-actions.open { display: flex; flex-flow: row wrap; align-items: stretch; gap: var(--sp-3); position: fixed; z-index: calc(var(--z-popover) + 1); inset: auto 0 0; width: auto; max-width: none; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); background: var(--bg-1); border-top: 1px solid var(--line); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: var(--elev-3); }
+  .studio-header-actions.open .workspace-switch, .studio-header-actions.open .instrument-picker { width: 100%; }
+  .studio-header-actions.open .workspace-switch button, .studio-header-actions.open .instrument-picker button { flex: 1; }
+  .studio-header-actions.open .instrument-settings-host, .studio-header-actions.open .focus-toggle { flex: 1; }
+  .studio-header-actions.open .instrument-settings-toggle, .studio-header-actions.open .focus-toggle { width: 100%; justify-content: center; }
+  .studio-header-actions.open .instrument-settings-toggle span { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  /* A popover opened on a phone is a sheet too: it has no room to hang from its button. */
+  .studio-app .popover { position: fixed; z-index: calc(var(--z-popover) + 2); inset: auto 8px calc(8px + env(safe-area-inset-bottom)); width: auto; max-width: none; max-height: 72vh; overflow-y: auto; }
+  .studio-app .popover.topbar-menu { inset: 60px 8px auto auto; width: 232px; }
+
+  /* Transport: Play and four icon pads, the mode switch, then tempo beside the two settings buttons. */
+  .studio-app .controls { padding: var(--sp-2); gap: var(--sp-2); }
+  .studio-app .zone-transport { order: 1; width: 100%; }
+  .studio-app .zone-mode { order: 2; width: 100%; }
+  .studio-app .zone-perf { order: 3; flex: 1 1 0; width: auto; min-width: 0; }
+  .studio-app .zone-sound { order: 4; margin-left: 0; }
+  .studio-app .pads { display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 48px); gap: 6px; width: 100%; }
+  .studio-app .controls .pad { flex-direction: row; gap: 6px; min-width: 0; min-height: var(--control-h-lg); height: var(--control-h-lg); padding: 0 6px; }
+  .studio-app .controls .pad .cap { font-size: var(--fs-sm); letter-spacing: 0; text-transform: none; }
+  .studio-app .controls .pad:not(.pad-play):not(.your-turn) .cap, .show-feedback span, .options-toggle span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .studio-app .mode-switch { display: flex; width: 100%; }
+  .studio-app .mode-switch button { flex: 1; }
+  .studio-app .lcd { display: none; }
+  .studio-app .zone-perf .zone-row { justify-content: flex-start; }
+  .studio-app .zone-perf .field { flex: 1; }
+  .studio-app .zone-perf input { flex: 1; width: auto; min-width: 0; }
+  .show-feedback, .studio-app .options-toggle { width: var(--control-h); min-height: var(--control-h); padding: 0; justify-content: center; }
+
+  .studio-app .studio-footer { padding: 6px var(--sp-3); }
+
+  /* The home page: the instrument picker takes the full width, four equal segments. */
+  .learning-home-heading { flex-direction: column; align-items: stretch; gap: var(--sp-4); }
+  .learning-instruments { width: 100%; }
+  .learning-instruments button { flex: 1 1 0; min-width: 0; justify-content: center; gap: var(--sp-1); padding-inline: var(--sp-1); font-size: var(--fs-sm); }
+  .close-feedback { min-height: var(--control-h); }
+  .studio-footer .footer-detail { display: none; }
+}

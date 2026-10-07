@@ -434,7 +434,7 @@ export default function PianoRoll({
     return () => cancelAnimationFrame(raf);
   }, [range, keyboardHeight]);
 
-  return <div className="roll-wrap playable-piano" ref={wrapRef} role="grid" aria-label="Piano keyboard. Arrow keys select notes; hold Enter or Space to play." aria-activedescendant={input.prefix+'-note-'+input.selected} tabIndex={0} {...input.handlers}>
+  return <div className="roll-wrap playable-piano stage-dark" ref={wrapRef} role="grid" aria-label="Piano keyboard. Arrow keys select notes; hold Enter or Space to play." aria-activedescendant={input.prefix+'-note-'+input.selected} tabIndex={0} {...input.handlers}>
     <canvas ref={canvasRef} aria-hidden="true" /><PianoAccess input={input}/>
   </div>;
 }

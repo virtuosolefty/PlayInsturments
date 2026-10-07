@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('output test makes sound without falsely verifying controller input or grading', async ({ page }) => {
-  await page.getByRole('button',{name:'No sound?',exact:true}).click();
+  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Instrument setup|Controller connected/}).click();
   const dialog=page.getByRole('dialog',{name:'Your instrument, ready to play.'});
   await dialog.getByRole('button',{name:/^MIDI controller/}).click();
   await dialog.getByRole('button',{name:/Look for a device|Refresh devices/}).click();
@@ -37,7 +37,7 @@ test('output test makes sound without falsely verifying controller input or grad
 test('test tone respects an external output and never falls back to browser notes', async ({ page }) => {
   await page.evaluate(()=>{const d=JSON.parse(localStorage.getItem('piano-practice-coach:v1'));d.settings.instrumentSource='external';d.settings.inputMethod='midi';localStorage.setItem('piano-practice-coach:v1',JSON.stringify(d));});
   await page.reload();
-  await page.getByRole('button',{name:'No sound?',exact:true}).click();
+  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Instrument setup|Controller connected/}).click();
   const dialog=page.getByRole('dialog',{name:'Your instrument, ready to play.'});
   await dialog.getByRole('button',{name:/Look for a device|Refresh devices/}).click();
   await page.evaluate(()=>window.__sentOutput=[]);
@@ -84,9 +84,10 @@ test('search, plan, progress, named settings and help remain discoverable', asyn
   await page.getByRole('combobox',{name:'Keyboard labels'}).selectOption('notes');
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button',{name:'Instrument settings',exact:true})).toBeFocused();
+  await page.getByRole('button',{name:'More',exact:true}).click();
   await page.getByRole('button',{name:'Help',exact:true}).click();
   await page.getByRole('searchbox',{name:'Search shortcuts'}).fill('loop');
   await expect(page.locator('.shortcut-list > div')).toHaveCount(1);
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('button',{name:'Help',exact:true})).toBeFocused();
+  await expect(page.getByRole('button',{name:'More',exact:true})).toBeFocused();
 });

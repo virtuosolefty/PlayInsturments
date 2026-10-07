@@ -9,7 +9,7 @@
 .guitar-fretboard .guitar-string,
 .fretboard-surface { grid-template-columns:var(--fret-columns); }
 .guitar-fretboard .fret-numbers span { height:24px; line-height:24px; }
-.guitar-fretboard .fret-numbers span.inlay-fret { color:var(--text); font-weight:650; }
+.guitar-fretboard .fret-numbers span.inlay-fret { color:var(--text); font-weight: var(--fw-bold); }
 
 /* The wood, frets, nut and inlays sit behind transparent buttons. */
 .fretboard-surface {
@@ -29,7 +29,7 @@
 /* Nickel-silver fret wire at the end of each fret space. */
 .fretboard-surface > span:nth-child(n+3):not(:last-child)::before {
   content:''; position:absolute; inset-block:-1px; inset-inline-end:-2px; width:4px; z-index:1;
-  background:linear-gradient(90deg,#8e9196,#f4f6f8 45%,#a7aaaf); border-radius:2px; box-shadow:1px 0 2px #0007;
+  background:linear-gradient(90deg,#8e9196,#f4f6f8 45%,#a7aaaf); border-radius: var(--radius-xs); box-shadow:1px 0 2px #0007;
 }
 .guitar-fretboard .guitar-string { position:relative; z-index:1; }
 .guitar-fretboard .guitar-string button,
@@ -38,7 +38,7 @@
 /* Strings: metallic, with the low three wound in bronze. */
 .guitar-fretboard .guitar-string button::before { height:var(--gauge,1px); transform:translateY(-50%); opacity:1; background:linear-gradient(180deg,#ffffff,#b9bcc0 55%,#7c8085); box-shadow:0 2px 2px #0008; }
 .guitar-fretboard .guitar-string.wound button::before { background:repeating-linear-gradient(90deg,#8d6a3f 0 1px,#e2c48f 1px 2.5px),#c9a36a; }
-.guitar-fretboard .guitar-string .string-name { font-weight:600; }
+.guitar-fretboard .guitar-string .string-name { font-weight: var(--fw-bold); }
 .guitar-fretboard .guitar-string button.idle span { background:transparent; border-color:transparent; color:transparent; }
 .guitar-fretboard .guitar-string button:hover span,
 .guitar-fretboard .guitar-string button:focus-visible span { background:#fff9eee6; color:#2c2119; box-shadow:0 0 0 3px #ffffff30,0 2px 6px #0008; }
@@ -50,24 +50,24 @@
 /* The string names sit over the headstock; a halo in the page colour keeps them readable on the dark wood in either theme. */
 .guitar-position-label.string {
   background:none; border:0; box-shadow:none; padding:0; color:var(--text);
-  font-family:var(--mono); font-weight:700; line-height:1; letter-spacing:.2px; white-space:nowrap;
+  font-family:var(--mono); font-weight: var(--fw-bold); line-height:1; letter-spacing: normal; white-space:nowrap;
   text-shadow:0 0 2px var(--bg-1), 0 0 4px var(--bg-1), 0 0 6px var(--bg-1);
 }
 /* Number, then pitch: the number is the quieter half, as on the open-string buttons. */
-.guitar-position-label.string .string-number { font-size:.8em; font-weight:500; color:var(--text-dim); }
+.guitar-position-label.string .string-number { font-size:.8em; font-weight: var(--fw-medium); color:var(--text-dim); }
 /* A string name moved off its string to make room is tied back to it at the nut; the halo keeps the line visible on dark wood. */
 .guitar-stage-leaders { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; z-index:1; }
 .guitar-stage-leaders line { stroke:var(--text-dim); stroke-width:1; stroke-linecap:round; }
 .guitar-stage-leaders line.halo { stroke:var(--bg-1); stroke-width:3; stroke-opacity:.6; }
 .guitar-stage-bottom .guitar-stage-hint,
-.guitar-stage-legend { background:color-mix(in srgb,var(--bg-1) 88%,transparent); padding:4px 9px; border-radius:999px; }
-.guitar-stage-end { display:flex; align-items:center; gap:8px; min-width:0; }
+.guitar-stage-legend { background:color-mix(in srgb,var(--bg-1) 88%,transparent); padding:var(--sp-1) var(--sp-2); border-radius: var(--radius-pill); }
+.guitar-stage-end { display:flex; align-items:center; gap:var(--sp-2); min-width:0; }
 /* Two lines at most: squeezed beside the legend, the hint shortens instead of growing into a column over the neck. */
 .guitar-stage-end .guitar-stage-hint { min-width:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
 /* The bar ignores the pointer so clicks reach the neck; these buttons take them back. */
 .guitar-reset-view, .stage-view-toggle button {
-  pointer-events:auto; flex-shrink:0; cursor:pointer; font:600 11px/1 var(--sans); color:var(--text);
-  padding:5px 10px; border-radius:999px; border:1px solid var(--line-soft);
+  pointer-events:auto; flex-shrink:0; cursor:pointer; font: var(--fw-bold) var(--fs-2xs)/1 var(--sans); color:var(--text);
+  padding:var(--sp-1) var(--sp-2); border-radius: var(--radius-pill); border:1px solid var(--line-soft);
   background:color-mix(in srgb,var(--bg-1) 92%,transparent);
 }
 .guitar-reset-view:not([aria-disabled="true"]):hover, .stage-view-toggle button:hover { border-color:var(--accent); color:var(--accent); }
@@ -83,9 +83,9 @@
 /* On a phone the legend, the view switch and Reset view share one line: the switch says "Whole", Reset view is its
    icon, and the hint gives way. The narrowest phones give the bar a second line rather than cut a button off. */
 @media (max-width:600px) {
-  .guitar-stage-bottom { inset:auto 12px 10px; gap:8px; flex-wrap:wrap; }
+  .guitar-stage-bottom { inset:auto 12px 10px; gap:var(--sp-2); flex-wrap:wrap; }
   .guitar-stage-end { margin-inline-start:auto; }
-  .guitar-reset-view, .stage-view-toggle button { padding:5px 8px; }
+  .guitar-reset-view, .stage-view-toggle button { padding:var(--sp-1) var(--sp-2); }
   .stage-view-toggle .stage-view-more, .guitar-reset-view .reset-text { display:none; }
   .guitar-reset-view .reset-icon { display:block; }
   .guitar-reset-view + .guitar-stage-hint, .stage-view-toggle ~ .guitar-stage-hint { display:none; }
@@ -93,8 +93,8 @@
 /* What the stage is waiting for, or could not do, in the middle of the stage, readable over the instrument. */
 .stage-status {
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; max-width:calc(100% - 32px);
-  padding:6px 12px; border-radius:999px; background:color-mix(in srgb,var(--bg-1) 90%,transparent);
-  color:var(--text); font-size:12px; line-height:1.4; text-align:center; pointer-events:none;
+  padding:6px var(--sp-3); border-radius: var(--radius-pill); background:color-mix(in srgb,var(--bg-1) 90%,transparent);
+  color:var(--text); font-size: var(--fs-xs); line-height:1.4; text-align:center; pointer-events:none;
 }
 .stage-status:empty { display:none; }
 /* In free play a sideways drag on the guitar turns it, so the browser must leave sideways drags alone. Up-and-down
@@ -106,24 +106,22 @@
 .guitar-stage.bowed-stage-3d[data-view] canvas { touch-action:none; user-select:none; -webkit-user-select:none; }
 
 /* What the chosen 3D detail shows, under its buttons in Instrument settings. */
-.instrument-settings-panel .stage-detail-note { margin:6px 0 0; font-size:12px; line-height:1.45; }
+.instrument-settings-panel .stage-detail-note { margin:6px 0 0; font-size: var(--fs-xs); line-height:1.45; }
 
 /* ------------------------------------------------- 3D violin and cello stage */
 /* Tape numbers sit beyond the highest string, as the guitar's fret numbers do. */
-.guitar-position-label.tape { color:var(--text-dim); font-family:var(--mono); font-weight:600; }
+.guitar-position-label.tape { color:var(--text-dim); font-family:var(--mono); font-weight: var(--fw-bold); }
 /* Outlined markers leave the dark fingerboard showing through, so their numbers are light. */
 .guitar-position-label.finger.inverse { color:#f4efff; text-shadow:0 1px 2px #000a; }
-.bowed-stage-preparing { position:absolute; inset:0; display:grid; place-items:center; color:var(--text-dim); font-size:12px; pointer-events:none; }
+.bowed-stage-preparing { position:absolute; inset:0; display:grid; place-items:center; color:var(--text-dim); font-size: var(--fs-xs); pointer-events:none; }
 .bowed-finger-controls .bowed-stage { min-height:220px; }
 
 /* ------------------------------------------------------- violin and cello */
-.bowed-workspace { --guitar-root:#a36032; --guitar-played:#167b63; }
 .bowed-stage {
   position:relative; flex:1 1 auto; min-height:170px; display:flex; flex-direction:column; justify-content:center;
   padding:8px 0 38px; overflow:hidden; border-block:1px solid var(--line-soft);
-  background:radial-gradient(ellipse at 42% 50%,#faf5ec 5%,#eee9e0 70%,#e9e6e2);
+  background:radial-gradient(ellipse at 42% 50%,#34313a 0%,#24232c 65%,#202029);
 }
-:root[data-theme="dark"] .bowed-stage { background:radial-gradient(ellipse at 42% 50%,#34313a 0%,#24232c 65%,#202029); }
 .studio-app.free-play .bowed-stage { min-height:300px; }
 .bowed-svg { display:block; width:100%; height:100%; max-height:430px; overflow:visible; touch-action:none; user-select:none; -webkit-user-select:none; }
 .bowed-art, .bowed-tape, .bowed-marker, .bowed-string, .bowed-string-wind, .bowed-string-glint, .bowed-string-silk, .bowed-string-name, .bowed-zone-caption, .bowed-bow { pointer-events:none; }
@@ -132,7 +130,7 @@
 .bowed-zone.bow:hover { fill:#ffffff24; }
 .bowed-zone:focus-visible { fill:#a594ff30; stroke:var(--accent); stroke-width:2; }
 .bowed-tape rect { fill:#f4ebd6; opacity:.92; }
-.bowed-tape text { fill:var(--text-dim); font:650 13px var(--mono); text-anchor:middle; }
+.bowed-tape text { fill:var(--text-dim); font: var(--fw-bold) var(--fs-sm) var(--mono); text-anchor:middle; }
 .bowed-string { stroke-linecap:round; }
 .bowed-string-shadow { stroke:#000; opacity:.32; pointer-events:none; }
 /* Winding, a specular glint along the top of each string, and the coloured silk by the tailpiece. */
@@ -143,8 +141,8 @@
 .bowed-string.sounding { stroke:#86e8ca; }
 .bowed-string-set.sounding { animation:bowed-hum 70ms linear infinite alternate; }
 @keyframes bowed-hum { to { transform:translateY(.9px); } }
-.bowed-string-name { fill:#f3e9d6; font:700 14px var(--mono); opacity:.9; }
-.bowed-zone-caption { fill:#fff3dc; opacity:.8; font:700 11px var(--sans); letter-spacing:1.6px; text-anchor:middle; }
+.bowed-string-name { fill:#f3e9d6; font: var(--fw-bold) var(--fs-md) var(--mono); opacity:.9; }
+.bowed-zone-caption { fill:#fff3dc; opacity:.8; font: var(--fw-bold) var(--fs-2xs) var(--sans); letter-spacing: var(--tracking-caps); text-anchor:middle; }
 .bowed-marker circle { fill:#fffaf0; stroke:#d7c8b2; stroke-width:1.5; }
 .bowed-stage .bowed-marker circle.marker-shadow { fill:#000; stroke:none; opacity:.35; }
 .bowed-marker text { font:700 var(--bowed-label-size,14px) var(--sans); fill:#302821; text-anchor:middle; dominant-baseline:central; }
@@ -162,25 +160,25 @@
 @keyframes bowed-stroke { from { transform:translateY(-28px); } to { transform:translateY(28px); } }
 @media (prefers-reduced-motion:reduce) { .bowed-bow, .bowed-string-set.sounding { animation:none; } }
 .bowed-stage-bottom { position:absolute; inset:auto 18px 8px; display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none; }
-.bowed-stage-bottom .guitar-stage-hint { position:static; font-size:11px; color:var(--text-dim); }
+.bowed-stage-bottom .guitar-stage-hint { position:static; font-size: var(--fs-2xs); color:var(--text-dim); }
 
-.bow-card .bow-notes { display:flex; flex-direction:column; gap:10px; }
-.bow-note-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+.bow-card .bow-notes { display:flex; flex-direction:column; gap:var(--sp-2); }
+.bow-note-list { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--sp-1); }
 .bow-note-list button, .bow-open-strings button { width:100%; touch-action:none; user-select:none; -webkit-user-select:none; }
-.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line); border-radius:6px; background:var(--bg-1); }
-.bow-note-list b { font-size:14px; font-weight:650; }
-.bow-note-list small { font:10px var(--mono); color:var(--text-faint); }
+.bow-note-list button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; min-height:44px; border:1px solid var(--line-strong); border-radius: var(--radius-sm); background:var(--bg-1); }
+.bow-note-list b { font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.bow-note-list small { font: var(--fs-2xs) var(--mono); color:var(--text-faint); }
 .bow-note-list button.sounding, .bow-open-strings button.sounding { background:#167b63; color:#fff; border-color:#167b63; }
 .bow-note-list button.sounding small, .bow-open-strings button.sounding small { color:#ddfff4; }
-.bow-card .bow-actions { margin:14px 0 0; }
+.bow-card .bow-actions { margin:var(--sp-3) 0 0; }
 .bow-card .bow-actions button { flex:1; }
 
 /* Four instruments in the pickers. */
 .instrument-picker button span { white-space:nowrap; }
 /* On tighter desktops keep the names for assistive tech, show icons only. */
-@media (max-width:1180px) and (min-width:901px) {
+@media (max-width: 1200px) and (min-width:901px) {
   .studio-header .instrument-picker button span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-  .studio-header .instrument-picker button { padding-inline:9px; }
+  .studio-header .instrument-picker button { padding-inline:var(--sp-2); }
 }
 /* In a lesson the stage title repeats the header; the string names take its corner. */
 .studio-app:not(.free-play) .guitar-stage-top > div:first-child { display:none; }

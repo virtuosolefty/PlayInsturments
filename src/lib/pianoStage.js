@@ -1,20 +1,21 @@
 import { identifyChord } from './theory.js';
 import { groupIntoChords } from './score.js';
 import { COLORS } from './rollPaint.js';
+import { STAGE_COLORS } from './stageColors.js';
 
 // The performance surface stays dark in either chrome theme, like a lit instrument.
 export const PIANO_COLORS = Object.freeze({
   ...COLORS,
-  bg: '#080710', laneWhite: '#0c0a16', laneBlack: '#0a0913',
+  bg: STAGE_COLORS.stage, laneWhite: '#0c0a16', laneBlack: '#0a0913',
   gridBar: 'rgba(225,215,248,0.13)', gridBeat: 'rgba(225,215,248,0.035)',
   gridSub: 'rgba(225,215,248,0.012)', octave: 'rgba(225,215,248,0.09)',
-  left: '#ffb84d', right: '#a591ff', hitLine: '#f8efff',
+  left: STAGE_COLORS.noteLeft, right: STAGE_COLORS.noteRight, hitLine: STAGE_COLORS.hitLine,
   label: '#9992aa', noteInk: '#fff8ff', shelf: '#14101e',
-  keyTarget: '#a591ff', keyLabel: '#777380', ghost: 'rgba(255,255,255,0.45)',
+  keyTarget: STAGE_COLORS.noteRight, keyLabel: '#777380', ghost: 'rgba(255,255,255,0.45)',
 });
 export const PIANO_HEIGHT = 104;
 export const handColor = note => note.hand === 'left' ? PIANO_COLORS.left : PIANO_COLORS.right;
-export const handEdge = note => note.hand === 'left' ? '#ffe4a0' : '#f4b8ff';
+export const handEdge = note => note.hand === 'left' ? '#ffe4a0' : '#cfe9ff';
 export function noteColor(note) {
   return note.status === 'hit' ? PIANO_COLORS.hit : note.status === 'missed' ? PIANO_COLORS.missed : handColor(note);
 }

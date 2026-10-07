@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
  * The two guitars on the full stage. Lessons, and free play's Learn view,
@@ -13,7 +14,6 @@ import { test, expect } from '@playwright/test';
  */
 
 const stage = page => page.locator('.guitar-stage');
-const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true }).click();
 const stageView = page => page.getByRole('group', { name: 'Stage view' });
 const viewButton = (page, name) => stageView(page).getByRole('button', { name, exact: true });
 const labels = (page, kind) => page.locator(`.guitar-position-label${kind ? `.${kind}` : ''}`);

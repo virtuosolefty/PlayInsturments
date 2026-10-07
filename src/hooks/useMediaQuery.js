@@ -35,6 +35,6 @@ export function useMediaQuery(query) {
 }
 
 /** Below this the toolbar cannot hold every control without wrapping. */
-export const COMPACT_QUERY = '(max-width: 1180px)';
+export const COMPACT_QUERY = '(max-width: 1200px)';
 /** Below this the feedback panel becomes a slide-over rather than a column. */
 export const NARROW_QUERY = '(max-width: 900px)';

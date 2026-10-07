@@ -8,7 +8,7 @@ export default function DiscoverPieces({ entries, instrument, favorites, onFavor
   const selected=collections.some(c=>c.id===selection)||selection==='favorites'?selection:'first';
   const pieces=collectionEntries(entries,instrument,selected,favorites);
   return <section className="discover-pieces" aria-labelledby="discover-title">
-    <header><div><span className="eyebrow">FOLLOW YOUR CURIOSITY</span><h3 id="discover-title">Find something you’ll love playing.</h3></div><span>Listen first. Explore at your pace.</span></header>
+    <header><div><h3 id="discover-title">Find something you’ll love playing.</h3></div><span>Listen first. Explore at your pace.</span></header>
     <div className="discovery-tabs" role="group" aria-label="Song collections">{[...collections,{id:'favorites',title:'Your favourites'}].map(c=><button key={c.id} aria-pressed={selected===c.id} onClick={()=>{preview.stop();setSelection(c.id);}}>{c.title}</button>)}</div>
     <p>{collections.find(c=>c.id===selected)?.description ?? 'The pieces you saved, ready when you are.'}</p>
     <div className="discovery-grid">{pieces.map(piece=>{const detail=pieceDetails(piece);return <article className="discovery-card" key={piece.id}>

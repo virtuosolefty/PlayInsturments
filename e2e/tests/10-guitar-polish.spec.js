@@ -59,6 +59,7 @@ test('desktop light, dark, first-position and focus layouts stay usable', async 
     expect(hint.y+hint.height).toBeLessThan(viewport.height);
     await page.screenshot({path:`test-results/screens/guitar-upgrade/light-${viewport.height}.png`});
   }
+  await page.getByRole('button',{name:'More',exact:true}).click();
   await page.getByRole('button',{name:'Switch to dark theme',exact:true}).click();
   await page.getByRole('combobox',{name:'Visible guitar frets'}).selectOption('5');
   await expect(page.locator('.guitar-position-label.fret')).toHaveCount(5);

@@ -4,8 +4,7 @@ import Icon from './components/Icon.jsx';
 import LiveHud from './components/LiveHud.jsx';
 import SetupDialog from './components/SetupDialog.jsx';
 import StudioLibrary from './components/StudioLibrary.jsx';
-import { setRollTheme } from './lib/rollPaint.js';
-import StudioHeader, { StageToolbar } from './components/StudioHeader.jsx';
+import StudioHeader, { InstrumentSettings, stageCaption } from './components/StudioHeader.jsx';
 import GuitarWorkspace from './components/GuitarWorkspace.jsx';
 import BowedWorkspace from './components/BowedWorkspace.jsx';
 import { instrumentForStudy, instrumentInfo, isStringed, normalizeInstrument, stringKit, studyIdFor } from './lib/instruments.js';
@@ -87,7 +86,6 @@ export default function App({ startupSettings = {} }) {
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
-    setRollTheme(theme);
     // Browser chrome (mobile address bar, installed-app title bar) follows the theme.
     document.querySelectorAll('meta[name="theme-color"]').forEach((m) => { m.setAttribute('content', theme === 'dark' ? '#0b0b10' : '#f2f0eb'); m.removeAttribute('media'); });
   }, [theme]);
@@ -547,6 +545,7 @@ export default function App({ startupSettings = {} }) {
   // already starts the audio engine, so showing both is two buttons asking for
   // the same click.
   const showStartBanner = !engine.audioReady && !engine.playing && !beforeFirstNote;
+  const stageNote = stageCaption(instrument, freePlay);
 
   // Setup chrome recedes while you play. Opacity only — collapsing any of it
   // would reflow the toolbar at the exact moment you are trying to hit a note.
@@ -680,7 +679,10 @@ export default function App({ startupSettings = {} }) {
         {libraryOpen && <div className="scrim" onClick={() => setLibraryOpen(false)} />}
 
         <main className="pane center">
-          <StudioHeader score={score} settings={settings} playing={engine.playing} onInstrumentChange={changeInstrument} freePlay={freePlay} onFreePlay={changeWorkspace} focus={focus} onFocus={() => setFocus(v => !v)} />
+          <StudioHeader score={score} settings={settings} onInstrumentChange={changeInstrument} freePlay={freePlay} onFreePlay={changeWorkspace} focus={focus} onFocus={() => setFocus(v => !v)}
+            instrumentSettings={<InstrumentSettings settings={settings} setSettings={setSettings} instrument={instrument}>
+              {!stringed && <InstrumentControls settings={settings} setSettings={setSettings} sustain={sustain} onSustain={value => playInput.sustain(value)} />}
+            </InstrumentSettings>} />
           {learning.active ? <LessonBar learning={learning} engine={engine} onShowGuide={narrow ? () => setFeedbackOpen(true) : null}/> : !freePlay && <Controls
             settings={settings}
             setSettings={setSettings}
@@ -690,10 +692,6 @@ export default function App({ startupSettings = {} }) {
             onHearOrTry={hearOrTry}
             onToggleLoop={toggleLoop}
           />}
-
-          <StageToolbar settings={settings} setSettings={setSettings} instrument={instrument} freePlay={freePlay}>
-            {!stringed && <InstrumentControls settings={settings} setSettings={setSettings} sustain={sustain} onSustain={value => playInput.sustain(value)} />}
-          </StageToolbar>
 
           {!freePlay && !learning.active && <Minimap theme={theme}
             score={score}
@@ -838,7 +836,11 @@ export default function App({ startupSettings = {} }) {
             </div>
           )}
           </div>
-          <footer className="studio-footer"><span><i />{guitar ? `Standard tuning · ${settings.guitarFrets ?? 12} frets` : stringed ? `${kit.label} · ${instrumentInfo(instrument).detail}` : 'Your music. Your pace.'}</span>{freePlay ? <span>Explore freely · no score recorded</span> : learning.active ? <span><kbd>Space</kbd> play / pause · Your lesson is saved automatically</span> : <span><kbd>Space</kbd> play / pause <span className="footer-detail">· <kbd>1</kbd> listen <kbd>2</kbd> practice <kbd>3</kbd> wait</span></span>}</footer>
+          {/* One status line: what the stage shows on the left, how it is set up on the right. Shortcuts live in Help. */}
+          <footer className="studio-footer">
+            <span className="stage-caption"><i />{stageNote.caption}<span className="stage-description">{stageNote.description}</span></span>
+            <span>{guitar ? `Standard tuning · ${settings.guitarFrets ?? 12} frets · ` : stringed ? `${kit.label} · ${instrumentInfo(instrument).detail} · ` : ''}{freePlay ? 'Explore freely · no score recorded' : <><kbd>Space</kbd> play / pause{learning.active && <span className="footer-detail"> · Your lesson is saved automatically</span>}</>}</span>
+          </footer>
         </main>
 
         {feedbackOpen && narrow && (
@@ -847,7 +849,7 @@ export default function App({ startupSettings = {} }) {
 
         <aside className="pane right" aria-label={learning.active ? 'Lesson guide' : 'This run'}>
           {narrow && <button className="close-feedback" onClick={() => setFeedbackOpen(false)} aria-label={learning.active ? 'Close lesson guide' : 'Close this run panel'}><Icon name="close" size={14} /> Close</button>}
-          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} instrument={instrument} onSetup={openSetup} path={path} typingOctave={settings.typingOctave ?? 0}/> : freePlay && stringed ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><span className="eyebrow">NO SCORE. JUST SOUND.</span><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">{guitar ? 'Choose a chord below the fretboard, then strum. The numbered dots show which fingers to use.' : 'Click the keys or play your MIDI controller. A–J on your computer keyboard covers the middle-C octave.'}</div><button onClick={openSetup}>Check instrument setup</button><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
+          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} instrument={instrument} onSetup={openSetup} path={path} typingOctave={settings.typingOctave ?? 0}/> : freePlay && stringed ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">{guitar ? 'Choose a chord below the fretboard, then strum. The numbered dots show which fingers to use.' : 'Click the keys or play your MIDI controller. A–J on your computer keyboard covers the middle-C octave.'}</div><button onClick={openSetup}>Check instrument setup</button><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
             <>
               <PiecePanel
                 score={score}

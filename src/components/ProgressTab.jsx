@@ -45,7 +45,7 @@ export default function ProgressTab({ days, goalMinutes, onGoalChange, library, 
                 <span className="rated-stars">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <i key={n} className={n <= stars ? 'on' : ''}>
-                      ★
+                      <Icon name="starFill" size={12} />
                     </i>
                   ))}
                 </span>

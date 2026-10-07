@@ -13,7 +13,6 @@ export default function PiecePanel({ score, history, assessment, bestStars = 0, 
   const objective = listening ? 'Hear the phrase first.' : waiting ? 'Find every note, at your pace.' : loop ? 'Make this passage feel easy.' : 'A steady phrase, one note at a time.';
   const guidance = listening ? 'Follow the notes and listen to their rhythm. This mode plays the reference without scoring.' : waiting ? 'The music waits for the correct notes. Focus on where your fingers go; timing is not graded.' : score.description || 'Aim for accurate notes and an even pulse. Lower the tempo whenever you need more time.';
   return <div className="section piece-panel">
-    <span className="eyebrow">YOUR NEXT STEP</span>
     <h2 className="practice-objective">{objective}</h2>
     <p className="objective-copy">{guidance}</p>
     <div className="session-goal"><span>{loop ? loopLabel(loop, score) : 'Whole piece'}</span><strong>{Math.round((score.bpm ?? 80) * rate)} bpm</strong></div>
