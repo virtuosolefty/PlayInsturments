@@ -10,6 +10,24 @@ Added in the October 2026 design pass. The design system it follows is a Claude 
 - **Breakpoints** are 600, 900, 1200 and 1440px. `phone.css` raises every control to 44px at 900px and below, and at 600px and below on an upright phone moves the destinations to a bottom tab bar and the header controls into a sheet (the button reads "Piano · Learn").
 - **Browser tests.** `e2e/helpers/workspace.js` chooses Learn or Free play at any width. Help and the theme switch are inside More, so a test opens More first.
 
+## Whole instrument: choosing what to see
+
+Added October 2026. In free play at full detail, selecting **Whole instrument** opens a pop-up of pictures, one for each instrument there is to see. The one that is played is already on the stage, so choosing it closes the pop-up. Any other is shown over the stage in its place until **Learn**.
+
+- **The list** is `src/lib/stageModels.js`: for each instrument, the model that is played first, then the ones that are only shown. A model's id is its file name in `public/models/`, the name of its picture in `public/media/models/` and its key in `modelCredits.js`. Shown-only ids are `<instrument>-<kind>`, such as `guitar-bass`.
+- **Only what is there is offered.** The shown-only models are prepared from downloads, one at a time. `modelAvailability.js` asks once a page for each model's small measurements file, and `useAvailableModels.js` lists the ones that answered. With none, Whole instrument behaves as it always did and no pop-up opens. Help credits a model on the same condition (`useShownCredits.js`).
+- **The pop-up** is `ModelChooser.jsx`, a dialog over the app, so it has room for its pictures on a small stage. **The viewer** is `ModelViewer.jsx`: its own studio laid over the stage, the model framed whole and turned by dragging, all the way round. `WholeModels.jsx` ties the two together and is rendered by `GuitarStage.jsx`, `BowedStage3D.jsx` and `DrumStage.jsx`. The drums gain the Learn | Whole instrument switch only when another kit is there.
+- **A shown-only model is not played.** It keeps its own strings and has no lessons or sound of its own. Making one playable means a rig, as `guitarModelRig.js` and `bowedRig.js` are for the three that are.
+- **Adding one.** Download Sketchfab's glTF, unzip it to `models-src/<id>/`, add the model to `stageModels.js`, its credit to `modelCredits.js` and a `shown(...)` recipe to `scripts/models/recipes.mjs` (which way is up, and the angle it is first seen from). Then, with the dev server running:
+
+  ```bash
+  node scripts/models/prepare.mjs <id>
+  node scripts/shoot-models.mjs http://localhost:5173/ <id>
+  ```
+
+  The first writes `public/models/<id>.glb` and `.json` (`showcase.mjs` stands the model on the floor, its longest side 24 stage units); the second writes its picture. Add its row to `CREDITS.md`.
+- **Tests.** `stageModels.test.js`, `modelAvailability.test.js`, `showcaseView.test.js`, `WholeModels.test.jsx`, `useShownCredits.test.jsx`, `scripts/models/showcase.test.mjs`, and in the browser `e2e/tests/21-whole-instrument-chooser.spec.js`, which serves its own stand-in models so it does not depend on which downloads a checkout has. Specs 18 and 19 answer the shown-only models as missing (`e2e/helpers/models.js`).
+
 ## Drums
 
 Choose **Drums** in the instrument picker (or open `/drums/`). Added October 2026.
