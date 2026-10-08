@@ -3,8 +3,13 @@ import { buildDrumKit, modelPieceFor } from '../lib/drumKitModel.js';
 import { labelWidth, spreadLabels } from '../lib/drumLabels.js';
 import { DRUM_PIECES, drumForMidi } from '../lib/drums.js';
 import { midiInput } from '../lib/midiInput.js';
+import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { createStudio } from '../lib/stage/studio.js';
 import { STAGE_COLORS, STAGE_THEME } from '../lib/stageColors.js';
+import { useAvailableModels } from '../hooks/useAvailableModels.js';
+import { useStageView } from '../hooks/useStageView.js';
+import StageViewSwitch from './StageViewSwitch.jsx';
+import WholeModels from './WholeModels.jsx';
 
 /** The kit from the drummer's stool, looking down at the heads. */
 const SHOT = Object.freeze({ azimuthDeg: 0, elevationDeg: 34 });
@@ -39,7 +44,8 @@ const keysOn = id => (id === 'hihat' ? 2 : 1);
  * Every hit lights the drum it landed on, whether it came from the model, the
  * pads, the computer keys or a MIDI controller, in the colour of its verdict.
  * In a lesson the drum to hit next carries a blue ring. In free play the view
- * turns when the floor is dragged.
+ * turns when the floor is dragged, and at full detail Whole instrument offers
+ * the other kits there are to see (WholeModels.jsx).
  *
  * @param {object} props
  * @param {object} props.engine the practice engine
@@ -57,6 +63,14 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
   const [labels, setLabels] = useState([]);
   const [turned, setTurned] = useState(false);
   const reset = useRef(() => {});
+  // The other kits are downloaded models, which are for the full tier, as on the string stages.
+  const [full, setFull] = useState(false);
+  const [stageView, setStageView] = useStageView(freePlay ? 'freePlay' : 'lesson');
+  const kits = useAvailableModels('drums', freePlay && full);
+  const offersWhole = freePlay && full && kits.length > 1;
+  const whole = offersWhole && stageView === 'whole';
+  // Another kit is being shown over this one: it is there to look at, not to hit.
+  const [looking, setLooking] = useState(false);
 
   useEffect(() => {
     const el = host.current;
@@ -76,6 +90,7 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
     const canvas = studio.renderer.domElement;
     canvas.setAttribute('aria-hidden', 'true');
     el.dataset.stageTier = studio.tier;
+    setFull(studio.tier === STAGE_TIERS.FULL);
 
     const shot = { box: kit.box, ...SHOT };
     const turn = { yaw: 0, pitch: 0 };
@@ -217,11 +232,13 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
         {NAMES[label.id].short}<kbd>{NAMES[label.id].key.toUpperCase()}</kbd>{label.id === 'hihat' && <kbd title="Open hi-hat">O</kbd>}
       </span>)}
     </div>
+    <WholeModels instrument="drums" active={whole} quality={quality} onShowing={setLooking} />
     <div className="guitar-stage-bottom">
       <span className="guitar-stage-legend">{freePlay ? <><i className="played" />Hit</> : <><i className="played" />Hit <i className="next" />Next</>}</span>
       <span className="guitar-stage-end">
+        {offersWhole && <StageViewSwitch value={whole ? 'whole' : 'learn'} onChange={setStageView} />}
         {freePlay && turned && <button type="button" className="guitar-reset-view" onClick={() => reset.current()}>Reset view</button>}
-        <span className="guitar-stage-hint">{freePlay ? 'Tap a drum to play · drag the floor to turn' : 'Tap a drum, or press its letter'}</span>
+        <span className="guitar-stage-hint">{whole && looking ? 'Drag to turn · Learn to play the kit' : freePlay ? 'Tap a drum to play · drag the floor to turn' : 'Tap a drum, or press its letter'}</span>
       </span>
     </div>
   </div>;

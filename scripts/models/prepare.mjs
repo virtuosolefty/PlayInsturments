@@ -2,7 +2,7 @@
 /**
  * prepare.mjs — turns the downloaded instruments into the files the stage loads.
  *
- *   node scripts/models/prepare.mjs [guitar] [violin] [cello]
+ *   node scripts/models/prepare.mjs [guitar] [violin] [cello] [guitar-bass] ...
  *
  * Reads models-src/<name>/scene.gltf — Sketchfab's "glTF (Autoconverted)"
  * download, unzipped — and writes, for each instrument:
@@ -28,6 +28,7 @@ import { crossSectionRadius, fitLine, fitScale, playingSpan, ringCentres } from 
 import { toWebp } from './images.mjs';
 import { quantizeFrame, quantizePart } from './quantize.mjs';
 import { RECIPES } from './recipes.mjs';
+import { showcaseTransform, wholePieces } from './showcase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const NUT_X = -6.05;
@@ -265,9 +266,41 @@ function writeGlb(name, recipe, parts, encoded) {
   return buildGlb(json, bin);
 }
 
+/**
+ * A model that is only shown (showcase.mjs): turned upright, scaled and
+ * re-encoded, with every part it came with. Its measurements are just the box
+ * the viewer frames and the angle it is first seen from.
+ */
+async function prepareShowcase(name, recipe) {
+  const source = loadSource(name);
+  const box = { min: [0, 1, 2].map(k => Math.min(...source.primitives.map(p => minOf(p.positions, k)))), max: [0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k)))) };
+  const parts = buildParts(source, wholePieces(source.primitives), showcaseTransform(box, recipe.axes));
+  const encoded = await encodeMaterials(source, parts, recipe);
+  const glb = writeGlb(name, recipe, parts, encoded);
+  const bounds = parts.map(part => boundsOf(part.positions));
+  const fit = {
+    name,
+    credit: recipe.credit,
+    showcase: true,
+    view: recipe.view,
+    bounds: { min: [0, 1, 2].map(k => Math.min(...bounds.map(b => b.min[k]))), max: [0, 1, 2].map(k => Math.max(...bounds.map(b => b.max[k]))) },
+  };
+  writeModel(name, glb, fit);
+  const triangles = parts.reduce((sum, p) => sum + p.indices.length / 3, 0);
+  return { name, kb: Math.round(glb.length / 1024), triangles, parts: parts.length, textures: encoded.report, bounds: fit.bounds };
+}
+
+function writeModel(name, glb, fit) {
+  const out = path.join(ROOT, 'public', 'models');
+  mkdirSync(out, { recursive: true });
+  writeFileSync(path.join(out, `${name}.glb`), glb);
+  writeFileSync(path.join(out, `${name}.json`), `${JSON.stringify(fit, null, 2)}\n`);
+}
+
 async function prepare(name) {
   const recipe = RECIPES[name];
   if (!recipe) throw new Error(`No recipe for "${name}"; known: ${Object.keys(RECIPES).join(', ')}`);
+  if (recipe.showcase) return prepareShowcase(name, recipe);
   const source = loadSource(name);
   const { pieces, model } = findPieces(source, recipe);
   const strings = measureStrings(source, pieces, recipe, model);
@@ -306,10 +339,7 @@ async function prepare(name) {
     bounds: { min: [0, 1, 2].map(k => Math.min(...all.map(b => b.min[k]))), max: [0, 1, 2].map(k => Math.max(...all.map(b => b.max[k]))) },
     parts: partBounds,
   };
-  const out = path.join(ROOT, 'public', 'models');
-  mkdirSync(out, { recursive: true });
-  writeFileSync(path.join(out, `${name}.glb`), glb);
-  writeFileSync(path.join(out, `${name}.json`), `${JSON.stringify(fit, null, 2)}\n`);
+  writeModel(name, glb, fit);
   const triangles = parts.reduce((sum, p) => sum + p.indices.length / 3, 0);
   return { name, kb: Math.round(glb.length / 1024), triangles, parts: [...new Set(parts.map(p => p.part))], textures: encoded.report, strings: fit.strings, fretFitWorst: fit.fretFitWorst };
 }

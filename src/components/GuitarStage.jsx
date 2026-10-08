@@ -13,6 +13,7 @@ import { createStudio } from '../lib/stage/studio.js';
 import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
 import StageViewSwitch from './StageViewSwitch.jsx';
+import WholeModels from './WholeModels.jsx';
 
 const NO_POSITIONS = new Map();
 /** After this long a plucked string's swing is too small to see, so the stage stops redrawing for it. */
@@ -234,6 +235,7 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
     <div className="guitar-stage-top"><div><strong>{chord ? chordFullName(chord) : 'Fretboard'}</strong><span>{chord ? 'Open-position voicing' : 'Standard tuning · E A D G B E'}</span></div>{chord && <div className="guitar-open-picks" role="group" aria-label="Play open strings"><span>OPEN STRINGS</span>{[0,1,2,3,4,5].map(s=><button key={s} aria-label={'Play open string '+(6-s)+': '+noteName(GUITAR_TUNING[s])} onClick={()=>onPluck({string:s,fret:0})}>{noteName(GUITAR_TUNING[s])}</button>)}</div>}</div>
     <StageLabels labels={labels} labelSize={labelSize} />
     <div className="stage-status" role="status">{status}</div>
+    <WholeModels instrument="guitar" active={wholeGuitar} quality={quality} />
     <div className="guitar-stage-bottom"><span className="guitar-stage-legend">{chord && <><i className="root"/>Root </>}<i className="played"/>Played <i className="next"/>{chord?'Hover':'Next note'}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={wholeGuitar ? 'whole' : 'learn'} onChange={chooseView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint">{hover||(wholeGuitar?'Drag to turn · Learn to play the frets':turnable?'Click between frets to play · drag to turn':'Click between frets to play · ○ open string')}</span></span></div>
   </div>;
 }

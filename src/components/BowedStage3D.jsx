@@ -11,6 +11,7 @@ import { createStudio, disposeResources } from '../lib/stage/studio.js';
 import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
 import StageViewSwitch from './StageViewSwitch.jsx';
+import WholeModels from './WholeModels.jsx';
 
 const NO_POSITIONS = new Map();
 const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
@@ -170,6 +171,8 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
   const [stageView, setStageView] = useStageView(view);
   const closeUp = stageView !== 'whole';
   const [ready, setReady] = useState(false);
+  // Another instrument is being shown over this one (WholeModels.jsx): it is there to look at, not to bow.
+  const [looking, setLooking] = useState(false);
   latest.current = { kit, engine, target, selection, activePositions, onBow, onLift, onUnavailable, labelMode, labelSize, view, closeUp, flip: 1 };
   const offersWhole = view === 'freePlay' && showcase;
   const whole = offersWhole && !closeUp;
@@ -200,6 +203,7 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
   }, [kit.id, theme, quality, maxFret]);
   // The bowing stretch by the bridge is in view only when the whole instrument is.
   const hint = hover ? placeText(kit, hover)
+    : whole && looking ? 'Drag to turn · Learn to play'
     : whole ? 'Drag to turn · hold by the bridge to bow an open string · Learn for the finger places'
     : `Press and hold to bow · drag along a string to slide${turnable ? ' · drag the background to turn' : ''}`;
   return <div className="guitar-stage bowed-stage-3d" ref={host} role="group" aria-label={`Three-dimensional ${name}`} data-view={view}>
@@ -207,6 +211,7 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
     {/* The labels only echo what the 2D finger buttons below say in full, so assistive technology is spared them. */}
     <StageLabels labels={labels} labelSize={labelSize} decorative />
     {!ready && <div className="bowed-stage-preparing" role="status">Preparing your {name}…</div>}
+    <WholeModels instrument={kit.id} active={whole} quality={quality} onShowing={setLooking} />
     <div className="guitar-stage-bottom"><span className="guitar-stage-legend"><i className="played" />Played <i className="next" />{target ? 'Next note' : 'Hover'}{selection && <><i className="root" />Scale</>}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={whole ? 'whole' : 'learn'} onChange={setStageView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint" role="status">{hint}</span></span></div>
   </div>;
 }

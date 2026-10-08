@@ -28,6 +28,7 @@ import './styles/learning.css';
 import './styles/discovery.css';
 import './styles/strings.css';
 import './styles/drums.css';
+import './styles/models.css';
 import './styles/chrome.css';
 import './styles/phone.css';
 

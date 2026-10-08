@@ -18,10 +18,25 @@ import { creditLine, modelCredit } from '../../src/lib/modelCredits.js';
 const share = (piece, axis, model) => piece.box.size[axis] / model.length;
 
 /** The credit written into the model's file, from the app's one list of credits. */
-const credit = instrument => {
-  const { title, author, authorUrl, source, license, licenseUrl } = modelCredit(instrument);
-  return { title, author, authorUrl, source, license, licenseUrl, line: creditLine(modelCredit(instrument)) };
+const credit = model => {
+  const { title, author, authorUrl, source, license, licenseUrl } = modelCredit(model);
+  return { title, author, authorUrl, source, license, licenseUrl, line: creditLine(modelCredit(model)) };
 };
+
+/** Sketchfab's glTF download is y up, whatever the artist worked in. */
+const UPRIGHT = [[0, 1], [1, 1], [2, 1]];
+
+/**
+ * A model that is only shown (showcase.mjs): `axes` stands it up, and `view`
+ * is the angle the viewer first sees it from, in degrees round it and above it.
+ */
+const shown = (model, { axes = UPRIGHT, view, imageSize = 1024 }) => ({
+  showcase: true,
+  credit: credit(model),
+  axes,
+  view,
+  imageSize: (image, role) => (typeof imageSize === 'function' ? imageSize(image, role) : imageSize),
+});
 
 // The guitar's parts are already separate meshes, named by their materials.
 const GUITAR_PARTS = {
@@ -75,4 +90,11 @@ export const RECIPES = {
     },
     imageSize: (image, role) => (image.includes('mat01') && role === 'baseColor' ? 2048 : role === 'metallicRoughness' && image.includes('mat02') ? 512 : 1024),
   },
+
+  // Shown in the whole-instrument view, never played. Each reads models-src/<id>/scene.gltf.
+  'guitar-bass': shown('guitar-bass', { view: { azimuthDeg: 20, elevationDeg: 12 } }),
+  'violin-electric': shown('violin-electric', { view: { azimuthDeg: 20, elevationDeg: 10 } }),
+  'cello-antique': shown('cello-antique', { view: { azimuthDeg: 20, elevationDeg: 10 } }),
+  'drums-acoustic': shown('drums-acoustic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
+  'drums-electronic': shown('drums-electronic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
 };
