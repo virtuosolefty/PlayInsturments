@@ -10,6 +10,21 @@ Added in the October 2026 design pass. The design system it follows is a Claude 
 - **Breakpoints** are 600, 900, 1200 and 1440px. `phone.css` raises every control to 44px at 900px and below, and at 600px and below on an upright phone moves the destinations to a bottom tab bar and the header controls into a sheet (the button reads "Piano · Learn").
 - **Browser tests.** `e2e/helpers/workspace.js` chooses Learn or Free play at any width. Help and the theme switch are inside More, so a test opens More first.
 
+## Drums
+
+Choose **Drums** in the instrument picker (or open `/drums/`). Added October 2026.
+
+- **A hit is a note.** The kit is nine pieces, each a General MIDI percussion note: kick 36, snare 38, closed hi-hat 42, open hi-hat 46, high, mid and floor tom 50, 47 and 43, crash 49, ride 51 (`src/lib/drums.js`). Because a hit is a note, the transport, the matcher, grading, the learning path and the library are the ones every instrument uses. A controller's other notes for the same drum (35 for the kick, 40 for the snare, and so on) are turned into the lesson's note in `playedMidi` (`usePracticeEngine.js`), which also leaves out the piano's input transposition.
+- **Four ways to hit.** The 3D kit, the pads, the computer keys and MIDI. Each drum's key is the letter it starts with: K, S, H, O, T, M, F, C, R (`DRUM_KEYS`, used by `useComputerKeyboard.js` in place of the piano's key map). Screen hits go out as synthetic MIDI from `useDrumInput.js`, a note-on and a note-off 90 ms later, so sound and scoring are shared.
+- **Lanes, not a stave.** `DrumLanes.jsx` scrolls one lane a drum, top of the kit at the top, and only the lanes the study uses. A tile carries its key; the kick is amber and the hands are blue, as on the piano roll; a missed tile has a broken outline.
+- **The 3D kit is built in code** (`src/lib/drumKitModel.js`): shells, heads, hoops, lugs, lathe-turned cymbals, stands and pedals, seen from the drummer's stool. No model is downloaded, so there is nothing to credit and every piece can be picked, ringed and moved on its own. `DrumStage.jsx` puts it in the shared studio (`src/lib/stage/studio.js`), rings the next drum, and flashes each hit in the colour of its verdict wherever the hit came from. In free play the floor can be dragged to turn the view. `drumLabels.js` keeps the names over the kit from overlapping.
+- **The pads are always there** (`DrumPads.jsx`). On the 2D trainer, or when WebGL cannot start or is lost, they are the whole kit. Under the 3D kit they fold into a disclosure on a wide screen and stay out at 900px and below. A pad answers on pointer-down; a click with no pointer behind it (keyboard, screen reader) plays too.
+- **Sound** is synthesized (`src/lib/drumVoice.js`): membrane synths for the kick, toms and snare body, filtered noise for the snare wires and the cymbals. The closed hi-hat cuts the open one short. There are no drum samples.
+- **Lessons.** Six studies written as sixteen-step rows (`study()` in `drums.js`), from one hit on each drum to a beat with a fill. The matcher names a drum by `score.noteNames`, so a wrong hit reads "Wrong drum: Crash here, but the beat wants Snare" and never as a pitch. `lessonWords()` in `learning.js` gives the lesson guide a drummer's wording.
+- **Adding an instrument with lessons of its own.** `INSTRUMENTS` in `instruments.js` is the list; `discovery.test.js` and `instruments.test.js` fail for any instrument on it without a first lesson, collections and a kit.
+
+Tests: `drums.test.js`, `drumScoring.test.js`, `drumVoice.test.js`, `drumKitModel.test.js`, `drumLabels.test.js`, and in the browser `e2e/tests/20-drums.spec.js`, run with the guitar config since it needs WebGL.
+
 ## Violin and cello
 
 Choose **Violin** or **Cello** in the instrument picker (or open `/violin/` and `/cello/`).

@@ -1,6 +1,6 @@
 # Practice Deck
 
-Practice Deck is a browser-based piano, guitar, violin and cello practice studio. Play on the screen, use computer keys for piano, or connect a MIDI controller. Follow falling notes, learn short guided phrases, and keep your progress in your browser.
+Practice Deck is a browser-based piano, guitar, violin, cello and drums practice studio. Play on the screen, use computer keys for piano and drums, or connect a MIDI controller. Follow falling notes, learn short guided phrases, and keep your progress in your browser.
 
 ## Use it online
 
@@ -32,10 +32,10 @@ npm run preview
 
 ## Getting started
 
-1. Choose Piano, Guitar, Violin or Cello on the welcome page.
-2. Select **Try piano**, **Try guitar**, **Try violin** or **Try cello** to play a short guided phrase.
+1. Choose Piano, Guitar, Violin, Cello or Drums on the welcome page.
+2. Select **Try piano**, **Try guitar**, **Try violin**, **Try cello** or **Try drums** to play a short guided phrase.
 3. Click **Enable sound** when the browser asks you to start audio.
-4. Use the on-screen instrument, computer keyboard for piano, or a MIDI controller.
+4. Use the on-screen instrument, the computer keyboard for piano and drums, or a MIDI controller.
 5. Return to the learning home to continue your saved lesson, explore pieces, or download a progress backup.
 
 Your results and settings stay in the current browser. There is no account or cloud sync, so download a backup from the learning home if you want to protect or move your progress.
@@ -45,8 +45,9 @@ Your results and settings stay in the current browser. There is no account or cl
 - Piano: on-screen keys, computer keyboard, and Web MIDI input.
 - Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input. On the 3D stage, lessons and free play's **Learn** view show the neck straight across, with each string numbered; at full detail, **Whole instrument** shows a 3D model of an acoustic guitar that you can turn by dragging. The 2D trainer is a rosewood fretboard with true fret spacing.
 - Violin and cello: on the 3D stage at full detail, 3D models with finger tapes, numbered finger markers and a bow that plays the sounding string; free play opens on **Learn**, and **Whole instrument** shows the violin at three-quarters and the cello standing on its endpin. Otherwise, a drawn fingerboard with finger tapes. Press and hold a place to bow it, drag along a string to slide, or bow near the bridge for an open string (keyboard: arrows, then hold Enter or Space). Six first-position lessons each, a finger chart in Learn mode, and a scale explorer in Free play.
+- Drums: a nine-piece kit (kick, snare, closed and open hi-hat, three toms, crash and ride). Lessons scroll as lanes, one a drum, each tile showing the key that plays it. Hit the 3D kit, the on-screen pads, the computer keys (each drum is the letter it starts with: K, S, H, O, T, M, F, C, R), or a pad controller or electronic kit sending the standard General MIDI drum notes. Six lessons from finding each drum to a beat with a fill, and a free-play kit you can turn by dragging the floor. The 3D kit is built in code, so there is no model to download; the drum sounds are synthesized.
 - Light and dark themes, guided lessons, practice feedback, favourites, and local backups.
-- Three-dimensional piano, guitar, violin and cello views with a simpler 2D trainer option. **Instrument settings → 3D detail** chooses Full (the 3D models), Light (the simpler built-in guitar and 2D violin and cello) or Auto, and says which is in use.
+- Three-dimensional piano, guitar, violin, cello and drum kit views with a simpler 2D trainer option. **Instrument settings → 3D detail** chooses Full (the 3D models), Light (the simpler built-in guitar and 2D violin and cello) or Auto, and says which is in use.
 
 For the best MIDI experience, use a current Chromium-based browser such as Chrome or Edge. Firefox and Safari can still use the on-screen instruments, but do not provide Web MIDI support. Microphone or acoustic-instrument recognition is not included.
 
