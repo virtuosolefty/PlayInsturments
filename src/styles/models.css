@@ -17,6 +17,7 @@
 .model-card.no-picture .model-picture img { display: none; }
 .model-card strong { font-size: var(--fs-md); }
 .model-about { color: var(--text-dim); font-size: var(--fs-xs); line-height: 1.45; }
+.model-card small.look-only { color: var(--text-faint); }
 .model-card small { margin-top: auto; padding-top: var(--sp-1); color: var(--accent); font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
 
 /* The instrument shown in place of the stage's own. It covers the stage and its
@@ -27,8 +28,8 @@
 .model-viewer-preparing { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-dim); font-size: var(--fs-xs); pointer-events: none; }
 .model-viewer .model-reset { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); }
 .guitar-stage:has(.model-viewer) .guitar-stage-bottom { z-index: 2; }
-/* The stage's own title names the instrument beneath. */
-.guitar-stage:has(.model-viewer) .guitar-stage-top, .guitar-stage:has(.model-viewer) .drum-labels { visibility: hidden; }
+/* The stage's own title names the instrument that is played: hidden while another stands in its place, in the viewer or on the stage's own rig. */
+.guitar-stage:has(.model-caption) .guitar-stage-top, .guitar-stage:has(.model-viewer) .drum-labels { visibility: hidden; }
 
 .model-caption { position: absolute; z-index: 2; inset: 12px auto auto 18px; display: flex; flex-direction: column; gap: 2px; max-width: 55%; pointer-events: none; }
 .model-caption strong { color: var(--text); font-size: var(--fs-sm); }

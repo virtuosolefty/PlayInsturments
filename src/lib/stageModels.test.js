@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MODEL_CREDITS, modelCredit } from './modelCredits.js';
-import { STAGE_MODELS, findModel, modelImage, modelsFor, otherModels, playedModel } from './stageModels.js';
+import { STAGE_MODELS, findModel, isStaged, modelImage, modelsFor, otherModels, playedModel } from './stageModels.js';
 
 describe('the instruments the whole-instrument view can show', () => {
   it('lists, for each instrument, the one that is played first and then the others', () => {
@@ -41,6 +41,16 @@ describe('the instruments the whole-instrument view can show', () => {
     // The kit built in code has no author to credit.
     expect(findModel('drums').builtIn).toBe(true);
     expect(modelCredit('drums')).toBeNull();
+  });
+
+  it('knows which of the others the stage plays, and which are only looked at', () => {
+    expect(Object.values(STAGE_MODELS).flat().filter(model => model.rigged).map(model => model.id)).toEqual(['guitar-bass', 'violin-electric', 'cello-antique']);
+    // The stage shows the played instrument and the rigged ones itself; the rest go to the viewer.
+    expect(isStaged(findModel('guitar'))).toBe(true);
+    expect(isStaged(findModel('violin-electric'))).toBe(true);
+    expect(isStaged(findModel('drums-electronic'))).toBe(false);
+    // A model is played, or rigged, or neither: never both.
+    for (const model of Object.values(STAGE_MODELS).flat()) expect(model.played && model.rigged, model.id).toBeFalsy();
   });
 
   it('finds one by its id, with the instrument it belongs to', () => {

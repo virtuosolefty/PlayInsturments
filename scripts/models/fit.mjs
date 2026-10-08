@@ -108,3 +108,21 @@ export function crossSectionRadius(points, line) {
   }).sort((a, b) => a - b);
   return distances[Math.floor(distances.length / 2)];
 }
+
+/**
+ * Measured strings in order, lowest first. `side` is where each sits across
+ * the neck in stage units, and `radius` how thick it was measured.
+ *
+ * Which end of the row is the bass is read from the thickness: artists rarely
+ * model true gauges, but the thick side is still the thick side. Where even
+ * that cannot be told (every string one gauge, or one measured badly), a
+ * recipe says the instrument is strung right-handed, which puts the lowest
+ * string on the positive side.
+ */
+export function lowestFirst(strings, { rightHanded = false } = {}) {
+  const across = [...strings].sort((p, q) => q.side - p.side);
+  if (rightHanded) return across;
+  const mean = key => across.reduce((sum, s) => sum + s[key], 0) / across.length;
+  const trend = across.reduce((sum, s) => sum + (s.side - mean('side')) * (s.radius - mean('radius')), 0);
+  return trend >= 0 ? across : across.reverse();
+}

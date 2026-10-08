@@ -23,6 +23,10 @@ const SCALE_INCHES = 25.4;
 const MIN_RADIUS = 0.009;
 /** E, A, D and G are bronze-wound; B and E are plain steel, as on the model's own string ends. */
 const WOUND_STRINGS = 4;
+/** The strings of an acoustic guitar: their gauges, the scale they are strung on, and how many, from the lowest, are wound. */
+export const ACOUSTIC_STRINGS = Object.freeze({ gauges: GAUGES_INCHES, scaleInches: SCALE_INCHES, wound: WOUND_STRINGS });
+/** A bass guitar's: four wound strings, 45 to 105, on a 34 inch scale. */
+export const BASS_STRINGS = Object.freeze({ gauges: Object.freeze([0.105, 0.085, 0.065, 0.045]), scaleInches: 34, wound: 4 });
 const DOT_LIFT = 0.06;
 /**
  * A marker is drawn this much larger than its shape when it shows something
@@ -53,12 +57,12 @@ function gapAt(neck, s, x) {
 }
 
 /** One string, a cylinder from its measured nut point to its measured saddle point. */
-function buildString({ shapes, mat }, { nut, bridge }, s, scaleLength) {
+function buildString({ shapes, mat, set }, { nut, bridge }, s, scaleLength) {
   const from = new Vector3(...nut), to = new Vector3(...bridge);
   const along = to.clone().sub(from), length = along.length();
-  const gauge = GAUGES_INCHES[Math.min(s, GAUGES_INCHES.length - 1)];
-  const radius = Math.max(MIN_RADIUS, (gauge / 2) * (scaleLength / SCALE_INCHES));
-  const wound = s < WOUND_STRINGS;
+  const gauge = set.gauges[Math.min(s, set.gauges.length - 1)];
+  const radius = Math.max(MIN_RADIUS, (gauge / 2) * (scaleLength / set.scaleInches));
+  const wound = s < set.wound;
   const wire = new Mesh(shapes.wire, mat(wound ? '#c9a46c' : '#dedcd6', { metalness: 0.85, roughness: wound ? 0.38 : 0.24 }));
   wire.position.copy(from).add(to).multiplyScalar(0.5);
   wire.quaternion.setFromUnitVectors(UP, along.normalize());
@@ -120,10 +124,11 @@ function buildInlays({ mat, shapes }, model, neck, maxFret) {
  * @param {number} options.maxFret last fret that can be played
  * @param {{ scene: import('three').Group, fit: object }} options.model from loadInstrumentModel('guitar')
  * @param {boolean} [options.lacquered] gloss on the body and satin on the neck; costs a clearcoat pass, so full tier only
+ * @param {{ gauges: number[], scaleInches: number, wound: number }} [options.strings] the set it is strung with; an acoustic guitar's unless given
  * @returns {{ instrument: Group, strings: Mesh[], targets: Mesh[], dots: Mesh[], shapes: { disk: object, ring: object }, neck: object, showcase: object, ground: object }}
  *   `ground` is the box the floor and its shadow are fitted to
  */
-export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false }) {
+export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false, strings: set = ACOUSTIC_STRINGS }) {
   const { fit } = model, neck = modelNeck(fit);
   const narrowest = Math.min(...Array.from({ length: neck.count }, (_, s) => gapAt(neck, s, fit.nutX)));
   const dotRadius = (narrowest * MARKER_SHARE_OF_GAP) / 2 / SHOWN_MARKER;
@@ -139,7 +144,7 @@ export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false }
   const mat = (color, props = {}) => { const m = new MeshPhysicalMaterial({ color, roughness: 0.68, ...props }); owned.materials.add(m); return m; };
   const inactive = new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
   owned.materials.add(inactive);
-  const parts = { shapes, mat, inactive, neck };
+  const parts = { shapes, mat, inactive, neck, set };
 
   castShadows(model.scene);
   if (lacquered) lacquer(model.scene, LACQUER);
@@ -150,7 +155,7 @@ export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false }
 
   const instrument = new Group();
   instrument.add(model.scene);
-  const strings = fit.strings.map((measured, s) => buildString(parts, measured, s, fit.scaleLength ?? SCALE_INCHES));
+  const strings = fit.strings.map((measured, s) => buildString(parts, measured, s, fit.scaleLength ?? set.scaleInches));
   const targets = [], dots = [];
   for (let s = 0; s < neck.count; s++) {
     const places = buildPlaces(parts, s, maxFret);

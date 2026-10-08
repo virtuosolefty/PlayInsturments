@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { creditLine, modelCredit } from './modelCredits.js';
 import { fitProblem } from './stage/models.js';
-import { STAGE_MODELS } from './stageModels.js';
+import { STAGE_MODELS, isStaged } from './stageModels.js';
 
 /**
  * The list of instruments and the files in public/ have to agree: a model on
@@ -27,8 +27,17 @@ describe('the files behind the instruments', () => {
     }
   });
 
-  it('mark as shown-only exactly the ones that are not played', () => {
-    for (const model of downloaded) expect(measurements(model.id).showcase === true, model.id).toBe(!model.played);
+  it('mark as shown-only exactly the ones the stage does not play', () => {
+    for (const model of downloaded) expect(measurements(model.id).showcase === true, model.id).toBe(!isStaged(model));
+  });
+
+  it('measure the strings of every one the stage plays, lowest first on the right-handed side', () => {
+    for (const model of downloaded.filter(isStaged)) {
+      const { strings } = measurements(model.id);
+      expect(strings.length, model.id).toBe(model.instrument === 'guitar' && model.played ? 6 : 4);
+      const across = strings.map(string => string.nut[2]);
+      expect([...across].sort((a, b) => b - a), model.id).toEqual(across);
+    }
   });
 
   it('carry each maker\'s credit as the app states it', () => {

@@ -173,3 +173,51 @@ describe('closing the stage', () => {
     expect(disposeResources).not.toHaveBeenCalled();
   });
 });
+
+describe('another instrument in the whole-instrument view', () => {
+  const bass = { instrument: 'bass guitar' };
+  const openWith = (stageView, extra) => {
+    latest = { current: { view: 'freePlay', stageView } };
+    return guitarViews(run, { drawn, full: true, maxFret: 12, latest, onState: state => states.push(state), onShow: () => { shows += 1; }, onBroken: why => broken.push(why), ...extra });
+  };
+
+  it('goes on stage in place of the downloaded guitar once the stage has it to show', async () => {
+    let ready = null;
+    const onOther = vi.fn();
+    const views = openWith('whole', { other: () => ready, onOther });
+    views.apply();
+    // Neither it nor the downloaded guitar has arrived: the drawn guitar stays.
+    expect(run.show).not.toHaveBeenCalled();
+    ready = bass;
+    views.apply();
+    expect(run.rig).toBe(bass);
+    expect(onOther).toHaveBeenCalledWith(bass);
+    // The downloaded guitar arriving later does not push it off the stage.
+    finishDownload({ scene: 'guitar scene', fit: {} });
+    await settle();
+    expect(run.rig).toBe(bass);
+    expect(onOther).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives the stage back: to the downloaded guitar when it is chosen again, to the drawn one in Learn', async () => {
+    let ready = bass;
+    const views = openWith('whole', { other: () => ready });
+    views.apply();
+    finishDownload({ scene: 'guitar scene', fit: {} });
+    await settle();
+    ready = null;
+    views.apply();
+    expect(run.rig.instrument).toBe('model guitar');
+    ready = bass;
+    latest.current.stageView = 'learn';
+    views.apply();
+    expect(run.rig).toBe(drawn);
+  });
+
+  it('is not asked for outside the whole-instrument view', () => {
+    const other = vi.fn(() => bass);
+    openWith('learn', { other }).apply();
+    expect(other).not.toHaveBeenCalled();
+    expect(run.show).not.toHaveBeenCalled();
+  });
+});

@@ -24,8 +24,13 @@ describe('credits for the 3D instruments', () => {
     expect(line).toBe('"Violin" (https://sketchfab.com/3d-models/violin-0162dea1b1044cd281c57af5e5fc2046) by Voldepreuss (https://sketchfab.com/Voldepreuss), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: the strings between nut and bridge replaced, scaled and re-encoded for Practice Deck.');
   });
 
-  it('does not claim to have replaced the strings of a model that is only shown', () => {
-    expect(modelCredit('violin-electric').changes).toBe('scaled and re-encoded');
+  it('says the strings were replaced on every model whose strings the stage draws', () => {
+    for (const id of ['guitar', 'violin', 'cello', 'guitar-bass', 'violin-electric', 'cello-antique']) {
+      expect(modelCredit(id).changes, id).toBe('the strings between nut and bridge replaced, scaled and re-encoded');
+    }
+  });
+
+  it('does not claim to have replaced anything on a model that is only shown', () => {
     expect(creditLine(modelCredit('drums-acoustic'))).toMatch(/Modified: scaled and re-encoded for Practice Deck\.$/);
   });
 

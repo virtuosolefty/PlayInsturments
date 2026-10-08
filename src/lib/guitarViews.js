@@ -23,17 +23,22 @@ const whenQuiet = callback => (globalThis.requestIdleCallback ?? (fn => setTimeo
  * @param {(state: 'loading'|'ready'|'failed') => void} options.onState
  * @param {() => void} options.onShow called before a different guitar goes on stage
  * @param {(why: string) => void} options.onBroken called when a guitar cannot go on stage at all
+ * @param {() => object|null} [options.other] the rig of another instrument chosen for the Whole instrument view
+ *   (a bass guitar: see stage/otherRigs.js), or null when none is chosen or it is not built yet
+ * @param {(rig: object) => void} [options.onOther] called when that rig goes on stage
  */
-export function guitarViews(run, { drawn, full, maxFret, latest, onState, onShow, onBroken }) {
+export function guitarViews(run, { drawn, full, maxFret, latest, onState, onShow, onBroken, other = () => null, onOther = () => {} }) {
   let model = null, loading = false, failed = false, abandoned = false, modelShown = false;
   const wantsWhole = () => latest.current.view === 'freePlay' && latest.current.stageView === 'whole';
   const show = () => {
-    const next = wantsWhole() && model ? model : drawn;
+    const whole = wantsWhole(), chosen = whole ? other() : null;
+    const next = chosen ?? (whole && model ? model : drawn);
     if (run.rig === next) return;
     onShow();
     try {
       run.show(next);
       if (next === model) modelShown = true;
+      if (next === chosen) onOther(chosen);
     } catch (error) { onBroken(error.message); }
   };
   // Shaders compiled and textures uploaded now spare the first switch to Whole instrument a stall.

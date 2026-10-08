@@ -4,12 +4,16 @@ import { guitarFeedback } from '../lib/instrumentView.js';
 import { noteName } from '../lib/theory.js';
 import { chordFullName, chordTone } from '../lib/guitarPresentation.js';
 import { useStageView } from '../hooks/useStageView.js';
+import { BASS_STRINGS, buildModelGuitarRig } from '../lib/guitarModelRig.js';
 import { buildGuitarRig } from '../lib/guitarRig.js';
 import { dotLook, hoverText, stageLabels } from '../lib/guitarStageView.js';
 import { guitarViews } from '../lib/guitarViews.js';
+import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
+import { otherRigs } from '../lib/stage/otherRigs.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
-import { createStudio } from '../lib/stage/studio.js';
+import { createStudio, disposeResources } from '../lib/stage/studio.js';
+import { findModel } from '../lib/stageModels.js';
 import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
 import StageViewSwitch from './StageViewSwitch.jsx';
@@ -24,6 +28,10 @@ const MODEL_WAIT_MS = 1500;
 const NOTICE_MS = 6000;
 
 const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
+/** The model the guitar is played on; the whole-instrument view can show others (stageModels.js). */
+const PLAYED = 'guitar';
+/** How another instrument of the guitar's family is strung. */
+const STRING_SETS = Object.freeze({ 'guitar-bass': BASS_STRINGS });
 
 /** The next unplayed note of the lesson, or undefined once it is finished. */
 function nextNote(engine, piece) {
@@ -63,12 +71,13 @@ function paintDots(rig, shown, { active, positions, next, chord, hovered, focuse
  * Lights each sounding string and lets it swing about where it rests, dying away, unless motion is reduced.
  *
  * @param {Map<object, boolean>} lit whether each string was lit last frame; updated in place
- * @returns {boolean} whether anything moved or changed, so the stage needs drawing again
+ * @returns {{ changed: boolean, sounding: number }} whether anything moved or changed, so the stage needs drawing again, and how many strings are sounding
  */
 function paintStrings(rig, lit, { active, positions, still, now }) {
-  let changed = false;
+  let changed = false, count = 0;
   rig.strings.forEach((wire, s) => {
     const entry = positions.get(s), sounding = !!entry && active.has(entry.midi);
+    if (sounding) count += 1;
     if (sounding !== !!lit.get(wire)) {
       lit.set(wire, sounding);
       changed = true;
@@ -79,7 +88,25 @@ function paintStrings(rig, lit, { active, positions, still, now }) {
     const y = wire.userData.restY + (swinging ? Math.sin(now * 0.065 + s) * 0.012 * Math.exp(-(now - entry.at) / 400) : 0);
     if (wire.position.y !== y) { wire.position.y = y; changed = true; }
   });
-  return changed;
+  return { changed, sounding: count };
+}
+
+/**
+ * The rig of another instrument for the whole-instrument view, or null when
+ * its files could not be loaded: its own strings, drawn so they move, each
+ * answering to the guitar string of the same name.
+ */
+async function otherGuitar(id, maxFret) {
+  const model = await loadInstrumentModel(id);
+  if (!model) return null;
+  const owned = newOwned();
+  try {
+    return { ...buildModelGuitarRig({ owned, maxFret, model, strings: STRING_SETS[id] }), owned, maxFret, model: id };
+  } catch (error) {
+    disposeResources(owned);
+    disposeResources(collectResources(model.scene));
+    throw error;
+  }
 }
 
 /** The guitar built in code, with the resources it owns. */
@@ -95,7 +122,7 @@ function drawnRig({ maxFret, lacquered }) {
  */
 function guitarHooks(el, latest, hover) {
   const shown = new WeakMap(), lit = new WeakMap(), calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let tally = '', labelled = null;
+  let tally = '', labelled = null, ringing = -1;
   return {
     paint(rig, now) {
       const { engine, score, chord, labelMode, labelSize, focusPosition, activePositions } = latest.current;
@@ -103,11 +130,13 @@ function guitarHooks(el, latest, hover) {
       const dots = paintDots(rig, shown, { active, positions, next: nextNote(engine, score), chord, hovered: hover.place, focused: focusPosition });
       const counted = `${dots.counts.held}|${dots.counts.possible}|${dots.counts.target}`;
       if (counted !== tally) { tally = counted; Object.assign(el.dataset, { heldPositions: dots.counts.held, possiblePositions: dots.counts.possible, targetPositions: dots.counts.target }); }
-      const moved = paintStrings(rig, lit, { active, positions, still: calm.matches, now });
+      const strings = paintStrings(rig, lit, { active, positions, still: calm.matches, now });
+      // How many of the strings on stage are sounding: a bass has four to answer the guitar's six.
+      if (strings.sounding !== ringing) { ringing = strings.sounding; el.dataset.soundingStrings = ringing; }
       const wanted = [chord, labelMode, labelSize];
       const relabel = !labelled || wanted.some((value, i) => value !== labelled[i]);
       if (relabel) labelled = wanted;
-      return { changed: dots.changed || moved, relabel };
+      return { changed: dots.changed || strings.changed, relabel };
     },
     labels(rig, { project, width, stringBand }) {
       const { chord, labelMode, leftHanded, labelSize } = latest.current;
@@ -181,12 +210,19 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
   // The downloaded guitar: 'unavailable' on the light tier, otherwise 'idle', 'loading', 'ready' or 'failed'.
   const [modelState, setModelState] = useState('unavailable');
   const views = useRef(null);
-  latest.current = { engine, score, onPluck, onContextLost, leftHanded, flip: leftHanded ? -1 : 1, chord, activePositions, focusPosition, labelMode, labelSize, view, stageView, closeUp: stageView !== 'whole' };
+  // Which instrument the Whole instrument view shows: the guitar that is played, or another the stage rigs (a bass).
+  const [wholeModel, setWholeModel] = useState(PLAYED);
+  // Another instrument's rig is being fetched and built; the guitar stays on stage meanwhile.
+  const [preparing, setPreparing] = useState('');
+  const [stageNotice, setStageNotice] = useState('');
+  latest.current = { engine, score, onPluck, onContextLost, leftHanded, flip: leftHanded ? -1 : 1, chord, activePositions, focusPosition, labelMode, labelSize, view, stageView, closeUp: stageView !== 'whole', wholeModel };
   const [notice, clearNotice] = useModelNotice(modelState, latest, setStageView);
   // The switch stays after a failed download, so focus is not lost and Whole instrument can try again.
   const offersWhole = view === 'freePlay' && modelState !== 'unavailable';
   const wholeGuitar = offersWhole && stageView === 'whole';
-  const status = wholeGuitar && ['idle', 'loading'].includes(modelState) ? 'Preparing the 3D guitar…' : notice;
+  const status = wholeGuitar && preparing ? `Preparing the ${findModel(preparing)?.label.toLowerCase() ?? 'instrument'}…`
+    : wholeGuitar && wholeModel === PLAYED && ['idle', 'loading'].includes(modelState) ? 'Preparing the 3D guitar…' : notice;
+  const stage = id => { setStageNotice(''); setWholeModel(id); };
   const chooseView = value => {
     clearNotice();
     if (value === 'whole') views.current?.retry();
@@ -224,18 +260,37 @@ export default function GuitarStage({ engine, score, onPluck, onContextLost, lef
       console.warn('[stage] a guitar could not go on stage, falling back to the 2D trainer:', why);
       latest.current.onContextLost(why);
     };
-    const switcher = guitarViews(run, { drawn: first, full, maxFret, latest, onState: setModelState, onShow: () => { pointed.place = null; setHover(''); }, onBroken: broken });
+    const others = otherRigs({
+      build: id => otherGuitar(id, maxFret),
+      onReady: () => views.current?.apply(),
+      onFailed: (id, why) => {
+        console.warn(`[stage] the ${id} model could not go on stage, keeping the guitar:`, why);
+        setPreparing('');
+        setWholeModel(PLAYED);
+        setStageNotice(`The ${findModel(id)?.label.toLowerCase() ?? 'instrument'} could not be shown. The acoustic guitar is back on the stage.`);
+      },
+    });
+    // Asked for only in the Whole instrument view: the chosen instrument's rig once it is built.
+    const other = () => {
+      const id = latest.current.wholeModel;
+      const rig = id === PLAYED ? null : others.get(id);
+      setPreparing(id !== PLAYED && !rig ? id : '');
+      return rig;
+    };
+    const switcher = guitarViews(run, { drawn: first, full, maxFret, latest, onState: setModelState, onShow: () => { pointed.place = null; setHover(''); }, onBroken: broken, other, onOther: rig => others.staged(rig) });
     views.current = switcher;
     switcher.apply();
-    return () => { switcher.stop(); if (views.current === switcher) views.current = null; unwatch(); run.stop(); };
+    return () => { switcher.stop(); if (views.current === switcher) views.current = null; others.stop(); unwatch(); run.stop(); };
   }, [theme, maxFret, quality]);
-  // Entering free play fetches the model; choosing a view puts its guitar on stage.
-  useEffect(() => { views.current?.apply(); }, [view, stageView]);
+  // Entering free play fetches the model; choosing a view, or another instrument for it, puts that one on stage.
+  useEffect(() => { views.current?.apply(); }, [view, stageView, wholeModel]);
+  // Leaving the whole-instrument view ends any wait for another instrument.
+  useEffect(() => { if (stageView !== 'whole' || view !== 'freePlay') setPreparing(''); }, [view, stageView]);
   return <div className="guitar-stage" ref={host} role="group" aria-label="Three-dimensional guitar fretboard" data-view={view}>
     <div className="guitar-stage-top"><div><strong>{chord ? chordFullName(chord) : 'Fretboard'}</strong><span>{chord ? 'Open-position voicing' : 'Standard tuning · E A D G B E'}</span></div>{chord && <div className="guitar-open-picks" role="group" aria-label="Play open strings"><span>OPEN STRINGS</span>{[0,1,2,3,4,5].map(s=><button key={s} aria-label={'Play open string '+(6-s)+': '+noteName(GUITAR_TUNING[s])} onClick={()=>onPluck({string:s,fret:0})}>{noteName(GUITAR_TUNING[s])}</button>)}</div>}</div>
     <StageLabels labels={labels} labelSize={labelSize} />
     <div className="stage-status" role="status">{status}</div>
-    <WholeModels instrument="guitar" active={wholeGuitar} quality={quality} />
+    <WholeModels instrument="guitar" active={wholeGuitar} quality={quality} staged={wholeModel} onStage={stage} stageNotice={stageNotice} />
     <div className="guitar-stage-bottom"><span className="guitar-stage-legend">{chord && <><i className="root"/>Root </>}<i className="played"/>Played <i className="next"/>{chord?'Hover':'Next note'}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={wholeGuitar ? 'whole' : 'learn'} onChange={chooseView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint">{hover||(wholeGuitar?'Drag to turn · Learn to play the frets':turnable?'Click between frets to play · drag to turn':'Click between frets to play · ○ open string')}</span></span></div>
   </div>;
 }

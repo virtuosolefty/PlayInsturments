@@ -25,8 +25,12 @@ const credit = model => {
 
 /** Standing as it was made: up is the model's y. */
 const UPRIGHT = [[0, 1], [1, 1], [2, 1]];
-/** Made lying along x with its head toward +x and its top toward +y: stood on its tail, its top toward the viewer. */
-const LYING_ALONG_X = [[2, 1], [0, 1], [1, 1]];
+/**
+ * For an instrument that is played, made lying along x with its head toward
+ * +x and its top toward +y: turned half round, so the stage's x runs from the
+ * head to the body.
+ */
+const HEAD_TOWARD_X = { lengthAxis: 0, headAt: 'max', axes: [[0, -1], [1, 1], [2, -1]] };
 
 /**
  * A model that is only shown (showcase.mjs): `axes` stands it up, and `view`
@@ -36,6 +40,7 @@ const LYING_ALONG_X = [[2, 1], [0, 1], [1, 1]];
  */
 const shown = (model, { axes = UPRIGHT, view, imageSize = 1024, omit = () => false }) => ({
   showcase: true,
+  lean: true,
   credit: credit(model),
   axes,
   view,
@@ -96,10 +101,54 @@ export const RECIPES = {
     imageSize: (image, role) => (image.includes('mat01') && role === 'baseColor' ? 2048 : role === 'metallicRoughness' && image.includes('mat02') ? 512 : 1024),
   },
 
-  // Shown in the whole-instrument view, never played. Each reads models-src/<id>/scene.gltf.
-  'guitar-bass': shown('guitar-bass', { axes: LYING_ALONG_X, view: { azimuthDeg: 20, elevationDeg: 10 } }),
-  'violin-electric': shown('violin-electric', { view: { azimuthDeg: 20, elevationDeg: 10 } }),
-  'cello-antique': shown('cello-antique', { axes: LYING_ALONG_X, view: { azimuthDeg: 20, elevationDeg: 10 }, imageSize: (image, role) => (role === 'baseColor' && image.includes('Body') ? 2048 : 1024) }),
+  // The instruments the whole-instrument view offers beside the three above. Each reads
+  // models-src/<id>/scene.gltf. These three are played there, so they are measured and
+  // their strings replaced, exactly as above.
+
+  'guitar-bass': {
+    credit: credit('guitar-bass'),
+    ...HEAD_TOWARD_X,
+    lean: true,
+    strings: 4,
+    // Each string is a mesh of its own, far longer and thinner than anything else; the neck is as long but far wider.
+    classify: (piece, model) => (share(piece, 0, model) > 0.6 && share(piece, 1, model) < 0.03 && share(piece, 2, model) < 0.04 ? 'string' : `part${piece.primIndex}`),
+    // One string measures three times too thick, and it is the highest.
+    rightHanded: true,
+    // Twenty slivers of wire across the neck, each a separate piece of twenty triangles; the nut beside them has twelve.
+    frets: (piece, model) => piece.triangles === 20 && share(piece, 0, model) < 0.006 && share(piece, 2, model) > 0.03 && share(piece, 2, model) < 0.07,
+    imageSize: () => 1024,
+  },
+
+  'violin-electric': {
+    credit: credit('violin-electric'),
+    // Model: standing along y with the scroll at the top, front facing +z, as the cello above.
+    lengthAxis: 1,
+    headAt: 'max',
+    axes: [[1, -1], [2, 1], [0, -1]],
+    lean: true,
+    strings: 4,
+    // Its strings are all one gauge.
+    rightHanded: true,
+    classify: (piece, model) => (share(piece, 1, model) > 0.6 && share(piece, 0, model) < 0.04 ? 'string' : 'frame'),
+    imageSize: () => 1024,
+  },
+
+  'cello-antique': {
+    credit: credit('cello-antique'),
+    ...HEAD_TOWARD_X,
+    lean: true,
+    strings: 4,
+    // Its strings are all one gauge.
+    rightHanded: true,
+    classify(piece, model) {
+      // The material "String" also covers the tail gut and the fine tuners; a string is the long one.
+      if (piece.material === 'String') return share(piece, 0, model) > 0.5 ? 'string' : 'fittings';
+      return { Body: 'body', Body_NONE: 'body', Bridge: 'bridge', Fingerboard: 'fingerboard', Neck: 'neck' }[piece.material] ?? 'fittings';
+    },
+    imageSize: (image, role) => (role === 'baseColor' && image.includes('Body') ? 2048 : 1024),
+  },
+
+  // These two are only shown, never played (showcase.mjs).
   'drums-acoustic': shown('drums-acoustic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
   // Its pads face the drummer, who sits toward −z: seen from that side and above, as on its box.
   // A lead trails a kit's width across the floor to a plug (the parts named EDK-T14): framed with it, the kit is half the size.

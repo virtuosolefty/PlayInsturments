@@ -3,7 +3,7 @@
  *
  * Opens each instrument in free play at full detail, selects Whole instrument,
  * chooses each model in turn and photographs the stage without its labels and
- * buttons. Writes public/media/models/<id>.webp, 640×400. Needs the dev
+ * buttons: on the stage's own rig where it has one, in the viewer otherwise. Writes public/media/models/<id>.webp, 640×400. Needs the dev
  * server running, and the machine's own graphics card: the full stage is a
  * frame or two a second in software.
  *
@@ -11,7 +11,7 @@
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { chromium } from '@playwright/test';
-import { STAGE_MODELS } from '../src/lib/stageModels.js';
+import { STAGE_MODELS, isStaged } from '../src/lib/stageModels.js';
 import { toWebp } from './models/images.mjs';
 
 const URL = process.argv[2] ?? 'http://localhost:5173/';
@@ -49,8 +49,12 @@ try {
         await chooser.waitFor();
       }
       await page.locator('.model-card', { has: page.getByText(model.label, { exact: true }) }).click();
-      if (model.played) await page.locator('.model-viewer').waitFor({ state: 'detached' });
-      else await page.locator('.model-viewer[data-ready="true"]').waitFor({ timeout: 60000 });
+      if (!isStaged(model)) await page.locator('.model-viewer[data-ready="true"]').waitFor({ timeout: 60000 });
+      else {
+        await page.locator('.model-viewer').waitFor({ state: 'detached' });
+        // The string stages say which model is on their rig; the drum kit that is played is built in code.
+        if (!model.builtIn) await page.waitForFunction(id => document.querySelector('.guitar-stage')?.dataset.stageModel === id, model.id, { timeout: 60000 });
+      }
       // The camera swings to the whole instrument; let it settle and the textures arrive.
       await page.waitForTimeout(3000);
       const bare = await page.addStyleTag({ content: BARE });

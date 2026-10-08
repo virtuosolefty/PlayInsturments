@@ -7,23 +7,100 @@
     "source": "https://sketchfab.com/3d-models/electric-violin-71813d2dc6414a0c93b1523d329aba23",
     "license": "CC BY 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-    "line": "\"Electric Violin\" (https://sketchfab.com/3d-models/electric-violin-71813d2dc6414a0c93b1523d329aba23) by Belzar Sirus (https://sketchfab.com/belzar.sirus), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: scaled and re-encoded for Practice Deck."
+    "line": "\"Electric Violin\" (https://sketchfab.com/3d-models/electric-violin-71813d2dc6414a0c93b1523d329aba23) by Belzar Sirus (https://sketchfab.com/belzar.sirus), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: the strings between nut and bridge replaced, scaled and re-encoded for Practice Deck."
   },
-  "showcase": true,
-  "view": {
-    "azimuthDeg": 20,
-    "elevationDeg": 10
-  },
+  "nutX": -6.05,
+  "scaleLength": 24.1,
+  "strings": [
+    {
+      "nut": [
+        -6.05,
+        0,
+        0.4784
+      ],
+      "bridge": [
+        18.05,
+        3.2243,
+        1.484
+      ],
+      "radius": 0.0544
+    },
+    {
+      "nut": [
+        -6.05,
+        0,
+        0.1473
+      ],
+      "bridge": [
+        18.05,
+        3.7149,
+        0.4357
+      ],
+      "radius": 0.0544
+    },
+    {
+      "nut": [
+        -6.05,
+        0,
+        -0.1581
+      ],
+      "bridge": [
+        18.05,
+        3.7149,
+        -0.5529
+      ],
+      "radius": 0.0544
+    },
+    {
+      "nut": [
+        -6.05,
+        0,
+        -0.4676
+      ],
+      "bridge": [
+        18.05,
+        3.2243,
+        -1.492
+      ],
+      "radius": 0.0545
+    }
+  ],
   "bounds": {
     "min": [
-      -4.4116,
-      0,
-      -2.3047
+      -13.1507,
+      -4.8531,
+      -8.2858
     ],
     "max": [
-      4.4116,
-      24,
-      2.3047
+      31.8986,
+      3.799,
+      8.2759
     ]
+  },
+  "parts": {
+    "frame": {
+      "min": [
+        -13.1507,
+        -4.8531,
+        -8.2858
+      ],
+      "max": [
+        31.8986,
+        3.799,
+        8.2759
+      ]
+    },
+    "stringEnds": {
+      "min": [
+        -10.0528,
+        -3.9646,
+        -1.5686
+      ],
+      "max": [
+        23.1541,
+        3.793,
+        1.5607
+      ]
+    }
   }
 }
