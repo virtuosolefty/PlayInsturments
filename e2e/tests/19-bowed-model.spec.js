@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { onlyPlayedModels } from '../helpers/models.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -18,6 +19,8 @@ const viewButton = (page, name) => page.getByRole('group', { name: 'Stage view' 
 const notes = page => page.evaluate(() => window.__notes.map(m => `${m.type}:${m.midi}`));
 
 async function open(page, instrument, stageQuality) {
+  // These tests are about the instrument that is played; choosing another to look at is spec 21.
+  await onlyPlayedModels(page);
   await page.addInitScript(([inst, quality]) => {
     localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: inst, countInBars: 0, stageQuality: quality } }));
   }, [instrument, stageQuality]);

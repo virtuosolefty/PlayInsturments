@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { onlyPlayedModels } from '../helpers/models.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -24,6 +25,8 @@ const inside = (inner, outer) => inner.x >= outer.x - 0.5 && inner.x + inner.wid
 
 /** Opens the guitar studio at the given 3D detail. The full stage's first frame takes seconds in software. */
 async function open(page, stageQuality) {
+  // These tests are about the guitar that is played; choosing another to look at is spec 21.
+  await onlyPlayedModels(page);
   await page.addInitScript(quality => {
     localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: 'guitar', countInBars: 0, stageQuality: quality } }));
   }, stageQuality);
@@ -34,7 +37,7 @@ async function open(page, stageQuality) {
 function collectErrors(page) {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
-  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority/.test(message.text())) errors.push(message.text()); });
+  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority|Failed to load resource.*404/.test(message.text())) errors.push(message.text()); });
   return errors;
 }
 
