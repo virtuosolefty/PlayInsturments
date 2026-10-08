@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { isStringed, normalizeInstrument, stringKit } from '../lib/instruments.js';
+import { instrumentKit, normalizeInstrument, usesKit } from '../lib/instruments.js';
+import { playedMidi } from './usePracticeEngine.js';
 import { loadScoreFromUrl } from '../lib/score.js';
 import { midiInput } from '../lib/midiInput.js';
 import { dayKey } from '../lib/streaks.js';
 import { webglAvailable } from '../lib/webgl.js';
-import { learningRecord, lessonSettings, recommendedLesson, lessonOutcome, comfortableRate, lessonCanVisit, lessonReady } from '../lib/learning.js';
+import { learningRecord, lessonSettings, recommendedLesson, lessonOutcome, comfortableRate, lessonCanVisit, lessonReady, lessonWords } from '../lib/learning.js';
 
 const scores = new Map();
 function loadLesson(entry) {
-  if (isStringed(entry.instrument)) return Promise.resolve(entry);
+  if (usesKit(entry.instrument)) return Promise.resolve(entry);
   if (!scores.has(entry.id)) scores.set(entry.id, loadScoreFromUrl(entry.url, entry)
     .then(score => ({ ...score, composer: entry.composer, description: entry.description }))
     .catch(error => { scores.delete(entry.id); throw error; }));
@@ -19,7 +20,7 @@ function loadLesson(entry) {
  * separately from engine grades; it can never award stars or unlock a gate. */
 export function useLearningFlow({ settings, setSettings, library, path, score, engine, onScore, onLeaveFreePlay, testSound }) {
   const instrument = normalizeInstrument(settings.practiceInstrument);
-  const kit = stringKit(instrument);
+  const kit = instrumentKit(instrument);
   const entries = kit ? kit.studies : library;
   const record = learningRecord(settings.learning?.[instrument]);
   const recommendedId = recommendedLesson(path.state);
@@ -130,7 +131,7 @@ export function useLearningFlow({ settings, setSettings, library, path, score, e
     return midiInput.onMessage(message => {
       if (message.type !== 'noteon' || message.velocity <= 0) return;
       const first = latest.current.score?.notes[0];
-      if (message.midi + (latest.current.settings.inputTranspose ?? 0) !== first?.midi) { setNoteHint(`You played a different note. Look for ${first?.name}. Take your time.`); return; }
+      if (playedMidi(latest.current.settings, message.midi) !== first?.midi) { setNoteHint(lessonWords(latest.current.settings.practiceInstrument).different(first?.name)); return; }
       const nextStep = latest.current.record.quick ? 'follow' : 'listen';
       update({ firstNoteDone: true, step: nextStep });
       setSettings(s => ({ ...s, ...lessonSettings(nextStep, latest.current.record.rate) }));

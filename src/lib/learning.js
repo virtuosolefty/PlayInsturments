@@ -1,5 +1,6 @@
 import { atTempo, PASS_STARS, MASTER_STARS } from './path.js';
 import { bowedStringName } from './bowed.js';
+import { drumInstruction } from './drums.js';
 
 export const LESSON_STEPS = [
   { id: 'sound', label: 'Sound' }, { id: 'note', label: 'First note' },
@@ -64,6 +65,7 @@ export function lessonReady({ active, lesson, loading, error, score }) {
 export function noteInstruction(note, instrument) {
   if (!note) return 'Preparing your first note…';
   const id = instrument === true ? 'guitar' : instrument;
+  if (id === 'drums') return drumInstruction(note);
   if (id === 'guitar') return `${note.name} · string ${6 - note.string} · ${note.fret === 0 ? 'open (no finger)' : `fret ${note.fret} · finger ${note.finger}`}`;
   if (id === 'violin' || id === 'cello') {
     const string = bowedStringName(id, note.string).note;
@@ -71,3 +73,20 @@ export function noteInstruction(note, instrument) {
   }
   return `${note.name}${note.finger ? ` · finger ${note.finger}` : ''}`;
 }
+
+const NOTE_WORDS = Object.freeze({
+  different: name => `You played a different note. Look for ${name}. Take your time.`,
+  follow: Object.freeze(['Find the notes. Take your time.', 'Press Play this step. The music waits until you play the next note or chord. Timing is not assessed here.']),
+  below: 'Or play this note on the instrument below.',
+  find: 'Now find the notes →',
+});
+const DRUM_WORDS = Object.freeze({
+  different: name => `That was a different drum. Look for ${name}. Take your time.`,
+  follow: Object.freeze(['Find each drum. Take your time.', 'Press Play this step. The music waits until you hit the next drum. Timing is not assessed here.']),
+  below: 'Or hit this drum on the kit below.',
+  find: 'Now find the drums →',
+  glossary: 'The kick is played with your foot and everything else with your hands. Each drum is the letter it starts with; H is the closed hi-hat and O the open one. A beat is the steady count, and tempo is how fast it moves. Use the on-screen kit, your computer keys or MIDI input; this app does not listen through a microphone.',
+});
+
+/** The words a lesson uses for what is played: a note on most instruments, a drum on the kit. */
+export const lessonWords = instrument => (instrument === 'drums' ? DRUM_WORDS : NOTE_WORDS);

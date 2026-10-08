@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { canonicalDrumMidi } from '../lib/drums.js';
 import { PracticeSession, NOTE_STATUS } from '../lib/matcher.js';
 import { Scheduler, Transport } from '../lib/transport.js';
 import { audio } from '../lib/audio.js';
@@ -104,6 +105,16 @@ export function referencePlaybackFor(settings) {
   if (settings.mode === MODES.LISTEN) return true;
   if (settings.mode === MODES.WAIT) return false;
   return !!settings.referenceAudio;
+}
+
+/**
+ * The note a message means. Pitched instruments take the input transpose; on
+ * the drums a controller's neighbouring General MIDI note counts as the drum
+ * the lessons are written in.
+ */
+export function playedMidi(cfg, midi) {
+  if (cfg.practiceInstrument === 'drums') return canonicalDrumMidi(midi) ?? midi;
+  return midi + (cfg.inputTranspose ?? 0);
 }
 
 export function usePracticeEngine(score, settings) {
@@ -487,7 +498,7 @@ export function usePracticeEngine(score, settings) {
       const cfg = settingsRef.current;
 
       if (msg.type === 'noteon') {
-        const midi = msg.midi + (cfg.inputTranspose ?? 0);
+        const midi = playedMidi(cfg, msg.midi);
         // Playing a key is the most natural "I'm ready" signal there is. Some
         // browsers still want a click first, which is what the banner is for.
         if (!audio.running) {
@@ -548,7 +559,7 @@ export function usePracticeEngine(score, settings) {
         pushEffect({ midi, type: verdict.type, severity: verdict.severity ?? 0 });
         bumpCombo(verdict.type);
       } else if (msg.type === 'noteoff') {
-        const midi = msg.midi + (cfg.inputTranspose ?? 0);
+        const midi = playedMidi(cfg, msg.midi);
         const instrument = instrumentFor(cfg);
         if (instrument === audio || cfg.forwardInput !== false) instrument.release(midi);
         activeInputRef.current.delete(midi);

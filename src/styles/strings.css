@@ -173,7 +173,7 @@
 .bow-card .bow-actions { margin:var(--sp-3) 0 0; }
 .bow-card .bow-actions button { flex:1; }
 
-/* Four instruments in the pickers. */
+/* Five instruments in the pickers. */
 .instrument-picker button span { white-space:nowrap; }
 /* On tighter desktops keep the names for assistive tech, show icons only. */
 @media (max-width: 1200px) and (min-width:901px) {

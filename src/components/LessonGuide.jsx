@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LESSON_STEPS, lessonCanVisit, noteInstruction } from '../lib/learning.js';
+import { LESSON_STEPS, lessonCanVisit, lessonWords, noteInstruction } from '../lib/learning.js';
 import { GUITAR_CHORDS } from '../lib/guitar.js';
 import { useGuitarInput } from '../hooks/useGuitarInput.js';
 import { playInput } from '../lib/playInput.js';
@@ -30,6 +30,7 @@ function LessonChords({ score, engine, step }) {
 export default function LessonGuide({ learning, engine, score, instrument = 'piano', onSetup, path, typingOctave = 0 }) {
   const guitar = instrument === 'guitar';
   const kit = stringKit(instrument);
+  const words = lessonWords(instrument);
   const { record, outcome } = learning;
   const [tipOpen, setTipOpen] = useState(false);
   const heading = useRef(null);
@@ -47,9 +48,9 @@ export default function LessonGuide({ learning, engine, score, instrument = 'pia
   const passed = ['passed','mastered'].includes(outcome?.kind);
   const copy = {
     sound: ['Let’s make a sound.', 'Play a test note, then confirm you can hear it. This checks the selected sound output.'],
-    note: ['Your first note.', guitar ? 'Pluck the highlighted string. An open string needs no finger on a fret.' : kit?.bowed ? 'Bow the highlighted string. Press and hold near the bridge for an open string.' : 'Find this note on the keyboard. You can click a key, use your computer keys, or play a MIDI controller.'],
+    note: ['Your first note.', instrument === 'drums' ? 'Hit the drum with the blue ring. Tap it on the kit, tap its pad, or press its letter.' : guitar ? 'Pluck the highlighted string. An open string needs no finger on a fret.' : kit?.bowed ? 'Bow the highlighted string. Press and hold near the bridge for an open string.' : 'Find this note on the keyboard. You can click a key, use your computer keys, or play a MIDI controller.'],
     listen: ['Hear the shape of it.', 'Press Listen to the phrase above. Watch where the notes land; you don’t need to play yet.'],
-    follow: ['Find the notes. Take your time.', 'Press Play this step. The music waits until you play the next note or chord. Timing is not assessed here.'],
+    follow: words.follow,
     practice: ['Give the phrase a rhythm.', 'Play at a comfortable speed. After the phrase, choose whether to repeat or raise the tempo a little.'],
     check: ['See what you’ve learned.', 'Play the full phrase in time at 100% speed. Three stars passes the exercise; four stars counts toward the next stage.'],
   }[record.step];
@@ -59,9 +60,9 @@ export default function LessonGuide({ learning, engine, score, instrument = 'pia
     <h2 ref={heading} tabIndex={-1}>{copy[0]}</h2><p className="lesson-instruction">{copy[1]}</p>
     {!learning.ready && <div role={learning.error ? 'alert' : 'status'} className="lesson-load-state"><strong>{learning.error || 'Preparing your lesson…'}</strong>{learning.error && <><button onClick={learning.retry}>Retry lesson</button><button onClick={onSetup}>Check sound setup</button></>}</div>}
     {learning.ready && record.step === 'sound' && <div className="lesson-actions"><button className="primary" disabled={learning.testing} onClick={learning.sendTest}>{learning.testing ? 'Sending test note…' : 'Play a test note'}</button>{learning.testSent && <><p role="status">Test note sent. Did you hear it?</p><button className="primary" onClick={learning.confirmSound}>I heard it</button></>}<button onClick={onSetup}>No sound? Check setup</button></div>}
-    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,instrument)}</strong><ComputerKey midi={first?.midi} instrument={instrument} typingOctave={typingOctave}/><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,isStringed(instrument)?{source:`${instrument}-screen`,string:first.string,fret:first.fret}:{});clearTimeout(firstNoteTimer.current);firstNoteTimer.current=setTimeout(()=>playInput.release('lesson-first-note'),kit?.bowed?900:400);}}>Play {first.name} on screen</button><small>Or play this note on the instrument below.</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
+    {learning.ready && record.step === 'note' && <div className="first-note-target"><span>LOOK FOR</span><strong>{noteInstruction(first,instrument)}</strong><ComputerKey midi={first?.midi} instrument={instrument} typingOctave={typingOctave}/><button onClick={() => {playInput.press('lesson-first-note',first.midi,.72,isStringed(instrument)?{source:`${instrument}-screen`,string:first.string,fret:first.fret}:{});clearTimeout(firstNoteTimer.current);firstNoteTimer.current=setTimeout(()=>playInput.release('lesson-first-note'),kit?.bowed?900:400);}}>Play {first.name} on screen</button><small>{words.below}</small>{record.quick&&<button onClick={onSetup}>No sound? Check setup</button>}</div>}
     {learning.noteHint && <p className="lesson-note-feedback" role="status">{learning.noteHint}</p>}
-    {record.step === 'listen' && record.listened && <div className="lesson-actions"><p className="lesson-success">✓ Demonstration completed</p><button className="primary" onClick={() => learning.goStep('follow')}>Now find the notes →</button></div>}
+    {record.step === 'listen' && record.listened && <div className="lesson-actions"><p className="lesson-success">✓ Demonstration completed</p><button className="primary" onClick={() => learning.goStep('follow')}>{words.find}</button></div>}
     {record.step === 'follow' && !record.followed && <NextNoteCard note={target ?? first} instrument={instrument} found={engine.summary?.hit ?? 0} total={score?.noteCount ?? 0} typingOctave={typingOctave}/>}
     {['follow','practice','check'].includes(record.step) && guitar && score && <LessonChords score={score} engine={engine} step={record.step}/>}
     {record.step === 'practice' && <div className="lesson-tempo"><label htmlFor="lesson-speed">Comfortable tempo <b>{Math.round(record.rate*100)}%</b></label><input id="lesson-speed" aria-label="Lesson practice speed" type="range" min=".4" max="1" step=".05" value={record.rate} disabled={engine.playing} onChange={e=>learning.changeRate(+e.target.value)}/><small>Tempo means speed. Adjust it between attempts.</small></div>}
@@ -72,6 +73,6 @@ export default function LessonGuide({ learning, engine, score, instrument = 'pia
     {outcome&&!passed&&record.step==='check'&&<button className="lesson-easier" onClick={()=>learning.goStep('follow')}>Take your time with the notes again</button>}
     {!record.quick&&<details className="lesson-requirement"><summary>{path.state.exercises[score?.id]?.passed ? '✓ Check passed · how mastery works' : 'How the next milestone works'}</summary><p>3 stars at 100% speed passes this exercise. Master each exercise with 4 stars to open the next stage. Guided practice is saved separately.</p></details>}
     <button className="lesson-tip-toggle" aria-expanded={tipOpen} onClick={()=>setTipOpen(v=>!v)}>A little help with the terms {tipOpen ? '−' : '+'}</button>
-    {tipOpen && <p className="lesson-glossary">{kit?.bowed ? `${kit.label} strings are numbered from the highest (1) to the lowest (4). Finger numbers describe your left hand: 1 index to 4 little finger; 0 is an open string. The tapes on the fingerboard mark first-position fingers. Use the on-screen fingerboard or MIDI input; this app does not listen through a microphone.` : guitar ? 'A fret is a space on the neck. String 1 is the thinnest, high E. Finger numbers describe your fretting hand. Use the on-screen guitar or MIDI input; this app does not listen through a microphone.' : 'C4 is middle C. Finger 1 is your thumb and 5 is your little finger. Notes name the pitch; tempo describes how fast the beat moves.'}</p>}
+    {tipOpen && <p className="lesson-glossary">{words.glossary ? words.glossary : kit?.bowed ? `${kit.label} strings are numbered from the highest (1) to the lowest (4). Finger numbers describe your left hand: 1 index to 4 little finger; 0 is an open string. The tapes on the fingerboard mark first-position fingers. Use the on-screen fingerboard or MIDI input; this app does not listen through a microphone.` : guitar ? 'A fret is a space on the neck. String 1 is the thinnest, high E. Finger numbers describe your fretting hand. Use the on-screen guitar or MIDI input; this app does not listen through a microphone.' : 'C4 is middle C. Finger 1 is your thumb and 5 is your little finger. Notes name the pitch; tempo describes how fast the beat moves.'}</p>}
   </section>;
 }

@@ -27,6 +27,13 @@ export function InstrumentIcon({ guitar = false, instrument = guitar ? 'guitar' 
       </svg>
     );
   }
+  if (instrument === 'drums') {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+        <ellipse cx="12" cy="9" rx="8" ry="3" /><path d="M4 9v7c0 1.7 3.6 3 8 3s8-1.3 8-3V9" /><path d="M8 11.6v7M16 11.6v7" /><path d="m3 3 7 5M21 3l-7 5" />
+      </svg>
+    );
+  }
   return instrument === 'guitar' ? (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m14 10 6-6 2 2-6 6M18 4l2 2M20 2l2 2M10 9c-3-2-4 1-4 3-4 0-5 4-2 7s7 2 7-2c2 0 5-1 3-4"/><circle cx="9" cy="14" r="2"/><path d="m5 17 2 2"/></svg>
   ) : (
@@ -71,6 +78,7 @@ export default function StudioHeader({ score, settings, onInstrumentChange, free
 export function stageCaption(instrument = 'piano', freePlay = false) {
   const stringed = isStringed(instrument), kit = stringKit(instrument);
   const name = instrumentInfo(instrument).label.toUpperCase();
+  if (instrument === 'drums') return { caption: freePlay ? name : 'DRUM LANES', description: freePlay ? 'Tap a drum, or press the letter it starts with' : 'Hit each drum as its tile reaches the line' };
   return {
     caption: freePlay ? name : !stringed ? 'PIANO ROLL' : kit.bowed ? `${name} FINGERS` : 'GUITAR TAB',
     description: freePlay ? (kit?.bowed ? 'Press and hold a place to bow it' : 'Click a note or play your controller')

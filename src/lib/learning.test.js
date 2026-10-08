@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings, noteInstruction, lessonReady } from './learning.js';
+import { lessonOutcome, recommendedLesson, learningRecord, lessonCanVisit, comfortableRate, lessonSettings, noteInstruction, lessonReady, lessonWords } from './learning.js';
 import { pathState, dailySet, STAGES } from './path.js';
 import { GUITAR_PATH_STAGES, GUITAR_STUDIES } from './guitar.js';
 const run = (stars=4, mode='practice',rate=1) => ({stars,mode,rate});
@@ -88,3 +88,31 @@ describe('note instructions for each instrument', () => {
   });
 });
 
+
+describe('the words a lesson uses for what is played', () => {
+  it('speaks of notes on a pitched instrument', () => {
+    for (const instrument of ['piano', 'guitar', 'violin', 'cello']) {
+      const words = lessonWords(instrument);
+      expect(words.different('C4')).toBe('You played a different note. Look for C4. Take your time.');
+      expect(words.follow[0]).toBe('Find the notes. Take your time.');
+      expect(words.find).toBe('Now find the notes →');
+      expect(words.glossary).toBeUndefined();
+    }
+  });
+
+  it('speaks of drums on the kit', () => {
+    const words = lessonWords('drums');
+    expect(words.different('Kick')).toBe('That was a different drum. Look for Kick. Take your time.');
+    expect(words.follow[0]).toBe('Find each drum. Take your time.');
+    expect(words.follow[1]).toContain('until you hit the next drum');
+    expect(words.below).toBe('Or hit this drum on the kit below.');
+    expect(words.find).toBe('Now find the drums →');
+    // A drummer is not told where middle C is.
+    expect(words.glossary).toContain('kick');
+    expect(words.glossary).not.toContain('C4');
+  });
+
+  it('falls back to notes for an instrument it does not know', () => {
+    expect(lessonWords(undefined)).toBe(lessonWords('piano'));
+  });
+});

@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
-  INSTRUMENTS, instrumentForStudy, instrumentInfo, isStringed, normalizeInstrument, stringKit, studyIdFor,
+  INSTRUMENTS, instrumentForStudy, instrumentInfo, instrumentKit, isStringed, normalizeInstrument, stringKit, studyIdFor, usesKit,
 } from './instruments.js';
 import { GUITAR_STUDIES } from './guitar.js';
+import { DRUM_STUDIES } from './drums.js';
 
 describe('instrument registry', () => {
-  it('lists piano, guitar, violin and cello in picker order', () => {
-    expect(INSTRUMENTS).toEqual(['piano', 'guitar', 'violin', 'cello']);
+  it('lists piano, guitar, violin, cello and drums in picker order', () => {
+    expect(INSTRUMENTS).toEqual(['piano', 'guitar', 'violin', 'cello', 'drums']);
     INSTRUMENTS.forEach(id => expect(instrumentInfo(id).label).toMatch(/^[A-Z]/));
   });
   it('falls back to piano for unknown or missing ids', () => {
@@ -17,6 +18,24 @@ describe('instrument registry', () => {
   it('treats every string instrument alike, and the piano apart', () => {
     expect(INSTRUMENTS.filter(isStringed)).toEqual(['guitar', 'violin', 'cello']);
     expect(stringKit('piano')).toBeNull();
+  });
+  it('gives the drums a kit of studies without calling them a string instrument', () => {
+    expect(isStringed('drums')).toBe(false);
+    expect(stringKit('drums')).toBeNull();
+    expect(INSTRUMENTS.filter(usesKit)).toEqual(['guitar', 'violin', 'cello', 'drums']);
+    const drums = instrumentKit('drums');
+    expect(drums.drums).toBe(true);
+    expect(drums.studies).toBe(DRUM_STUDIES);
+    expect(drums.studyKey).toBe('drumsStudyId');
+    expect(drums.firstLesson).toBe('drums-meet-the-kit');
+    expect(drums.pathStages.flatMap(stage => stage.exercises)).toEqual(DRUM_STUDIES.map(study => study.id));
+    expect(instrumentKit('guitar')).toBe(stringKit('guitar'));
+    expect(instrumentKit('piano')).toBeNull();
+  });
+  it('restores and finds drum studies like any other', () => {
+    expect(studyIdFor({}, 'drums')).toBe('drums-meet-the-kit');
+    expect(studyIdFor({ drumsStudyId: 'drums-backbeat' }, 'drums')).toBe('drums-backbeat');
+    expect(instrumentForStudy('drums-first-beat')).toBe('drums');
   });
   it('keeps the guitar studies and the saved guitar study key unchanged', () => {
     expect(stringKit('guitar').studies).toBe(GUITAR_STUDIES);

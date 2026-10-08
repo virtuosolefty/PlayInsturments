@@ -62,9 +62,26 @@ export class PracticeSession {
    */
   constructor(score, options = {}) {
     this.score = score;
+    // A score may name its own notes: a drum is "Snare", not "D2".
+    this.nameOf = (midi) => score?.noteNames?.[midi] ?? noteName(midi);
     this.options = { ...DEFAULTS, ...options };
     this.mode = options.mode === 'wait' ? 'wait' : 'timed';
     this.reset();
+  }
+
+  /**
+   * Why a note nothing in the score wanted is wrong. Pitched music gets the
+   * harmonic reading; a drum has no pitch to be close with, so it is simply
+   * the wrong drum.
+   */
+  _wrongNote(midi, expected) {
+    const verdict = classifyWrongNote(midi, expected, this.score.key);
+    if (this.score.instrument !== 'drums') return verdict;
+    const wanted = expected.map((m) => this.nameOf(m));
+    return {
+      ...verdict, chord: null, label: 'Wrong drum',
+      detail: wanted.length ? `${this.nameOf(midi)} here, but the beat wants ${wanted.join(' and ')}.` : `${this.nameOf(midi)} where the beat rests.`,
+    };
   }
 
   reset() {
@@ -164,7 +181,7 @@ export class PracticeSession {
         id: (eventSeq += 1),
         type: timing === 'onTime' || timing === 'untimed' ? 'correct' : 'timing',
         midi,
-        name: noteName(midi),
+        name: this.nameOf(midi),
         songTime,
         velocity,
         targetVelocity,
@@ -181,10 +198,10 @@ export class PracticeSession {
             : `${Math.abs(deltaMs)} ms ${timing === 'early' ? 'early' : 'late'}`,
         detail:
           (deltaMs === null
-            ? `${noteName(midi)}, correct.`
+            ? `${this.nameOf(midi)}, correct.`
             : timing === 'onTime'
-              ? `${noteName(midi)} on time.`
-              : `${noteName(midi)} landed ${Math.abs(deltaMs)} ms ${timing}.`) +
+              ? `${this.nameOf(midi)} on time.`
+              : `${this.nameOf(midi)} landed ${Math.abs(deltaMs)} ms ${timing}.`) +
           (touch
             ? ` Struck ${touch} than written (${Math.round(velocity * 127)} vs ${Math.round(targetVelocity * 127)}).`
             : ''),
@@ -195,18 +212,18 @@ export class PracticeSession {
 
     // Nothing in the score wanted this pitch here — work out why it's wrong.
     const expected = this.expectedAt(songTime);
-    const verdict = classifyWrongNote(midi, expected, this.score.key);
+    const verdict = this._wrongNote(midi, expected);
     const gate = this.currentGate;
     const event = this._emit({
       id: (eventSeq += 1),
       type: 'wrong',
       midi,
-      name: noteName(midi),
+      name: this.nameOf(midi),
       songTime,
       velocity,
       targetId: null,
       expected,
-      expectedNames: expected.map((m) => noteName(m)),
+      expectedNames: expected.map((m) => this.nameOf(m)),
       gateTime: gate?.time ?? null,
       kind: verdict.kind,
       severity: verdict.severity,

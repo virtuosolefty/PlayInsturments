@@ -5,7 +5,7 @@ import { MODEL_CREDITS } from '../lib/modelCredits.js';
 const SHORTCUTS = [
   ['Space', 'Play or pause'], ['0', 'Stop and save the run'], ['1', 'Listen mode'], ['2', 'Practice mode'], ['3', 'Wait for me'],
   ['[', 'Toggle passage loop'], [']', 'Toggle metronome'], ['\\', 'Hear the phrase / your turn'], ['← / →', 'Move through the piece'], ['↑ / ↓', 'Change tempo'],
-  ['A–J', 'Play the middle-C octave'], ['Z–M', 'Play the lower octave'], ['Esc', 'Close a panel or exit Focus'],
+  ['A–J', 'Play the middle-C octave'], ['Z–M', 'Play the lower octave'], ['K S H T M F C R O', 'On the drums: each letter is the drum it starts (O is the open hi-hat)'], ['Esc', 'Close a panel or exit Focus'],
 ];
 export default function HelpDialog({ onClose }) {
   const [query, setQuery] = useState('');

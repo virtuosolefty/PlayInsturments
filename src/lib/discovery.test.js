@@ -1,4 +1,6 @@
 import { describe,it,expect } from 'vitest';
+import { INSTRUMENTS, instrumentKit } from './instruments.js';
+import { COLLECTIONS as ALL_COLLECTIONS, FIRST_LESSON as FIRST_LESSONS, pieceDetails as detailsOf, sharedLessonUrl as lessonUrl } from './discovery.js';
 import { weeklyPractice,collectionEntries,pieceDetails,sharedLessonUrl,COLLECTIONS } from './discovery.js';
 import { lessonCanVisit,lessonOutcome } from './learning.js';
 import { GUITAR_STUDIES } from './guitar.js';
@@ -31,5 +33,41 @@ describe('discovery, habit and first-phrase safeguards',()=>{
     expect(lessonCanVisit('note',{quick:true})).toBe(true);expect(lessonCanVisit('follow',{quick:true})).toBe(false);
     expect(lessonCanVisit('follow',{quick:true,firstNoteDone:true})).toBe(true);expect(lessonCanVisit('check',{quick:true,firstNoteDone:true})).toBe(false);
     expect(lessonOutcome({mode:'wait',rate:1,grade:{complete:true,stars:5}}).kind).toBe('guided');
+  });
+});
+
+describe('every instrument on the learning home', () => {
+  it('has a first lesson and collections to browse', () => {
+    for (const instrument of INSTRUMENTS) {
+      expect(FIRST_LESSONS[instrument], instrument).toBeTruthy();
+      expect(ALL_COLLECTIONS[instrument]?.length, instrument).toBeGreaterThan(0);
+    }
+  });
+
+  it('fills a kit instrument\'s collections from its own studies, each one once', () => {
+    for (const instrument of INSTRUMENTS) {
+      const kit = instrumentKit(instrument);
+      if (!kit) continue;
+      const studies = new Set(kit.studies.map(study => study.id));
+      const listed = ALL_COLLECTIONS[instrument].flatMap(collection => collection.ids);
+      expect(studies.has(FIRST_LESSONS[instrument]), instrument).toBe(true);
+      for (const id of listed) expect(studies.has(id), id).toBe(true);
+      expect(new Set(listed).size, instrument).toBe(listed.length);
+    }
+  });
+
+  it('describes a drum lesson by what it teaches', () => {
+    const kit = instrumentKit('drums');
+    expect(ALL_COLLECTIONS.drums.flatMap(collection => collection.ids).sort()).toEqual(kit.studies.map(study => study.id).sort());
+    const first = detailsOf(kit.studies[0]);
+    expect(first.skill).toBe('Find every drum and cymbal');
+    expect(first.level).toBe('First steps');
+    expect(detailsOf(kit.studies.at(-1)).level).toBe('Building confidence');
+  });
+
+  it('shares a drum lesson with a link that opens the drums', () => {
+    const url = new URL(lessonUrl('drums', 'drums-backbeat', 'https://example.test', '/'));
+    expect(url.searchParams.get('instrument')).toBe('drums');
+    expect(url.searchParams.get('lesson')).toBe('drums-backbeat');
   });
 });

@@ -1,6 +1,6 @@
 import { addDays, dayKey, dayCounts } from './streaks.js';
 
-export const FIRST_LESSON = { piano: 'path-01-home-five-right', guitar: 'guitar-open-strings', violin: 'violin-open-strings', cello: 'cello-open-strings' };
+export const FIRST_LESSON = { piano: 'path-01-home-five-right', guitar: 'guitar-open-strings', violin: 'violin-open-strings', cello: 'cello-open-strings', drums: 'drums-meet-the-kit' };
 export const COLLECTIONS = {
   piano: [
     { id: 'first', title: 'First melodies', description: 'Familiar tunes, in manageable arrangements.', ids: ['twinkle-mini', 'amazing-grace', 'beethoven-fifth'] },
@@ -21,6 +21,11 @@ export const COLLECTIONS = {
     { id: 'first', title: 'Your first cello notes', description: 'Bow the open strings, then find your first fingers.', ids: ['cello-open-strings', 'cello-d-string-fingers', 'cello-g-string'] },
     { id: 'short', title: 'Your first scales', description: 'Low and warm: C major and D major.', ids: ['cello-c-major', 'cello-d-major'] },
     { id: 'tune', title: 'A tune to share', description: 'Twinkle, Twinkle on the D and A strings.', ids: ['cello-twinkle'] },
+  ],
+  drums: [
+    { id: 'first', title: 'Your first drum hits', description: 'Find every drum, then keep a steady pulse.', ids: ['drums-meet-the-kit', 'drums-steady-kick', 'drums-backbeat'] },
+    { id: 'short', title: 'Hands and foot together', description: 'Hi-hat eighths, then all three drums in one beat.', ids: ['drums-eighth-hats', 'drums-first-beat'] },
+    { id: 'tune', title: 'A beat to show off', description: 'A bar of your beat, a fill round the drums, and a crash.', ids: ['drums-beat-and-fill'] },
   ],
 };
 const SKILLS = {
@@ -49,11 +54,17 @@ const SKILLS = {
   'cello-c-major': ['Play C major from the lowest string', 'The first-position frame'],
   'cello-d-major': ['Play D major on the upper strings', 'C major scale'],
   'cello-twinkle': ['Play Twinkle, Twinkle', 'Fingers on D and A'],
+  'drums-meet-the-kit': ['Find every drum and cymbal', 'No experience needed'],
+  'drums-steady-kick': ['Keep an even beat on the kick', 'Find the kick'],
+  'drums-backbeat': ['Answer the kick with the snare', 'A steady kick'],
+  'drums-eighth-hats': ['Play eighth notes on the hi-hat', 'Count one-and, two-and'],
+  'drums-first-beat': ['Put kick, snare and hi-hat together', 'Hi-hat eighths and the backbeat'],
+  'drums-beat-and-fill': ['Leave the beat for a fill and land on the crash', 'Your first beat'],
 };
 export function pieceDetails(entry) {
   if (!entry) return { skill: '', needs: '', level: '', length: '' };
-  const [skill, needs] = SKILLS[entry.id] ?? [entry.description, entry.instrument === 'guitar' ? 'Comfortable finding strings and frets' : entry.instrument === 'violin' || entry.instrument === 'cello' ? 'Comfortable bowing the open strings' : 'Comfortable finding notes on the keyboard'];
-  const difficulty = entry.difficulty ?? (['guitar-chord-changes','guitar-a-minor','guitar-chromatic','violin-g-major','violin-twinkle','cello-d-major','cello-twinkle'].includes(entry.id) ? 2 : 1);
+  const [skill, needs] = SKILLS[entry.id] ?? [entry.description, entry.instrument === 'guitar' ? 'Comfortable finding strings and frets' : entry.instrument === 'violin' || entry.instrument === 'cello' ? 'Comfortable bowing the open strings' : entry.instrument === 'drums' ? 'Comfortable finding each drum' : 'Comfortable finding notes on the keyboard'];
+  const difficulty = entry.difficulty ?? (['guitar-chord-changes','guitar-a-minor','guitar-chromatic','violin-g-major','violin-twinkle','cello-d-major','cello-twinkle','drums-first-beat','drums-beat-and-fill'].includes(entry.id) ? 2 : 1);
   const seconds = Math.ceil(entry.approxDuration ?? entry.duration ?? 0);
   return { skill, needs, level: difficulty === 1 ? 'First steps' : difficulty === 2 ? 'Building confidence' : 'A new challenge', length: seconds ? `${seconds}s of music` : 'Short study' };
 }
@@ -73,7 +84,7 @@ export function weeklyPractice(days = {}, goal = 3, today = dayKey()) {
 }
 export function sharedLessonUrl(instrument, id, origin = window.location.origin, base = import.meta.env.BASE_URL) {
   const url = new URL(base,origin);
-  url.searchParams.set('instrument', ['guitar', 'violin', 'cello'].includes(instrument) ? instrument : 'piano');
+  url.searchParams.set('instrument', ['guitar', 'violin', 'cello', 'drums'].includes(instrument) ? instrument : 'piano');
   url.searchParams.set('lesson',id);
   return url.href;
 }

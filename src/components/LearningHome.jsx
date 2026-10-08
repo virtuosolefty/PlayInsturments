@@ -46,7 +46,7 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
   return <main className="learning-home" aria-labelledby="learning-home-title">
     <div className="learning-home-inner">
       <header className="learning-home-heading">
-        <div><h2 id="learning-home-title" ref={heading} tabIndex={-1}>{resume?'A little more music today.':'A clear path to your first song.'}</h2><p>{resume?`Pick up ${current.title} where you left off. Your place is waiting.`:'Find your notes, play a phrase, and make it your own.'}</p></div>
+        <div><h2 id="learning-home-title" ref={heading} tabIndex={-1}>{resume?'A little more music today.':'A clear path to your first song.'}</h2><p>{resume?`Pick up ${current.title} where you left off. Your place is waiting.`:(instrument==='drums'?'Find each drum, play a beat, and make it your own.':'Find your notes, play a phrase, and make it your own.')}</p></div>
         <div className="learning-instruments" role="group" aria-label="Learning instrument">{INSTRUMENTS.map(value => <button key={value} aria-pressed={instrument === value} onClick={() => onInstrument(value)}><InstrumentIcon instrument={value}/>{instrumentInfo(value).label}</button>)}</div>
       </header>
       {dailyComplete && <div className="daily-finished" role="status"><strong>Today’s practice is complete.</strong><span>You worked through {record.daily.ids.length} {record.daily.ids.length === 1 ? 'piece' : 'pieces'}. Your next lesson is ready whenever you are.</span></div>}
@@ -57,7 +57,7 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
           <p className="next-skill">{detail.skill || 'Find your first note and build a short phrase, one step at a time.'}</p>
           <div className="next-piece-facts"><span>{detail.level}</span><span>{detail.length}</span><span>{resume?`Next: ${{sound:'check your sound',note:'find your first note',listen:'hear the phrase',follow:'follow the notes',practice:'build your rhythm',check:'check your progress'}[record.step]}`:'No rush. The notes can wait.'}</span></div>
           {record.completed[current?.id]?.comfortableRate > 0 && <p className="comfortable-best">Your best comfortable tempo: {Math.round(record.completed[current.id].comfortableRate * 100)}%</p>}
-          <div className="lesson-method"><span>01 <b>Hear it</b></span><span>02 <b>Find the notes</b></span><span>03 <b>Build a rhythm</b></span></div>
+          <div className="lesson-method"><span>01 <b>Hear it</b></span><span>02 <b>{instrument==='drums'?'Find the drums':'Find the notes'}</b></span><span>03 <b>Build a rhythm</b></span></div>
           <button className="primary" disabled={!current} onClick={() => learning.startLesson(current.id)}>{resume ? 'Continue learning' : record.lessonId ? 'Start the next lesson' : 'Start my first lesson'} <span aria-hidden="true">→</span></button>
           <div className="next-secondary"><button disabled={!current} onClick={()=>preview.play(current)}>{preview.id===current?.id?(preview.loading?'Loading preview…':'■ Stop preview'):'▷ Hear a short preview'}</button><button disabled={!current} onClick={share}>Copy lesson link</button></div>
           <span className="learning-save-note">{storageProblem?'Your browser could not save recent changes. This session may not be available after you leave.':'Your place is saved on this device. Nothing starts until you’re ready.'}</span>

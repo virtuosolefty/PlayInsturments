@@ -16,6 +16,7 @@
  */
 
 import * as Tone from 'tone';
+import { buildDrumVoice } from './drumVoice.js';
 import { getSamplePack } from './vault.js';
 
 export const INSTRUMENT_SOURCES = {
@@ -38,7 +39,7 @@ const SALAMANDER_SAMPLES = {
 };
 
 const midiToName = (midi) => Tone.Frequency(midi, 'midi').toNote();
-const VOICES = ['piano', 'guitar', 'violin', 'cello'];
+const VOICES = ['piano', 'guitar', 'violin', 'cello', 'drums'];
 
 class AudioEngine {
   constructor() {
@@ -379,6 +380,7 @@ class AudioEngine {
   _buildVoice(type) {
     if (type === 'guitar') return this._buildGuitar();
     if (type === 'violin' || type === 'cello') return this._buildBowed(type);
+    if (type === 'drums') return { instrument: buildDrumVoice(Tone, this.reverb), source: INSTRUMENT_SOURCES.SYNTH, label: 'Drums · synthesized' };
     return this._buildSynth();
   }
 
