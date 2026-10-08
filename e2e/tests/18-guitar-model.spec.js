@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { onlyPlayedModels } from '../helpers/models.js';
+import { collectErrors, seedSettings } from '../helpers/studio.js';
+
+/** The browser's own note of a file a test serves as missing. */
+const MISSING_FILE = /Failed to load resource.*404/;
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -25,25 +28,14 @@ const inside = (inner, outer) => inner.x >= outer.x - 0.5 && inner.x + inner.wid
 
 /** Opens the guitar studio at the given 3D detail. The full stage's first frame takes seconds in software. */
 async function open(page, stageQuality) {
-  // These tests are about the guitar that is played; choosing another to look at is spec 21.
-  await onlyPlayedModels(page);
-  await page.addInitScript(quality => {
-    localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: 'guitar', countInBars: 0, stageQuality: quality } }));
-  }, stageQuality);
+  await seedSettings(page, { renderer: 'gl', practiceInstrument: 'guitar', stageQuality }, { everyLoad: true });
   await page.goto('/');
   await expect(stage(page).locator('canvas')).toBeVisible({ timeout: 60_000 });
 }
 
-function collectErrors(page) {
-  const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
-  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority|Failed to load resource.*404/.test(message.text())) errors.push(message.text()); });
-  return errors;
-}
-
 test('lessons and Learn play the drawn guitar; Whole instrument shows the downloaded one', async ({ page }) => {
   test.slow();
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, { ignore: MISSING_FILE });
   await open(page, 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-tier', 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-model', 'drawn');
@@ -67,6 +59,8 @@ test('lessons and Learn play the drawn guitar; Whole instrument shows the downlo
   await expect.poll(() => page.evaluate(() => window.__notes.find(m => m.type === 'noteon')?.midi), { timeout: 30_000 }).toBe(59);
 
   await viewButton(page, 'Whole instrument').click();
+  // The pop-up offers the other instruments (spec 21); this test keeps the guitar that is played.
+  await page.getByRole('dialog', { name: 'Whole instrument' }).locator('.model-card', { has: page.getByText('Acoustic guitar', { exact: true }) }).click();
   await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
   await expect(stage(page)).toHaveAttribute('data-stage-model', 'guitar', { timeout: 60_000 });
   // The whole guitar is too small to label.
@@ -91,7 +85,7 @@ test('the light stage keeps the guitar built in code, with no other view to swit
 
 test('when the model cannot be loaded, free play keeps the drawn guitar, says so, and keeps the switch to try again', async ({ page }) => {
   test.slow();
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, { ignore: MISSING_FILE });
   await page.route('**/models/guitar.glb', route => route.fulfill({ status: 404, body: '' }));
   await open(page, 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-tier', 'full');

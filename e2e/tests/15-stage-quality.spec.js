@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 
 const stage = page => page.locator('.guitar-stage');
 const detail = page => page.getByRole('group', { name: '3D detail' });
@@ -27,9 +28,7 @@ async function chooseDetail(page, name) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: 'guitar', countInBars: 0 } }));
-  });
+  await seedSettings(page, { renderer: 'gl', practiceInstrument: 'guitar' });
   await page.goto('/');
   await expect(stage(page).locator('canvas')).toBeVisible();
 });

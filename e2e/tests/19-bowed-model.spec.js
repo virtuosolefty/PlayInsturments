@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { onlyPlayedModels } from '../helpers/models.js';
+import { collectErrors, seedSettings } from '../helpers/studio.js';
+
+/** The browser's own note of a file a test serves as missing. */
+const MISSING_FILE = /Failed to load resource.*404/;
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -19,26 +22,15 @@ const viewButton = (page, name) => page.getByRole('group', { name: 'Stage view' 
 const notes = page => page.evaluate(() => window.__notes.map(m => `${m.type}:${m.midi}`));
 
 async function open(page, instrument, stageQuality) {
-  // These tests are about the instrument that is played; choosing another to look at is spec 21.
-  await onlyPlayedModels(page);
-  await page.addInitScript(([inst, quality]) => {
-    localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: inst, countInBars: 0, stageQuality: quality } }));
-  }, [instrument, stageQuality]);
+  await seedSettings(page, { renderer: 'gl', practiceInstrument: instrument, stageQuality }, { everyLoad: true });
   await page.goto('/');
   await expect(page.locator('.bowed-workspace')).toBeVisible({ timeout: 60_000 });
   await page.evaluate(async () => { window.__notes = []; (await import('/src/lib/midiInput.js')).midiInput.onMessage(m => window.__notes.push(m)); });
 }
 
-function collectErrors(page) {
-  const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
-  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority|Failed to load resource.*404/.test(message.text())) errors.push(message.text()); });
-  return errors;
-}
-
 test('on the full stage the violin is the downloaded model, mapped for lessons and whole in free play', async ({ page }) => {
   test.slow();
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, { ignore: MISSING_FILE });
   await open(page, 'violin', 'full');
   await expect(stage(page)).toHaveAttribute('data-stage-model', 'violin', { timeout: 60_000 });
   // V3: string names down the edge, each with its number and octave, and a number over each first-position tape.
@@ -53,6 +45,8 @@ test('on the full stage the violin is the downloaded model, mapped for lessons a
   await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
   // The whole violin is too small to label.
   await viewButton(page, 'Whole instrument').click();
+  // The pop-up offers the other instruments (spec 21); this test keeps the violin that is played.
+  await page.getByRole('dialog', { name: 'Whole instrument' }).locator('.model-card', { has: page.getByText('Violin', { exact: true }) }).click();
   await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
   await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
   await viewButton(page, 'Learn').click();
@@ -94,7 +88,7 @@ test('the light stage keeps the 2D fingerboard for the violin and the cello', as
 
 test('a cello that cannot be loaded gives way to the 2D fingerboard', async ({ page }) => {
   test.slow();
-  const errors = collectErrors(page);
+  const errors = collectErrors(page, { ignore: MISSING_FILE });
   await page.route('**/models/cello.glb', route => route.fulfill({ status: 404, body: '' }));
   await open(page, 'cello', 'full');
   await expect(page.getByRole('group', { name: 'Playable cello fingerboard' })).toBeVisible({ timeout: 60_000 });

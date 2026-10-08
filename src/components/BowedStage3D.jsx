@@ -5,7 +5,7 @@ import { bowedLabels, placeText } from '../lib/bowedStageView.js';
 import { dotLook } from '../lib/guitarStageView.js';
 import { guitarFeedback } from '../lib/instrumentView.js';
 import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
-import { otherRigs } from '../lib/stage/otherRigs.js';
+import { loadRig, otherRigs, rigFrom } from '../lib/stage/otherRigs.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
 import { createStudio, disposeResources } from '../lib/stage/studio.js';
@@ -16,7 +16,6 @@ import StageViewSwitch from './StageViewSwitch.jsx';
 import WholeModels from './WholeModels.jsx';
 
 const NO_POSITIONS = new Map();
-const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
 /** A bowed string sustains: it shimmers for as long as the bow is on it, rather than dying away as a plucked one does. */
 const SHIMMER = Object.freeze({ speed: 0.09, size: 0.006 });
 
@@ -143,14 +142,14 @@ function bringModel(run, { kit, maxFret, lacquered, onReady, onFailed }) {
   loadInstrumentModel(kit.id).then(model => {
     if (abandoned) { if (model) disposeResources(collectResources(model.scene)); return; }
     if (!model) { onFailed(`the ${kit.label.toLowerCase()} model could not be loaded`); return; }
-    const owned = newOwned();
+    let rig = null;
     try {
-      const rig = { ...buildBowedRig({ owned, kit, maxFret, model, lacquered }), owned, maxFret, model: kit.id };
+      rig = rigFrom(model, kit.id, owned => ({ ...buildBowedRig({ owned, kit, maxFret, model, lacquered }), maxFret }));
       run.swap(rig);
       onReady(rig);
     } catch (error) {
-      disposeResources(owned);
-      disposeResources(collectResources(model.scene));
+      // A rig that was built but could not go on stage is still this function's to dispose; it owns the model too.
+      if (rig) disposeResources(rig.owned);
       onFailed(error.message);
     }
   });
@@ -163,18 +162,7 @@ function bringModel(run, { kit, maxFret, lacquered, onReady, onFailed }) {
  * not be loaded. It is strung, fingered and bowed as the instrument on stage
  * is, so its strings shimmer and its bow plays; its own finish is left alone.
  */
-async function otherBowed(id, kit, maxFret) {
-  const model = await loadInstrumentModel(id);
-  if (!model) return null;
-  const owned = newOwned();
-  try {
-    return { ...buildBowedRig({ owned, kit, maxFret, model, lacquered: false }), owned, maxFret, model: id };
-  } catch (error) {
-    disposeResources(owned);
-    disposeResources(collectResources(model.scene));
-    throw error;
-  }
-}
+const otherBowed = (id, kit, maxFret) => loadRig(id, (owned, model) => ({ ...buildBowedRig({ owned, kit, maxFret, model, lacquered: false }), maxFret }));
 
 /**
  * The violin or cello in 3D: concepts V3 and C3 in lessons, V1 and C1 in free

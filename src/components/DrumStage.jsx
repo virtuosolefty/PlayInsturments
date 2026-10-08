@@ -5,8 +5,9 @@ import { DRUM_PIECES, drumForMidi } from '../lib/drums.js';
 import { midiInput } from '../lib/midiInput.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { createStudio } from '../lib/stage/studio.js';
+import { NO_TURN, attachTurntable, isTurned } from '../lib/stage/turntable.js';
 import { STAGE_COLORS, STAGE_THEME } from '../lib/stageColors.js';
-import { useAvailableModels } from '../hooks/useAvailableModels.js';
+import { otherModels } from '../lib/stageModels.js';
 import { useStageView } from '../hooks/useStageView.js';
 import StageViewSwitch from './StageViewSwitch.jsx';
 import WholeModels from './WholeModels.jsx';
@@ -14,19 +15,18 @@ import WholeModels from './WholeModels.jsx';
 /** The kit from the drummer's stool, looking down at the heads. */
 const SHOT = Object.freeze({ azimuthDeg: 0, elevationDeg: 34 });
 const VIEW = Object.freeze({ fovDeg: 30 });
-/** How far free play lets the view be turned, in radians. */
-const TURN = Object.freeze({ yaw: 0.7, pitch: [-0.22, 0.3] });
+/** How far free play lets the view be turned, in radians, on the stage's turntable (turntable.js). */
+const TURN = Object.freeze({ yaw: Object.freeze([-0.7, 0.7]), pitch: Object.freeze([-0.22, 0.3]) });
 const FLASH_MS = 280;
 /** A stage narrower than this, or any stage on a phone or tablet, shows its names without their key badges. */
 const TIGHT = 460;
 const TOUCH_WIDTH = '(max-width: 900px)';
 const isTight = el => el.clientWidth < TIGHT || (globalThis.matchMedia?.(TOUCH_WIDTH).matches ?? false);
 const FLASH_COLORS = Object.freeze({ correct: STAGE_COLORS.hit, timing: STAGE_COLORS.late, wrong: STAGE_COLORS.miss, free: STAGE_COLORS.hitLine });
-const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 /** The pieces on the model to hit next: every drum of the next beat that is still to be played. */
-export function nextOnModel(engine, score, freePlay) {
+function nextOnModel(engine, score, freePlay) {
   if (freePlay) return new Set();
   const now = Math.max(0, engine.transportRef.current?.now() ?? 0);
   const waiting = (engine.sessionRef.current?.targets ?? score.notes).filter(note => (note.status ?? 'pending') === 'pending' && note.time >= now - 0.12);
@@ -66,8 +66,7 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
   // The other kits are downloaded models, which are for the full tier, as on the string stages.
   const [full, setFull] = useState(false);
   const [stageView, setStageView] = useStageView(freePlay ? 'freePlay' : 'lesson');
-  const kits = useAvailableModels('drums', freePlay && full);
-  const offersWhole = freePlay && full && kits.length > 1;
+  const offersWhole = freePlay && full && otherModels('drums').length > 0;
   const whole = offersWhole && stageView === 'whole';
   // Another kit is being shown over this one: it is there to look at, not to hit.
   const [looking, setLooking] = useState(false);
@@ -93,9 +92,8 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
     setFull(studio.tier === STAGE_TIERS.FULL);
 
     const shot = { box: kit.box, ...SHOT };
-    const turn = { yaw: 0, pitch: 0 };
     const flashes = new Map();
-    let dirty = true, marked = '', lastTime = 0, drag = null, raf = 0, stopped = false;
+    let dirty = true, marked = '', lastTime = 0, raf = 0, stopped = false, turn = NO_TURN;
 
     const placeLabels = () => {
       const project = studio.projector(kit.group);
@@ -115,7 +113,7 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
     const flash = (id, type = 'free', strength = 0.8) => {
       const piece = kit.pieces.get(modelPieceFor(id));
       if (!piece) return;
-      flashes.set(piece.id, { at: performance.now(), color: FLASH_COLORS[type] ?? FLASH_COLORS.free, strength: clamp(strength, 0.3, 1) });
+      flashes.set(piece.id, { at: performance.now(), color: FLASH_COLORS[type] ?? FLASH_COLORS.free, strength: Math.min(1, Math.max(0.3, strength)) });
       dirty = true;
     };
     const settle = piece => {
@@ -172,34 +170,34 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
       flash(piece.id, verdict, message.velocity);
     });
 
+    // Only free play turns the kit, and only by the floor: a press on a drum is a hit.
+    const table = attachTurntable(canvas, {
+      limits: () => (latest.current.freePlay ? TURN : null),
+      canGrab: event => !studio.pick(event, kit.targets),
+      onTurn: next => {
+        turn = next;
+        setTurned(isTurned(next));
+        if (studio.aim(shot, { view: VIEW, turn })) { placeLabels(); dirty = true; }
+      },
+      reducedMotion,
+    });
     const onDown = event => {
       if (event.button > 0) return;
       const struck = studio.pick(event, kit.targets);
-      if (struck) { event.preventDefault(); latest.current.onHit(struck.userData.piece); return; }
-      if (!latest.current.freePlay) return;
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY, yaw: turn.yaw, pitch: turn.pitch };
-      canvas.setPointerCapture?.(event.pointerId);
+      if (struck) { event.preventDefault(); latest.current.onHit(struck.userData.piece); }
     };
     const onMove = event => {
-      if (!drag) { canvas.style.cursor = studio.pick(event, kit.targets) ? 'pointer' : latest.current.freePlay ? 'grab' : ''; return; }
-      if (event.pointerId !== drag.id) return;
-      turn.yaw = clamp(drag.yaw - (event.clientX - drag.x) * 0.006, -TURN.yaw, TURN.yaw);
-      turn.pitch = clamp(drag.pitch + (event.clientY - drag.y) * 0.004, TURN.pitch[0], TURN.pitch[1]);
-      setTurned(true);
-      if (studio.aim(shot, { view: VIEW, turn })) { placeLabels(); dirty = true; }
+      if (!table.dragging) canvas.style.cursor = studio.pick(event, kit.targets) ? 'pointer' : latest.current.freePlay ? 'grab' : '';
     };
-    const onUp = event => { if (drag?.id === event.pointerId) drag = null; };
     const onLost = event => {
       event.preventDefault();
       console.warn('[stage] the 3D drum kit lost its graphics context, keeping to the pads');
       latest.current.onUnavailable('the graphics context was lost');
     };
-    reset.current = () => { turn.yaw = 0; turn.pitch = 0; setTurned(false); frame(); };
+    reset.current = () => table.reset();
 
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);
-    canvas.addEventListener('pointerup', onUp);
-    canvas.addEventListener('pointercancel', onUp);
     canvas.addEventListener('webglcontextlost', onLost);
     const resize = new ResizeObserver(frame);
     resize.observe(el);
@@ -214,8 +212,7 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
       off();
       canvas.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('pointermove', onMove);
-      canvas.removeEventListener('pointerup', onUp);
-      canvas.removeEventListener('pointercancel', onUp);
+      table.stop();
       canvas.removeEventListener('webglcontextlost', onLost);
       reset.current = () => {};
       delete el.dataset.ready;

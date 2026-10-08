@@ -8,11 +8,10 @@ import { BASS_STRINGS, buildModelGuitarRig } from '../lib/guitarModelRig.js';
 import { buildGuitarRig } from '../lib/guitarRig.js';
 import { dotLook, hoverText, stageLabels } from '../lib/guitarStageView.js';
 import { guitarViews } from '../lib/guitarViews.js';
-import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
-import { otherRigs } from '../lib/stage/otherRigs.js';
+import { loadRig, newOwned, otherRigs } from '../lib/stage/otherRigs.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
-import { createStudio, disposeResources } from '../lib/stage/studio.js';
+import { createStudio } from '../lib/stage/studio.js';
 import { findModel } from '../lib/stageModels.js';
 import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
@@ -27,7 +26,6 @@ const MODEL_WAIT_MS = 1500;
 /** How long the note that the 3D guitar could not be loaded stays up. */
 const NOTICE_MS = 6000;
 
-const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
 /** The model the guitar is played on; the whole-instrument view can show others (stageModels.js). */
 const PLAYED = 'guitar';
 /** How another instrument of the guitar's family is strung. */
@@ -96,18 +94,7 @@ function paintStrings(rig, lit, { active, positions, still, now }) {
  * its files could not be loaded: its own strings, drawn so they move, each
  * answering to the guitar string of the same name.
  */
-async function otherGuitar(id, maxFret) {
-  const model = await loadInstrumentModel(id);
-  if (!model) return null;
-  const owned = newOwned();
-  try {
-    return { ...buildModelGuitarRig({ owned, maxFret, model, strings: STRING_SETS[id] }), owned, maxFret, model: id };
-  } catch (error) {
-    disposeResources(owned);
-    disposeResources(collectResources(model.scene));
-    throw error;
-  }
-}
+const otherGuitar = (id, maxFret) => loadRig(id, (owned, model) => ({ ...buildModelGuitarRig({ owned, maxFret, model, strings: STRING_SETS[id] }), maxFret }));
 
 /** The guitar built in code, with the resources it owns. */
 function drawnRig({ maxFret, lacquered }) {

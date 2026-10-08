@@ -1,9 +1,10 @@
 import { watchSound } from '../helpers/sound.js';
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true });
 const instrument = (page, name) => page.getByRole('group', { name: 'Practice instrument' }).getByRole('button', { name, exact: true });
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => { if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { onboarded: true, countInBars: 0, settingsVersion: 5, renderer: 'canvas' } })); });
+  await seedSettings(page, { renderer: 'canvas' });
   await page.goto('/'); await expect(page.locator('.piece-title')).toContainText('C Major');
 });
 

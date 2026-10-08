@@ -1,5 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
-import { otherRigs } from './otherRigs.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('./models.js', () => ({ loadInstrumentModel: vi.fn(), collectResources: vi.fn() }));
+
+const { loadInstrumentModel, collectResources } = await import('./models.js');
+const { loadRig, newOwned, otherRigs, rigFrom } = await import('./otherRigs.js');
 
 const resource = () => ({ dispose: vi.fn() });
 const rigFor = id => ({ id, owned: { geometries: new Set([resource()]), materials: new Set([resource()]), textures: new Set([resource()]) } });
@@ -76,5 +80,47 @@ describe('the rigs of instruments shown in place of a stage\'s own', () => {
     expect(onReady).not.toHaveBeenCalled();
     expect(onFailed).not.toHaveBeenCalled();
     expect(rigs.get('bass')).toBeNull();
+  });
+});
+
+describe('building a rig on a downloaded model', () => {
+  const model = { scene: 'the model' };
+  let ofModel;
+  beforeEach(() => {
+    ofModel = { geometries: new Set([resource()]), materials: new Set(), textures: new Set([resource()]) };
+    collectResources.mockReset().mockReturnValue(ofModel);
+    loadInstrumentModel.mockReset();
+  });
+
+  it('starts every rig with nothing to its name', () => {
+    const first = newOwned(), second = newOwned();
+    expect(first).toEqual({ geometries: new Set(), materials: new Set(), textures: new Set() });
+    expect(second.geometries).not.toBe(first.geometries);
+  });
+
+  it('hands the builder what the rig will own and the model, and names the rig after it', () => {
+    const build = vi.fn(owned => { owned.geometries.add('a string'); return { strings: 4 }; });
+    const rig = rigFrom(model, 'guitar-bass', build);
+    expect(build).toHaveBeenCalledWith(rig.owned, model);
+    expect(rig).toMatchObject({ strings: 4, model: 'guitar-bass' });
+    expect(rig.owned.geometries.has('a string')).toBe(true);
+  });
+
+  it('disposes of what was made so far, and of the model, when the builder throws', () => {
+    const made = resource(), fromModel = [...ofModel.geometries, ...ofModel.textures];
+    expect(() => rigFrom(model, 'guitar-bass', owned => { owned.materials.add(made); throw new Error('no strings'); })).toThrow('no strings');
+    expect(made.dispose).toHaveBeenCalledTimes(1);
+    expect(collectResources).toHaveBeenCalledWith('the model');
+    for (const item of fromModel) expect(item.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetches the model first, and builds nothing when its files cannot be loaded', async () => {
+    const build = vi.fn(() => ({ strings: 4 }));
+    loadInstrumentModel.mockResolvedValueOnce(null);
+    expect(await loadRig('guitar-bass', build)).toBeNull();
+    expect(build).not.toHaveBeenCalled();
+    loadInstrumentModel.mockResolvedValueOnce(model);
+    expect(await loadRig('guitar-bass', build)).toMatchObject({ strings: 4, model: 'guitar-bass' });
+    expect(loadInstrumentModel).toHaveBeenLastCalledWith('guitar-bass');
   });
 });

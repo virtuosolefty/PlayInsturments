@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 import { watchSound } from '../helpers/sound.js';
 
 test.beforeEach(async ({ page }) => {
+  await seedSettings(page, { renderer: 'canvas' });
   await page.addInitScript(() => {
-    if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({version:1,songs:{},settings:{settingsVersion:5,onboarded:true,renderer:'canvas',countInBars:0}}));
     window.__testInput = {id:'test-input',name:'Test MIDI keyboard',state:'connected',onmidimessage:null};
     window.__sentOutput = [];
     const output = {id:'test-output',name:'Test synth',state:'connected',send: (message,time) => window.__sentOutput.push({message,time})};

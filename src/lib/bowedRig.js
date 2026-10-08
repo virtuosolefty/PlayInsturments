@@ -2,6 +2,7 @@ import { BoxGeometry, BufferGeometry, CylinderGeometry, Float32BufferAttribute, 
 import { BOWED_TAPES } from './bowed.js';
 import { buildBow } from './bowedBow.js';
 import { bowedNeck } from './bowedNeck.js';
+import { boxCorners } from './stage/framing.js';
 import { castShadows, lacquer } from './stage/modelFinish.js';
 import { collectResources } from './stage/models.js';
 
@@ -45,7 +46,6 @@ const SHOWCASE = {
 };
 const UP = new Vector3(0, 1, 0);
 
-const boxCorners = ({ min, max }) => [min[0], max[0]].flatMap(x => [min[1], max[1]].flatMap(y => [min[2], max[2]].map(z => [x, y, z])));
 const boundsOf = points => ({ min: [0, 1, 2].map(k => Math.min(...points.map(p => p[k]))), max: [0, 1, 2].map(k => Math.max(...points.map(p => p[k]))) });
 
 /** One string, a cylinder from its measured nut point to its measured bridge point, as thick as the model's own. */

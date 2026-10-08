@@ -1,8 +1,8 @@
 import { buildModelGuitarRig } from './guitarModelRig.js';
 import { collectResources, loadInstrumentModel } from './stage/models.js';
+import { rigFrom } from './stage/otherRigs.js';
 import { disposeResources } from './stage/studio.js';
 
-const newOwned = () => ({ geometries: new Set(), materials: new Set(), textures: new Set() });
 /** Runs `callback` at a quiet moment, so readying the model does not land on the frame that built it. */
 const whenQuiet = callback => (globalThis.requestIdleCallback ?? (fn => setTimeout(fn, 200)))(callback);
 
@@ -54,12 +54,9 @@ export function guitarViews(run, { drawn, full, maxFret, latest, onState, onShow
     run.release();
   };
   const build = loaded => {
-    const owned = newOwned();
     try {
-      return { ...buildModelGuitarRig({ owned, maxFret, model: loaded, lacquered: true }), owned, maxFret, model: 'guitar' };
+      return rigFrom(loaded, 'guitar', owned => ({ ...buildModelGuitarRig({ owned, maxFret, model: loaded, lacquered: true }), maxFret }));
     } catch (error) {
-      disposeResources(owned);
-      disposeResources(collectResources(loaded.scene));
       giveUp(error.message);
       return null;
     }

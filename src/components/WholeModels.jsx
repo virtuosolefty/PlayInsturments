@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import ModelChooser from './ModelChooser.jsx';
 import ModelViewer from './ModelViewer.jsx';
 import { modelCredit } from '../lib/modelCredits.js';
-import { isStaged, playedModel } from '../lib/stageModels.js';
-import { useAvailableModels } from '../hooks/useAvailableModels.js';
+import { isStaged, modelsFor, playedModel } from '../lib/stageModels.js';
 
 /**
  * Which instrument the whole-instrument view shows.
@@ -19,9 +18,8 @@ import { useAvailableModels } from '../hooks/useAvailableModels.js';
  *   the viewer (ModelViewer.jsx), and turned by dragging.
  *
  * Whatever is shown in place of the played instrument carries its maker's
- * credit. One that cannot be shown gives the stage back and says so. Only the
- * instruments whose files are there are offered (useAvailableModels.js); with
- * none but the one played, there is nothing to choose and no pop-up.
+ * credit. One that cannot be shown gives the stage back and says so. An
+ * instrument with nothing else to show has no pop-up.
  *
  * A stage renders this inside its own element, before its bottom bar, so the
  * view switch stays in reach above whatever is shown.
@@ -32,11 +30,11 @@ import { useAvailableModels } from '../hooks/useAvailableModels.js';
  * @param {'auto'|'full'|'light'} [props.quality]
  * @param {(showing: boolean) => void} [props.onShowing] told when the viewer takes, or gives back, the stage
  * @param {string} [props.staged] the id of the instrument the stage itself is showing; the played one unless given
- * @param {(id: string) => void} [props.onStage] asks the stage to show an instrument itself; without it, every other instrument goes to the viewer
+ * @param {(id: string) => void} [props.onStage] asks the stage to show an instrument itself: the played one, or one it rigs
  * @param {string} [props.stageNotice] what the stage has to say, e.g. that an instrument it was asked for could not be shown
  */
 export default function WholeModels({ instrument, active, quality = 'auto', onShowing, staged, onStage, stageNotice = '' }) {
-  const models = useAvailableModels(instrument, active);
+  const models = modelsFor(instrument);
   const played = playedModel(instrument);
   const [picked, setPicked] = useState(null);
   const [open, setOpen] = useState(false);
@@ -57,7 +55,7 @@ export default function WholeModels({ instrument, active, quality = 'auto', onSh
   const credit = other && modelCredit(other.id);
   const choose = id => {
     const model = models.find(each => each.id === id);
-    const toStage = !!onStage && isStaged(model);
+    const toStage = isStaged(model);
     setPicked(toStage ? null : id);
     // The stage shows the instrument it was asked for, or its own again beneath the viewer.
     onStage?.(toStage ? id : played.id);

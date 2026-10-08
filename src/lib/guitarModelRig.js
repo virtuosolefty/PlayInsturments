@@ -1,6 +1,7 @@
 import { BoxGeometry, CylinderGeometry, Group, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, Raycaster, RingGeometry, Vector3 } from 'three';
 import { GUITAR_COLORS, guitarMidi } from './guitar.js';
 import { fretSpace, modelNeck } from './guitarNeck.js';
+import { boxCorners } from './stage/framing.js';
 import { castShadows, lacquer } from './stage/modelFinish.js';
 import { collectResources } from './stage/models.js';
 
@@ -24,7 +25,7 @@ const MIN_RADIUS = 0.009;
 /** E, A, D and G are bronze-wound; B and E are plain steel, as on the model's own string ends. */
 const WOUND_STRINGS = 4;
 /** The strings of an acoustic guitar: their gauges, the scale they are strung on, and how many, from the lowest, are wound. */
-export const ACOUSTIC_STRINGS = Object.freeze({ gauges: GAUGES_INCHES, scaleInches: SCALE_INCHES, wound: WOUND_STRINGS });
+const ACOUSTIC_STRINGS = Object.freeze({ gauges: GAUGES_INCHES, scaleInches: SCALE_INCHES, wound: WOUND_STRINGS });
 /** A bass guitar's: four wound strings, 45 to 105, on a 34 inch scale. */
 export const BASS_STRINGS = Object.freeze({ gauges: Object.freeze([0.105, 0.085, 0.065, 0.045]), scaleInches: 34, wound: 4 });
 const DOT_LIFT = 0.06;
@@ -167,7 +168,6 @@ export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false, 
 
 /** The G1 shot of the whole guitar: framed to its parts' boxes, which hug the narrow neck far closer than one box round everything. */
 function showcaseOf(fit) {
-  const corners = ({ min, max }) => [min[0], max[0]].flatMap(x => [min[1], max[1]].flatMap(y => [min[2], max[2]].map(z => [x, y, z])));
   const parts = Object.values(fit.parts ?? {});
-  return { box: fit.bounds, ...(parts.length && { keep: parts.flatMap(corners) }), ...SHOWCASE };
+  return { box: fit.bounds, ...(parts.length && { keep: parts.flatMap(boxCorners) }), ...SHOWCASE };
 }

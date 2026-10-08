@@ -13,10 +13,6 @@ import ModelChooser from './ModelChooser.jsx';
 import WholeModels from './WholeModels.jsx';
 import { modelsFor } from '../lib/stageModels.js';
 
-// Which of the instruments that are only shown have their files on the server.
-const server = vi.hoisted(() => ({ has: () => true }));
-vi.mock('../lib/stage/modelAvailability.js', () => ({ modelAvailable: async id => server.has(id) }));
-
 vi.mock('./ModelViewer.jsx', () => ({
   default: ({ model, onFailed }) => <div data-testid="viewer" data-model={model.id}><button onClick={() => onFailed('no graphics')}>break</button></div>,
 }));
@@ -31,7 +27,6 @@ const click = element => act(async () => { element.click(); });
 const viewer = () => container.querySelector('[data-testid="viewer"]');
 
 beforeEach(() => {
-  server.has = () => true;
   global.IS_REACT_ACT_ENVIRONMENT = true;
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -98,19 +93,6 @@ describe('the whole-instrument view\'s choice of instrument', () => {
     await render(<WholeModels instrument="piano" active />);
     expect(container.innerHTML).toBe('');
     expect(dialog()).toBeNull();
-  });
-
-  it('has no pop-up when only the instrument you play is there to see', async () => {
-    server.has = () => false;
-    await render(<WholeModels instrument="guitar" active />);
-    expect(dialog()).toBeNull();
-    expect(container.innerHTML).toBe('');
-  });
-
-  it('offers only the instruments whose files are there', async () => {
-    server.has = id => id === 'drums-electronic';
-    await render(<WholeModels instrument="drums" active />);
-    expect([...document.querySelectorAll('.model-card strong')].map(name => name.textContent)).toEqual(['Practice kit', 'Electronic kit']);
   });
 
   it('stays out of the way until Whole instrument is selected, then opens the pop-up', async () => {
@@ -226,9 +208,4 @@ describe('an instrument the stage plays in the whole-instrument view', () => {
     expect(container.querySelector('[role="status"]').textContent).toBe('The bass guitar could not be shown. The acoustic guitar is back on the stage.');
   });
 
-  it('goes to the viewer after all on a stage that cannot rig it', async () => {
-    await render(<WholeModels instrument="guitar" active />);
-    await click(card('Bass guitar'));
-    expect(viewer().dataset.model).toBe('guitar-bass');
-  });
 });

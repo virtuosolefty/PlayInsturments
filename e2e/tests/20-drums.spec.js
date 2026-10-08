@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { collectErrors, seedSettings } from '../helpers/studio.js';
 import { watchSound } from '../helpers/sound.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
@@ -24,19 +25,10 @@ const send = (page, midi) => page.evaluate(async note => {
 
 /** Opens the drums. `settings` adds to, or replaces, what a returning drummer has saved. */
 async function open(page, settings = {}) {
-  await page.addInitScript(saved => {
-    // Only the first load: a reload must find what the drummer left.
-    if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: saved }));
-  }, { settingsVersion: 5, onboarded: true, countInBars: 0, practiceInstrument: 'drums', renderer: 'canvas', learningView: 'studio', ...settings });
+  // Seeded on the first load only: a reload must find what the drummer left.
+  await seedSettings(page, { practiceInstrument: 'drums', renderer: 'canvas', learningView: 'studio', ...settings });
   await page.goto('/');
   if ((settings.learningView ?? 'studio') === 'studio') await expect(page.getByRole('region', { name: 'Drum studio' })).toBeVisible({ timeout: 30_000 });
-}
-
-function collectErrors(page) {
-  const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
-  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority/.test(message.text())) errors.push(message.text()); });
-  return errors;
 }
 
 test('the drums open with lanes to read, a 3D kit to hit and the pads a click away', async ({ page }) => {

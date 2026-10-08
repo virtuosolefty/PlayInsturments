@@ -1,6 +1,5 @@
-import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
-import { SHOWN_ONLY_MODEL } from '../helpers/models.js';
+import { collectErrors, seedSettings } from '../helpers/studio.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -12,16 +11,12 @@ import { chooseWorkspace as workspace } from '../helpers/workspace.js';
  * bass guitar's strings move, and the bow plays on the electric violin and the
  * antique cello. The two drum kits are only looked at, in the viewer.
  *
- * Most of these tests use the site's own files. The ones about a missing or a
- * broken instrument serve their own answers, with the cello that is always
- * there standing in for a model where one is needed.
+ * The tests use the site's own files; one serves a broken file in place of the
+ * bass guitar's.
  *
  * The stage is at full detail, which headless Chromium draws in software at a
  * frame or two a second, so every test has a long time to run.
  */
-
-const STAND_IN = readFileSync(new URL('../../public/models/cello.glb', import.meta.url));
-const SHOWN = { showcase: true, view: { azimuthDeg: 20, elevationDeg: 12 }, bounds: JSON.parse(readFileSync(new URL('../../public/models/cello.json', import.meta.url), 'utf8')).bounds };
 
 const stage = page => page.locator('.guitar-stage').first();
 const viewButton = (page, name) => page.getByRole('group', { name: 'Stage view' }).getByRole('button', { name, exact: true });
@@ -35,21 +30,8 @@ const hint = page => stage(page).locator('.guitar-stage-bottom .guitar-stage-hin
 const onStage = (page, id) => expect(stage(page)).toHaveAttribute('data-stage-model', id, { timeout: 90_000 });
 const pictured = (page, name) => expect.poll(() => card(page, name).locator('img').evaluate(image => image.naturalWidth), { message: `${name} has a picture` }).toBeGreaterThan(0);
 
-/** Serves `there` (model ids) from the stand-in, as models that are only shown, and answers every other one as missing. */
-async function serveModels(page, there, { brokenFiles = [] } = {}) {
-  await page.route(SHOWN_ONLY_MODEL, route => {
-    const [, id, kind] = route.request().url().match(/\/models\/([a-z-]+)\.(json|glb)$/);
-    if (!there.includes(id)) return route.fulfill({ status: 404, body: 'Not found' });
-    if (kind === 'json') return route.fulfill({ json: { name: id, ...SHOWN } });
-    if (brokenFiles.includes(id)) return route.fulfill({ status: 500, body: 'Broken' });
-    return route.fulfill({ body: STAND_IN, contentType: 'model/gltf-binary' });
-  });
-}
-
 async function open(page, instrument) {
-  await page.addInitScript(practiceInstrument => {
-    localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument, countInBars: 0, stageQuality: 'full', learningView: 'studio' } }));
-  }, instrument);
+  await seedSettings(page, { renderer: 'gl', practiceInstrument: instrument, stageQuality: 'full', learningView: 'studio' }, { everyLoad: true });
   await page.goto('/');
   await expect(stage(page).locator('canvas').first()).toBeVisible({ timeout: 60_000 });
 }
@@ -59,14 +41,6 @@ async function openWhole(page, instrument) {
   await open(page, instrument);
   await workspace(page, 'Free play');
   await viewButton(page, 'Whole instrument').click({ timeout: 60_000 });
-}
-
-function collectErrors(page) {
-  const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
-  // A request these tests answer as missing or broken is logged by the browser itself.
-  page.on('console', message => { if (message.type() === 'error' && !/fetchPriority|Failed to load resource/.test(message.text())) errors.push(message.text()); });
-  return errors;
 }
 
 /** Bows the open A string from the finger buttons, holding it for as long as `during` takes. */
@@ -210,20 +184,9 @@ test('both other drum kits load from the site\'s own files, to look at', async (
   expect(errors).toEqual([]);
 });
 
-test('with only the played instrument there, Whole instrument shows it without a pop-up', async ({ page }) => {
-  test.slow();
-  const errors = collectErrors(page);
-  await serveModels(page, []);
-  await openWhole(page, 'guitar');
-  await onStage(page, 'guitar');
-  await expect(chooser(page)).toHaveCount(0);
-  await expect(change(page)).toHaveCount(0);
-  expect(errors).toEqual([]);
-});
-
 test('an instrument that cannot be shown gives the stage back and says so', async ({ page }) => {
   test.slow();
-  await serveModels(page, ['guitar-bass'], { brokenFiles: ['guitar-bass'] });
+  await page.route('**/models/guitar-bass.glb', route => route.fulfill({ status: 500, body: 'Broken' }));
   await openWhole(page, 'guitar');
   await card(page, 'Bass guitar').click();
   await expect(page.locator('.model-notice')).toHaveText('The bass guitar could not be shown. The acoustic guitar is back on the stage.', { timeout: 30_000 });
@@ -235,13 +198,11 @@ test('an instrument that cannot be shown gives the stage back and says so', asyn
 test('a kit that is only looked at takes the stage in the viewer, and Learn gives the practice kit back', async ({ page }) => {
   test.slow();
   const errors = collectErrors(page);
-  await serveModels(page, ['drums-acoustic']);
   await open(page, 'drums');
   // A lesson has one kit: the one that is hit.
   await expect(page.getByRole('group', { name: 'Stage view' })).toHaveCount(0);
   await workspace(page, 'Free play');
   await viewButton(page, 'Whole instrument').click({ timeout: 60_000 });
-  await expect(cards(page).locator('strong')).toHaveText(['Practice kit', 'Acoustic kit']);
   await card(page, 'Acoustic kit').click();
   await expect(viewer(page)).toHaveAttribute('data-ready', 'true', { timeout: 60_000 });
   await expect(caption(page)).toContainText('art.katja');

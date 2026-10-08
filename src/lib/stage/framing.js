@@ -93,6 +93,9 @@ function projector({ position, target }, { fovDeg = DEFAULT_FOV, aspect }) {
  *   neck is far narrower than its body, so the box's corners beside the headstock are empty air
  * @returns {{ distance: number, position: number[], target: number[] }}
  */
+/** The eight corners of a box. */
+export const boxCorners = ({ min, max }) => [min[0], max[0]].flatMap(x => [min[1], max[1]].flatMap(y => [min[2], max[2]].map(z => [x, y, z])));
+
 export function frameBox({ min, max, aspect, fovDeg = DEFAULT_FOV, azimuthDeg = 0, elevationDeg = 30, margin = 1.06, flip = 1, bounds = FULL_SCREEN, keep = null }) {
   const valid = [0, 1, 2].every(k => Number.isFinite(min[k]) && Number.isFinite(max[k]) && max[k] >= min[k]);
   if (!valid || [0, 1, 2].every(k => max[k] === min[k])) throw new Error(`Cannot frame an empty box (${min} to ${max})`);
