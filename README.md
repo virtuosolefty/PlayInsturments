@@ -46,7 +46,7 @@ Your results and settings stay in the current browser. There is no account or cl
 - Guitar: on-screen fretboard, chord shapes, strum controls, and MIDI note input. On the 3D stage, lessons and free play's **Learn** view show the neck straight across, with each string numbered; at full detail, **Whole instrument** shows a 3D model of an acoustic guitar that you can turn by dragging. The 2D trainer is a rosewood fretboard with true fret spacing.
 - Violin and cello: on the 3D stage at full detail, 3D models with finger tapes, numbered finger markers and a bow that plays the sounding string; free play opens on **Learn**, and **Whole instrument** shows the violin at three-quarters and the cello standing on its endpin. Otherwise, a drawn fingerboard with finger tapes. Press and hold a place to bow it, drag along a string to slide, or bow near the bridge for an open string (keyboard: arrows, then hold Enter or Space). Six first-position lessons each, a finger chart in Learn mode, and a scale explorer in Free play.
 - Drums: a nine-piece kit (kick, snare, closed and open hi-hat, three toms, crash and ride). Lessons scroll as lanes, one a drum, each tile showing the key that plays it. Hit the 3D kit, the on-screen pads, the computer keys (each drum is the letter it starts with: K, S, H, O, T, M, F, C, R), or a pad controller or electronic kit sending the standard General MIDI drum notes. Six lessons from finding each drum to a beat with a fill, and a free-play kit you can turn by dragging the floor. The 3D kit is built in code, so there is no model to download; the drum sounds are synthesized.
-- Other instruments to look at: in free play at full detail, **Whole instrument** opens a pop-up with a picture of each instrument there is to see (a bass guitar, an electric violin, an antique cello, an acoustic and an electronic drum kit, as each is added). Choose one to see it whole and turn it; **Learn** goes back to the instrument you play.
+- Other instruments to look at: in free play at full detail, **Whole instrument** opens a pop-up with a picture of each instrument there is to see: a bass guitar, an electric violin, an antique cello, and an acoustic and an electronic drum kit. Choose one to see it whole and turn it; **Learn** goes back to the instrument you play. These five are for looking at; they have no lessons or sound of their own.
 - Light and dark themes, guided lessons, practice feedback, favourites, and local backups.
 - Three-dimensional piano, guitar, violin, cello and drum kit views with a simpler 2D trainer option. **Instrument settings → 3D detail** chooses Full (the 3D models), Light (the simpler built-in guitar and 2D violin and cello) or Auto, and says which is in use.
 
@@ -81,7 +81,7 @@ src/hooks/           React hooks
 src/lib/             Instruments, audio, scoring and storage logic, with unit tests
 src/lib/stage/       The 3D string stage: studio, framing, turning, model loading
 src/styles/          Stylesheets, loaded in order from src/main.jsx
-public/models/       The prepared 3D guitar, violin and cello (see CREDITS.md)
+public/models/       The prepared 3D instruments (see CREDITS.md)
 scripts/models/      Prepares downloaded models: node scripts/models/prepare.mjs
 ```
 
@@ -91,7 +91,7 @@ Run a focused suite with `npm run test:studio`, or `npx playwright test --config
 
 ## Credits
 
-The 3D guitar, violin and cello are free models from Sketchfab, used under the Creative Commons Attribution 4.0 licence. Their authors are credited in [CREDITS.md](CREDITS.md) and in the app under **Help**.
+The 3D instruments are free models from Sketchfab, used under the Creative Commons Attribution 4.0 licence. Their authors are credited in [CREDITS.md](CREDITS.md) and in the app under **Help**.
 
 ## Privacy
 

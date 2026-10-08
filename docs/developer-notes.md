@@ -25,8 +25,10 @@ Added October 2026. In free play at full detail, selecting **Whole instrument** 
   node scripts/shoot-models.mjs http://localhost:5173/ <id>
   ```
 
-  The first writes `public/models/<id>.glb` and `.json` (`showcase.mjs` stands the model on the floor, its longest side 24 stage units); the second writes its picture. Add its row to `CREDITS.md`.
-- **Tests.** `stageModels.test.js`, `modelAvailability.test.js`, `showcaseView.test.js`, `WholeModels.test.jsx`, `useShownCredits.test.jsx`, `scripts/models/showcase.test.mjs`, and in the browser `e2e/tests/21-whole-instrument-chooser.spec.js`, which serves its own stand-in models so it does not depend on which downloads a checkout has. Specs 18 and 19 answer the shown-only models as missing (`e2e/helpers/models.js`).
+  The first writes `public/models/<id>.glb` and `.json` (`showcase.mjs` stands the model on the floor, its longest side 24 stage units); the second writes its picture. Add its row to `CREDITS.md`. `stageModels.files.test.js` fails until the list and the files agree.
+- **What preparing does to a shown-only model.** Nothing is measured or split. Axes that would mirror it are refused. A material written as specular-glossiness, which the loader no longer draws, becomes metallic-roughness (`asMetalRough`). Texture coordinates and tangents are dropped where the material has no picture or normal map to use them (`leanPrimitive`). A recipe may `omit` parts by material name, and the credit then says so: the electronic kit's trailing lead doubled the box the viewer frames. Triangles are not reduced; the electronic kit is 409,000 of them and 6.6 MB, the largest file by far.
+- **The five there now** (October 2026): a bass guitar, an electric violin, an antique cello, an acoustic and an electronic drum kit. The viewer's backdrop is lit from the middle and lighter than the stage, because the violin and the electronic kit are black.
+- **Tests.** `stageModels.test.js`, `stageModels.files.test.js`, `modelAvailability.test.js`, `showcaseView.test.js`, `WholeModels.test.jsx`, `useShownCredits.test.jsx`, `scripts/models/showcase.test.mjs`, and in the browser `e2e/tests/21-whole-instrument-chooser.spec.js`, which serves its own stand-in models so it does not depend on which downloads a checkout has. Specs 18 and 19 answer the shown-only models as missing (`e2e/helpers/models.js`).
 
 ## Drums
 
