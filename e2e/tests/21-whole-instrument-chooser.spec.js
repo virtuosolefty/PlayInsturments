@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from '@playwright/test';
+import { STAGE_MODELS } from '../../src/lib/stageModels.js';
 import { SHOWN_ONLY_MODEL } from '../helpers/models.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
@@ -162,3 +163,29 @@ test('the drum kit offers its other kits in free play, and keeps the practice ki
   await expect(hint(page)).toHaveText('Tap a drum to play · drag the floor to turn');
   expect(errors).toEqual([]);
 });
+
+/**
+ * The instruments that are really on the site, from its own files: each has
+ * its picture in the pop-up, loads, and is framed. A model of 400,000
+ * triangles takes software rendering a while, hence the long waits.
+ */
+for (const [instrument, models] of Object.entries(STAGE_MODELS)) {
+  test(`every other instrument shown with the ${instrument} loads from the site's own files`, async ({ page }) => {
+    test.setTimeout(300_000);
+    const errors = collectErrors(page);
+    await open(page, instrument);
+    await workspace(page, 'Free play');
+    await viewButton(page, 'Whole instrument').click({ timeout: 60_000 });
+    await expect(chooser(page)).toBeVisible();
+    await expect(cards(page).locator('strong')).toHaveText(models.map(model => model.label));
+    for (const model of models.filter(each => !each.played)) {
+      if (!await chooser(page).isVisible()) await page.getByRole('button', { name: 'Choose instrument', exact: true }).click();
+      await expect.poll(() => card(page, model.label).locator('img').evaluate(image => image.naturalWidth), { message: `${model.id} has a picture` }).toBeGreaterThan(0);
+      await card(page, model.label).click();
+      await expect(viewer(page)).toHaveAttribute('data-model', model.id);
+      await expect(viewer(page)).toHaveAttribute('data-ready', 'true', { timeout: 150_000 });
+      await expect(page.locator('.model-caption')).toContainText(model.label);
+    }
+    expect(errors).toEqual([]);
+  });
+}
