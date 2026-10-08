@@ -1,0 +1,29 @@
+{
+  "name": "guitar-bass",
+  "credit": {
+    "title": "Percussion bass guitar",
+    "author": "Kanade_Tatibana",
+    "authorUrl": "https://sketchfab.com/Kanade_Tatibana",
+    "source": "https://sketchfab.com/3d-models/percussion-bass-guitar-d1f04fc920b8425a9a78b057b532dd89",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Percussion bass guitar\" (https://sketchfab.com/3d-models/percussion-bass-guitar-d1f04fc920b8425a9a78b057b532dd89) by Kanade_Tatibana (https://sketchfab.com/Kanade_Tatibana), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: scaled and re-encoded for Practice Deck."
+  },
+  "showcase": true,
+  "view": {
+    "azimuthDeg": 20,
+    "elevationDeg": 10
+  },
+  "bounds": {
+    "min": [
+      -3.3182,
+      0,
+      -0.7084
+    ],
+    "max": [
+      3.3182,
+      24,
+      0.7084
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "drums-acoustic",
+  "credit": {
+    "title": "Drum Kit",
+    "author": "art.katja",
+    "authorUrl": "https://sketchfab.com/art.katja",
+    "source": "https://sketchfab.com/3d-models/drum-kit-898f2f4ba1704abe9c784066e2b0f751",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Drum Kit\" (https://sketchfab.com/3d-models/drum-kit-898f2f4ba1704abe9c784066e2b0f751) by art.katja (https://sketchfab.com/art.katja), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: scaled and re-encoded for Practice Deck."
+  },
+  "showcase": true,
+  "view": {
+    "azimuthDeg": 25,
+    "elevationDeg": 22
+  },
+  "bounds": {
+    "min": [
+      -12,
+      0,
+      -7.7164
+    ],
+    "max": [
+      12,
+      13.2117,
+      7.7164
+    ]
+  }
+}

@@ -24,7 +24,7 @@ export const MODEL_CREDITS = Object.freeze([
   { instrument: 'violin', model: 'violin-electric', title: 'Electric Violin', author: 'Belzar Sirus', authorUrl: 'https://sketchfab.com/belzar.sirus', source: model('71813d2dc6414a0c93b1523d329aba23', 'electric-violin'), changes: SHOWN },
   { instrument: 'cello', model: 'cello-antique', title: 'Cello', author: 'slidon', authorUrl: 'https://sketchfab.com/slidon', source: model('a1e5e2a37d6a42299dcd5cec06cd1ddc', 'cello'), changes: SHOWN },
   { instrument: 'drums', model: 'drums-acoustic', title: 'Drum Kit', author: 'art.katja', authorUrl: 'https://sketchfab.com/art.katja', source: model('898f2f4ba1704abe9c784066e2b0f751', 'drum-kit'), changes: SHOWN },
-  { instrument: 'drums', model: 'drums-electronic', title: 'Electronic Drum Set', author: 'SINNIK', authorUrl: 'https://sketchfab.com/sinnik', source: model('51b95e62da844b95b6ca871c23b6e858', 'electronic-drum-set'), changes: SHOWN },
+  { instrument: 'drums', model: 'drums-electronic', title: 'Electronic Drum Set', author: 'SINNIK', authorUrl: 'https://sketchfab.com/sinnik', source: model('51b95e62da844b95b6ca871c23b6e858', 'electronic-drum-set'), changes: `its trailing cable left out, ${SHOWN}` },
 ].map(credit => Object.freeze({ ...credit, ...LICENCE })));
 
 /** The credit for one model, by its id. The model each instrument is played on has the instrument's own name. */

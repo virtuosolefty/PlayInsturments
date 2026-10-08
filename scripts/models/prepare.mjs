@@ -28,7 +28,7 @@ import { crossSectionRadius, fitLine, fitScale, playingSpan, ringCentres } from 
 import { toWebp } from './images.mjs';
 import { quantizeFrame, quantizePart } from './quantize.mjs';
 import { RECIPES } from './recipes.mjs';
-import { showcaseTransform, wholePieces } from './showcase.mjs';
+import { asMetalRough, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const NUT_X = -6.05;
@@ -272,7 +272,9 @@ function writeGlb(name, recipe, parts, encoded) {
  * the viewer frames and the angle it is first seen from.
  */
 async function prepareShowcase(name, recipe) {
-  const source = loadSource(name);
+  const loaded = loadSource(name);
+  const materials = (loaded.json.materials ?? []).map(asMetalRough);
+  const source = { ...loaded, json: { ...loaded.json, materials }, primitives: loaded.primitives.filter(prim => !recipe.omit(prim.materialName)).map(prim => leanPrimitive(prim, materials[prim.material])) };
   const box = { min: [0, 1, 2].map(k => Math.min(...source.primitives.map(p => minOf(p.positions, k)))), max: [0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k)))) };
   const parts = buildParts(source, wholePieces(source.primitives), showcaseTransform(box, recipe.axes));
   const encoded = await encodeMaterials(source, parts, recipe);

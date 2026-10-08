@@ -23,18 +23,23 @@ const credit = model => {
   return { title, author, authorUrl, source, license, licenseUrl, line: creditLine(modelCredit(model)) };
 };
 
-/** Sketchfab's glTF download is y up, whatever the artist worked in. */
+/** Standing as it was made: up is the model's y. */
 const UPRIGHT = [[0, 1], [1, 1], [2, 1]];
+/** Made lying along x with its head toward +x and its top toward +y: stood on its tail, its top toward the viewer. */
+const LYING_ALONG_X = [[2, 1], [0, 1], [1, 1]];
 
 /**
  * A model that is only shown (showcase.mjs): `axes` stands it up, and `view`
  * is the angle the viewer first sees it from, in degrees round it and above it.
+ * `omit` names the materials of anything left out, which the model's credit
+ * (modelCredits.js) then has to say.
  */
-const shown = (model, { axes = UPRIGHT, view, imageSize = 1024 }) => ({
+const shown = (model, { axes = UPRIGHT, view, imageSize = 1024, omit = () => false }) => ({
   showcase: true,
   credit: credit(model),
   axes,
   view,
+  omit,
   imageSize: (image, role) => (typeof imageSize === 'function' ? imageSize(image, role) : imageSize),
 });
 
@@ -92,9 +97,11 @@ export const RECIPES = {
   },
 
   // Shown in the whole-instrument view, never played. Each reads models-src/<id>/scene.gltf.
-  'guitar-bass': shown('guitar-bass', { view: { azimuthDeg: 20, elevationDeg: 12 } }),
+  'guitar-bass': shown('guitar-bass', { axes: LYING_ALONG_X, view: { azimuthDeg: 20, elevationDeg: 10 } }),
   'violin-electric': shown('violin-electric', { view: { azimuthDeg: 20, elevationDeg: 10 } }),
-  'cello-antique': shown('cello-antique', { view: { azimuthDeg: 20, elevationDeg: 10 } }),
+  'cello-antique': shown('cello-antique', { axes: LYING_ALONG_X, view: { azimuthDeg: 20, elevationDeg: 10 }, imageSize: (image, role) => (role === 'baseColor' && image.includes('Body') ? 2048 : 1024) }),
   'drums-acoustic': shown('drums-acoustic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
-  'drums-electronic': shown('drums-electronic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
+  // Its pads face the drummer, who sits toward −z: seen from that side and above, as on its box.
+  // A lead trails a kit's width across the floor to a plug (the parts named EDK-T14): framed with it, the kit is half the size.
+  'drums-electronic': shown('drums-electronic', { view: { azimuthDeg: 205, elevationDeg: 30 }, omit: material => material.endsWith('EDK-T14') }),
 };

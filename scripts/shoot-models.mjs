@@ -39,9 +39,15 @@ try {
     const whole = page.getByRole('group', { name: 'Stage view' }).getByRole('button', { name: 'Whole instrument' });
     await whole.waitFor({ timeout: 60000 });
     await whole.click();
+    const chooser = page.getByRole('dialog', { name: 'Whole instrument' });
+    // The pop-up opens once the server has said which models it has.
+    await chooser.waitFor({ timeout: 30000 });
     for (const model of models) {
       if (wanted.length && !wanted.includes(model.id)) continue;
-      if (!await page.getByRole('dialog', { name: 'Whole instrument' }).count()) await page.getByRole('button', { name: 'Choose instrument', exact: true }).click();
+      if (!await chooser.isVisible()) {
+        await page.getByRole('button', { name: 'Choose instrument', exact: true }).click();
+        await chooser.waitFor();
+      }
       await page.locator('.model-card', { has: page.getByText(model.label, { exact: true }) }).click();
       if (model.played) await page.locator('.model-viewer').waitFor({ state: 'detached' });
       else await page.locator('.model-viewer[data-ready="true"]').waitFor({ timeout: 60000 });

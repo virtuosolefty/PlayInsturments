@@ -1,0 +1,29 @@
+{
+  "name": "violin-electric",
+  "credit": {
+    "title": "Electric Violin",
+    "author": "Belzar Sirus",
+    "authorUrl": "https://sketchfab.com/belzar.sirus",
+    "source": "https://sketchfab.com/3d-models/electric-violin-71813d2dc6414a0c93b1523d329aba23",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Electric Violin\" (https://sketchfab.com/3d-models/electric-violin-71813d2dc6414a0c93b1523d329aba23) by Belzar Sirus (https://sketchfab.com/belzar.sirus), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: scaled and re-encoded for Practice Deck."
+  },
+  "showcase": true,
+  "view": {
+    "azimuthDeg": 20,
+    "elevationDeg": 10
+  },
+  "bounds": {
+    "min": [
+      -4.4116,
+      0,
+      -2.3047
+    ],
+    "max": [
+      4.4116,
+      24,
+      2.3047
+    ]
+  }
+}

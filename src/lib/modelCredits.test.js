@@ -29,6 +29,10 @@ describe('credits for the 3D instruments', () => {
     expect(creditLine(modelCredit('drums-acoustic'))).toMatch(/Modified: scaled and re-encoded for Practice Deck\.$/);
   });
 
+  it('says so where a part of a model was left out', () => {
+    expect(modelCredit('drums-electronic').changes).toBe('its trailing cable left out, scaled and re-encoded');
+  });
+
   it('has no credit for an instrument without a model', () => {
     expect(modelCredit('piano')).toBeNull();
   });

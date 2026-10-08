@@ -1,0 +1,29 @@
+{
+  "name": "cello-antique",
+  "credit": {
+    "title": "Cello",
+    "author": "slidon",
+    "authorUrl": "https://sketchfab.com/slidon",
+    "source": "https://sketchfab.com/3d-models/cello-a1e5e2a37d6a42299dcd5cec06cd1ddc",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Cello\" (https://sketchfab.com/3d-models/cello-a1e5e2a37d6a42299dcd5cec06cd1ddc) by slidon (https://sketchfab.com/slidon), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: scaled and re-encoded for Practice Deck."
+  },
+  "showcase": true,
+  "view": {
+    "azimuthDeg": 20,
+    "elevationDeg": 10
+  },
+  "bounds": {
+    "min": [
+      -4.3431,
+      0,
+      -2.8259
+    ],
+    "max": [
+      4.3431,
+      24,
+      2.8259
+    ]
+  }
+}

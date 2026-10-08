@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { castShadows } from '../lib/stage/modelFinish.js';
+import { barEdges, clearOfBars } from '../lib/stage/stageBars.js';
 import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
 import { createStudio, disposeResources } from '../lib/stage/studio.js';
 import { STAGE_THEME } from '../lib/stageColors.js';
 import { NO_TURN, VIEWER_LENS, isTurned, showcaseShot, turnBy } from '../lib/showcaseView.js';
 
+/** A kit with every bolt modelled is several megabytes; it may take a slow connection this long. */
+const DOWNLOAD_LIMIT_MS = 60000;
+
 /**
  * A model that is only shown, standing where the stage's own instrument was:
- * framed whole, and turned by dragging. It has its own studio, so the stage
- * beneath is left exactly as it was for the way back to Learn.
+ * framed whole between the stage's bottom bar and its own caption, and turned
+ * by dragging. It has its own studio, so the stage beneath is left exactly as
+ * it was for the way back to Learn.
  *
  * A frame is drawn only when something changed. The model's files are fetched
  * once a page (models.js); a stalled or broken download calls `onFailed`.
@@ -38,12 +43,17 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
     }
     const canvas = studio.renderer.domElement;
     canvas.setAttribute('aria-hidden', 'true');
-    let stopped = false, raf = 0, dirty = false, shot = null, turn = NO_TURN, drag = null;
+    let stopped = false, raf = 0, dirty = false, shot = null, turn = NO_TURN, drag = null, bounds;
+    // The viewer covers the stage, whose bars lie over it: the caption at the top, the view switch at the bottom.
+    const stage = el.parentElement ?? el;
     setReady(false);
     setTurned(false);
 
-    const frame = () => { if (shot && studio.frame(shot, { view: VIEWER_LENS, turn })) dirty = true; };
-    const aim = () => { if (shot && studio.aim(shot, { view: VIEWER_LENS, turn })) dirty = true; };
+    const frame = () => {
+      bounds = clearOfBars(barEdges(stage, { top: '.model-caption' }));
+      if (shot && studio.frame(shot, { view: VIEWER_LENS, turn, bounds })) dirty = true;
+    };
+    const aim = () => { if (shot && studio.aim(shot, { view: VIEWER_LENS, turn, bounds })) dirty = true; };
     const tick = () => {
       if (stopped) return;
       raf = requestAnimationFrame(tick);
@@ -52,7 +62,7 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
       studio.render();
     };
 
-    loadInstrumentModel(model.id).then(loaded => {
+    loadInstrumentModel(model.id, { timeoutMs: DOWNLOAD_LIMIT_MS }).then(loaded => {
       if (stopped) { if (loaded) disposeResources(collectResources(loaded.scene)); return; }
       if (!loaded) { latest.current.onFailed('its files could not be loaded'); return; }
       try {
