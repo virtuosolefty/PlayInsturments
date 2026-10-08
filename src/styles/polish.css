@@ -46,7 +46,7 @@ select, input[type="search"], input[type="text"] { background-color: var(--field
 .keycap, kbd { background: var(--bg-2); color: var(--text-dim); border-color: var(--line); }
 .count-in { background: var(--bg-1); color: var(--text); border: 1px solid var(--line); }
 .toast { background: var(--bg-1); color: var(--bad); border-color: var(--bad); }
-.score-ring, .report-next { background: var(--accent-soft); }
+.report-next { background: var(--accent-soft); }
 
 /* ---------------------------------------------------------------- icons */
 .icon { display: inline-block; flex: none; vertical-align: -0.18em; }
