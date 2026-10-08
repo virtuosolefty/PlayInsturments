@@ -19,7 +19,7 @@ import * as Tone from 'tone';
 import { buildDrumVoice } from './drumVoice.js';
 import { getSamplePack } from './vault.js';
 
-export const INSTRUMENT_SOURCES = {
+const INSTRUMENT_SOURCES = {
   IMPORTED: 'imported-pack',
   LOCAL: 'local-pack',
   CDN: 'salamander-cdn',

@@ -238,7 +238,7 @@ class Key {
   }
 }
 
-export class RollScene {
+class RollScene {
   constructor(canvas) {
     this.renderer = new WebGLRenderer({ canvas, antialias: true, alpha: false });
     this.renderer.setClearColor(c(COLORS.bg), 1);

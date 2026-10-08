@@ -31,8 +31,6 @@ import { isC } from './keyboard.js';
 export const KEYBOARD_H = 164;
 /** Share of the roll below the hit line, showing what you already played. */
 export const PAST_RATIO = 0.2;
-/** Seconds out from the hit line over which a note builds to full presence. */
-export const APPROACH_SEC = 0.9;
 /** Consecutive correct notes before the hit line starts to glow. */
 export const COMBO_THRESHOLD = 4;
 /** How long a hit flourish lives, in milliseconds. */
@@ -83,18 +81,6 @@ export function timeWindow(layout, now, pps) {
     tTop: now + hitLine / pps,
     tBottom: now - (rollH - hitLine) / pps,
   };
-}
-
-/**
- * How present a note should be, 0 to 1.
- *
- * A note four seconds out is information; a note about to be played is an
- * instruction. Renderers spend brightness, bloom and scale on this number, so
- * it lives here rather than being re-derived slightly differently in each.
- */
-export function approachOf(noteTime, now, past = false) {
-  if (past) return 0;
-  return 1 - Math.max(0, Math.min(1, (noteTime - now) / APPROACH_SEC));
 }
 
 /**

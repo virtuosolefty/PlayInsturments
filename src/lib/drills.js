@@ -18,7 +18,7 @@
 import { renotate, sliceScore } from './score.js';
 import { barAt, secondsPerBar } from './passages.js';
 
-export const DRILL_DEFAULTS = {
+const DRILL_DEFAULTS = {
   /** How many separate problem spots to include. */
   segments: 3,
   /** Times through each passage before moving to the next. */
@@ -102,5 +102,3 @@ export function drillFrom(score, troubleSpots = [], options = {}) {
   };
 }
 
-/** Is there enough recorded trouble to be worth building an exercise from? */
-export const canDrill = (troubleSpots = []) => troubleSpots.length > 0;

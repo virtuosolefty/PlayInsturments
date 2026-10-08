@@ -440,4 +440,3 @@ export default function PianoRoll({
 }
 
 export { KEYBOARD_H };
-export const HAND_COLORS = { right: COLORS.right, left: COLORS.left };

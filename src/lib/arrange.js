@@ -35,14 +35,14 @@ export const HAND_FILTERS = {
 };
 
 /** How far apart the lowest and highest note of a range sit, in semitones. */
-export const spanOf = ([lo, hi]) => hi - lo;
+const spanOf = ([lo, hi]) => hi - lo;
 
 export { FULL_VARIANT } from './score.js';
 
 const KEY_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 /** Move a stated key by the same interval the notes moved. */
-export function transposeKey(key, semitones) {
+function transposeKey(key, semitones) {
   const tonic = (((key.tonic + semitones) % 12) + 12) % 12;
   return { ...key, tonic, name: `${KEY_NAMES[tonic]} ${key.mode}` };
 }

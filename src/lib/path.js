@@ -89,8 +89,6 @@ export const STAGES = [
 /** Every exercise id in curriculum order. */
 export const PATH_EXERCISES = STAGES.flatMap((s) => s.exercises);
 
-export const isPathExercise = (id) => PATH_EXERCISES.includes(id);
-
 /* ------------------------------------------------------------- one exercise */
 
 /**
@@ -117,7 +115,7 @@ export function qualifyingRuns(sessions = []) {
  * four stars for them. Somebody can do everything right, be told so twice, and
  * watch the padlock stay shut with no way to find out why.
  */
-export function unassessedRuns(sessions = []) {
+function unassessedRuns(sessions = []) {
   return (sessions ?? []).filter(
     (s) => s && s.mode === 'wait' && Number.isFinite(s.stars) && s.stars > 0,
   );
@@ -365,7 +363,6 @@ export function dailyProgress(days = {}, dayKey, goal = DAILY_RUN_GOAL) {
 
 /** The fixed exercise, at the fixed tempo, that proves the whole thing works. */
 export const BENCHMARK_ID = 'path-08-scale-right';
-export const BENCHMARK_INTERVAL_DAYS = 7;
 
 /**
  * Benchmark runs only. Same piece, same tempo, same arrangement — anything else
@@ -405,23 +402,10 @@ export function benchmarkTrend(sessions = []) {
   };
 }
 
-/**
- * Is a fresh benchmark due? Never on day one — there is nothing to compare a
- * first run against, and asking for one before there is a Path to measure is
- * just a chore.
- */
-export function benchmarkDue(sessions, todayKey, daysBetween) {
-  const runs = benchmarkRuns(sessions);
-  if (!runs.length) return true;
-  const last = runs[runs.length - 1];
-  const lastDay = String(last.at).slice(0, 10);
-  return daysBetween(lastDay, todayKey) >= BENCHMARK_INTERVAL_DAYS;
-}
-
 /* ------------------------------------------------------------ trouble decay */
 
 /** A spot is called clean once this many runs have passed without it recurring. */
-export const DECAY_RUNS = 3;
+const DECAY_RUNS = 3;
 
 /**
  * How many of your recorded trouble spots have gone quiet.

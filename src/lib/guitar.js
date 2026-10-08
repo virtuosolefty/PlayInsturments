@@ -2,20 +2,13 @@ import { noteName } from './theory.js';
 
 // Low E to high E. String numbers follow standard tablature (high E = 1).
 export const GUITAR_TUNING = [40, 45, 50, 55, 59, 64];
-export const GUITAR_FRETS = 12;
+const GUITAR_FRETS = 12;
 export const GUITAR_COLORS = ['#e9b870', '#eb9c9b', '#c2a6f4', '#76b8f3', '#64d8c6', '#d0db8a'];
 
 export function guitarMidi(string, fret) {
   if (!Number.isInteger(string) || string < 0 || string > 5 ||
       !Number.isInteger(fret) || fret < 0 || fret > GUITAR_FRETS) return null;
   return GUITAR_TUNING[string] + fret;
-}
-
-export function guitarPositions(midi) {
-  return GUITAR_TUNING.flatMap((open, string) => {
-    const fret = midi - open;
-    return Number.isInteger(fret) && fret >= 0 && fret <= GUITAR_FRETS ? [{ string, fret }] : [];
-  });
 }
 
 function study(id, title, description, positions, bpm = 72, tonic = 0, mode = 'major') {
@@ -57,10 +50,6 @@ export const GUITAR_CHORDS = [
   { name: 'G', frets: [3, 2, 0, 0, 0, 3], fingers: [2,1,0,0,0,3] },
   { name: 'D', frets: [null, null, 0, 2, 3, 2], fingers: [null,null,0,1,3,2] },
 ];
-
-export function chordPitches(chord) {
-  return chord.frets.flatMap((fret, string) => fret === null ? [] : [guitarMidi(string, fret)]);
-}
 
 // Short, authored lessons for the beginner path. Chords share a beat so the
 // existing matcher judges a strum as a chord, rather than six separate beats.

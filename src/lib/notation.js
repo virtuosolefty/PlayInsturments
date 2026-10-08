@@ -16,7 +16,7 @@
 import { FLAT_NAMES, PITCH_CLASS_NAMES } from './theory.js';
 
 /** Sixteenth notes. Finer than this and human timing turns into confetti. */
-export const DEFAULT_QUANTUM = 0.25;
+const DEFAULT_QUANTUM = 0.25;
 
 /** Note values in beats, longest first, for greedy decomposition. */
 const VALUES = [

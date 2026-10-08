@@ -18,7 +18,6 @@ import {
   clearAllHistory,
   getAllBestStars,
   getBestCombo,
-  getBestStars,
   recordCombo,
   recordSession,
 } from './storage.js';
@@ -40,6 +39,12 @@ const summary = {
 /** One finished run of `songId`. `stars: null` is an abandoned attempt. */
 const run = (songId, { stars, rate = 1, variant = 'full' }) =>
   recordSession(songId, summary, [], { stars, rate, variant, mode: 'timed' });
+
+/** One piece's best rating as the app's lookup reports it: nothing at all for a piece with no rating. */
+const getBestStars = (songId, variant) => {
+  const { stars, rates } = getAllBestStars(variant);
+  return { stars: stars[songId] ?? 0, rate: rates[songId] ?? 1 };
+};
 
 describe('best stars', () => {
   beforeEach(() => {
@@ -108,12 +113,6 @@ describe('best stars for the whole library', () => {
     expect(rates).toEqual({ b: 1 });
   });
 
-  it('agrees with the single-piece lookup', () => {
-    run('a', { stars: 4, rate: 0.5 });
-    run('a', { stars: 4, rate: 0.9 });
-    const { stars, rates } = getAllBestStars('full');
-    expect({ stars: stars.a, rate: rates.a }).toEqual(getBestStars('a', 'full'));
-  });
 });
 
 /**

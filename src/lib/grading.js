@@ -55,7 +55,7 @@ const asPercent = (v) => Math.round(clamp01(v) * 100);
  * a consistent weight scores respectably even if it sat below the written
  * level — evenness is the thing a learner can actually control.
  */
-export function dynamicsBand(summary) {
+function dynamicsBand(summary) {
   if (!summary.hit) return 0;
   const matched = clamp01(summary.dynamicsAccuracy);
   const evenness = clamp01(1 - (summary.velocitySpread ?? 0) / SPREAD_CEILING);

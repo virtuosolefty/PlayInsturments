@@ -57,8 +57,8 @@ export function dayCounts(entry) {
  * or it is just a weaker streak with extra steps. One freeze per full week,
  * two held at most, and they are spent automatically on the gap they cover.
  */
-export const FREEZE_EVERY = 7;
-export const MAX_FREEZES = 2;
+const FREEZE_EVERY = 7;
+const MAX_FREEZES = 2;
 
 /**
  * Break the practised days into unbroken runs, bridging single-day gaps with a

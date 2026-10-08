@@ -16,7 +16,7 @@ const STRING_ORDER = [5, 4, 3, 2, 1, 0];
 const INLAYS = [3, 5, 7, 9, 12];
 
 /** Real fret spacing: each fret is 2^(-1/12) the width of the one before. */
-export function fretColumns(maxFret) {
+function fretColumns(maxFret) {
   const widths = Array.from({ length: maxFret }, (_, i) => 2 ** (-i / 12) - 2 ** (-(i + 1) / 12));
   const first = widths[0];
   return `35px minmax(34px,.62fr) ${widths.map(w => `minmax(26px,${(w / first).toFixed(3)}fr)`).join(' ')}`;

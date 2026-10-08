@@ -22,7 +22,7 @@ export const NOTE_STATUS = {
   MISSED: 'missed',
 };
 
-export const DEFAULTS = {
+const DEFAULTS = {
   /** How far from a target's onset a note-on can be and still count as that note. */
   matchWindow: 0.35,
   /** Inside this deviation the timing is "perfect". */

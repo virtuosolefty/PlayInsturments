@@ -36,13 +36,6 @@ export function bowedMidi(instrument, string, fret) {
   return tuning[string] + fret;
 }
 
-export function bowedPositions(instrument, midi) {
-  return (TUNINGS[instrument] ?? []).flatMap((open, string) => {
-    const fret = midi - open;
-    return Number.isInteger(fret) && fret >= 0 && fret <= BOWED_MAX_POSITION ? [{ string, fret }] : [];
-  });
-}
-
 export function bowedFinger(instrument, fret) {
   return FINGERS[instrument]?.[fret] ?? null;
 }

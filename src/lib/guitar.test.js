@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GUITAR_CHORDS, GUITAR_STUDIES, GUITAR_TUNING, chordPitches, guitarMidi, guitarPositions } from './guitar.js';
+import { GUITAR_STUDIES, GUITAR_TUNING, guitarMidi } from './guitar.js';
 import { PracticeSession } from './matcher.js';
 
 describe('standard guitar tuning and authored exercises', () => {
@@ -9,17 +9,6 @@ describe('standard guitar tuning and authored exercises', () => {
   });
   it('rejects non-existent strings and frets', () => {
     for (const [s,f] of [[-1,0],[6,0],[0,-1],[0,13],[1,2.5]]) expect(guitarMidi(s,f)).toBeNull();
-  });
-  it('finds every playable position without changing the pitch', () => {
-    for (let midi = 0; midi <= 127; midi++) {
-      const positions = guitarPositions(midi);
-      positions.forEach(p => expect(guitarMidi(p.string, p.fret)).toBe(midi));
-      expect(positions.length > 0).toBe(midi >= 40 && midi <= 76);
-    }
-  });
-  it('omits muted strings from chords rather than treating them as open', () => {
-    expect(chordPitches(GUITAR_CHORDS.find(c => c.name === 'C'))).toEqual([48,52,55,60,64]);
-    expect(chordPitches(GUITAR_CHORDS.find(c => c.name === 'D'))).toEqual([50,57,62,66]);
   });
   for (const score of GUITAR_STUDIES) {
     it(`${score.title}: positions, timing and records are consistent`, () => {

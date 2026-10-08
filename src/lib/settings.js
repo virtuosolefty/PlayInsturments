@@ -17,7 +17,7 @@ import { IDENTITY_CURVE } from './velocity.js';
  * have the old value saved. Without this, changing a default only affects
  * first-time visitors — everyone else keeps the setting silently forever.
  */
-export const SETTINGS_VERSION = 5;
+const SETTINGS_VERSION = 5;
 
 export const DEFAULT_SETTINGS = {
   theme: 'light',

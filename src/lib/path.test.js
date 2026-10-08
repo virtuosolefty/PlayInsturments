@@ -17,13 +17,11 @@ import {
   atTempo,
   badgeState,
   blockerHelp,
-  benchmarkDue,
   benchmarkRuns,
   benchmarkTrend,
   dailyProgress,
   dailySet,
   exerciseState,
-  isPathExercise,
   pathState,
   qualifyingRuns,
   rungAt,
@@ -74,10 +72,6 @@ describe('the curriculum', () => {
     expect(new Set(recitals).size).toBe(recitals.length);
   });
 
-  it('knows what belongs to it', () => {
-    expect(isPathExercise('path-01-home-five-right')).toBe(true);
-    expect(isPathExercise('fur-elise')).toBe(false);
-  });
 });
 
 describe('what counts as a run', () => {
@@ -388,12 +382,6 @@ describe('the benchmark', () => {
     expect(trend.latest.overall).toBe(88);
   });
 
-  it('comes due a week after the last one', () => {
-    expect(benchmarkDue([], '2026-01-08', daysBetween)).toBe(true);
-    const week = [run({ at: at('2026-01-01') })];
-    expect(benchmarkDue(week, '2026-01-05', daysBetween)).toBe(false);
-    expect(benchmarkDue(week, '2026-01-08', daysBetween)).toBe(true);
-  });
 });
 
 describe('trouble decay', () => {
