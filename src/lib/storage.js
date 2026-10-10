@@ -11,7 +11,7 @@
  */
 
 import { recordDay } from './streaks.js';
-import { writeToBackup, readFromBackup, clearBackup } from './indexedDbBackup.js';
+import { writeToBackup, clearBackup } from './indexedDbBackup.js';
 
 const KEY = 'piano-practice-coach:v1';
 const MAX_SESSIONS_PER_SONG = 60;
@@ -42,16 +42,6 @@ function read() {
     console.warn('[storage] failed to parse localStorage, returning empty');
     return emptyDb();
   }
-}
-
-/**
- * Read from IndexedDB as fallback (async).
- * Called when localStorage appears to be unavailable.
- */
-export async function readFromBackupAsync() {
-  const backed = await readFromBackup(KEY);
-  if (backed?.songs) return backed;
-  return emptyDb();
 }
 
 /**
@@ -285,11 +275,6 @@ const bestOf = (sessions) => {
   return best ?? { stars: 0, rate: 1 };
 };
 
-/** @returns {{stars: number, rate: number}} */
-export function getBestStars(songId, variant) {
-  return bestOf(getSongHistory(songId, { variant }).sessions);
-}
-
 /**
  * Every song's record in one read. The Path walks fifteen exercises at once,
  * and calling getSongHistory for each would re-parse the whole database
@@ -387,7 +372,7 @@ export function saveSettings(patch) {
  * nothing ever called it, so there was no way to get any of it out.
  */
 export const BACKUP_FORMAT = 'piano-practice-coach/backup';
-export const BACKUP_VERSION = 1;
+const BACKUP_VERSION = 1;
 
 export function exportHistory() {
   return JSON.stringify(

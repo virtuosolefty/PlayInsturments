@@ -41,7 +41,7 @@ import { stageView } from './views.js';
 const WARM_UP_MS = 400;
 /** How long the camera takes to swing between the whole instrument and the close-up. */
 const MOVE_MS = 650;
-export const NO_LABELS = Object.freeze([]);
+const NO_LABELS = Object.freeze([]);
 const easeInOut = t => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
 export function runStage(el, studio, { latest, maxFret, hooks, setLabels, setTurned, setTurnable, setShowcase = () => {}, controls, rig: first = null, hold = 0 }) {

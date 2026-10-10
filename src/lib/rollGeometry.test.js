@@ -11,8 +11,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildKeyboardGeometry } from './keyboard.js';
 import {
-  APPROACH_SEC,
-  approachOf,
   gridLines,
   lanesFrom,
   noteVisible,
@@ -122,20 +120,6 @@ describe('the layout', () => {
   });
 });
 
-describe('how present a note is', () => {
-  it('is nothing far out and everything at the line', () => {
-    expect(approachOf(10, 0)).toBe(0);
-    expect(approachOf(0, 0)).toBe(1);
-  });
-
-  it('builds over the approach window', () => {
-    expect(approachOf(APPROACH_SEC / 2, 0)).toBeCloseTo(0.5, 6);
-  });
-
-  it('is nothing at all once the note is done', () => {
-    expect(approachOf(0, 5, true)).toBe(0);
-  });
-});
 
 describe('the time grid', () => {
   const score = { bpm: 120, timeSignature: [4, 4] }; // 0.5s per beat, 2s per bar

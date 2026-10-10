@@ -13,7 +13,7 @@ test('welcome explains inputs, defers the studio and allows choosing either inst
  expect(requests.some(url=>/src\/App.jsx|src\/lib\/audio.js|three/.test(url))).toBe(false);
  await page.getByRole('group',{name:'Preview instrument'}).getByRole('button',{name:'Guitar'}).click();
  await expect(page.getByRole('button',{name:'Try guitar'})).toBeVisible();
- await page.getByText('Do I need an instrument?').click();await expect(page.locator('.welcome-faq')).toContainText('Microphone recognition of acoustic instruments is not supported');
+ await page.getByText('Do I need an instrument?').click();await expect(page.locator('.welcome-faq')).toContainText('choose Microphone under Input & sound');
  await page.getByRole('button',{name:'Switch to dark theme'}).click();await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
  await page.screenshot({path:'test-results/screens/retention/welcome-dark.png',fullPage:true,animations:'disabled'});
  await page.getByRole('button',{name:'Switch to light theme'}).click();await page.screenshot({path:'test-results/screens/retention/welcome-light.png',fullPage:true,animations:'disabled'});
@@ -44,7 +44,7 @@ test('a completed quick phrase offers a next step while mastery remains untouche
   },100);
  });
  await page.getByRole('button',{name:'Find my next step →'}).click({timeout:45_000});await page.evaluate(()=>clearInterval(window.__notes));
- await expect(page.locator('.learning-roadmap > header')).toContainText('1 guided · 0 / 7 checks passed');
+ await expect(page.locator('.learning-roadmap > header')).toContainText('1 / 7 lessons finished · 0 checks passed');
  expect((await data(page)).settings.learning.guitar.quick).toBe(false);
 });
 

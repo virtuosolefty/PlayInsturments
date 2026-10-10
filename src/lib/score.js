@@ -97,7 +97,7 @@ const FLAT_TO_SHARP = { Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#' };
  *
  * @param {[string, string]|null} declared e.g. `['C', 'minor']`
  */
-export function keyFromName(declared) {
+function keyFromName(declared) {
   if (!declared) return null;
   const [root, mode] = declared;
   const name = FLAT_TO_SHARP[root] ?? root;

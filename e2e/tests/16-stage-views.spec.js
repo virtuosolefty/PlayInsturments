@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -32,9 +33,7 @@ const listenForNotes = page => page.evaluate(async () => { window.__notes = []; 
 const notesPlayed = page => page.evaluate(() => window.__notes.filter(m => m.type === 'noteon').map(m => m.midi));
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: 'guitar', countInBars: 0 } }));
-  });
+  await seedSettings(page, { renderer: 'gl', practiceInstrument: 'guitar' });
   await page.goto('/');
   await expect(stage(page).locator('canvas')).toBeVisible();
 });

@@ -1,19 +1,22 @@
 import { InstrumentIcon } from './StudioHeader.jsx';
-import { INSTRUMENTS, instrumentInfo } from '../lib/instruments.js';
+import { chooseVariant, instrumentInfo } from '../lib/instruments.js';
+import InstrumentButtons from './InstrumentButtons.jsx';
+import TypeSwitch from './TypeSwitch.jsx';
 import { dayKey } from '../lib/streaks.js';
 import { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { pieceDetails, weeklyPractice, sharedLessonUrl } from '../lib/discovery.js';
 import DiscoverPieces from './DiscoverPieces.jsx';
+import { Stars } from './PathTab.jsx';
 import { exportHistory } from '../lib/storage.js';
 
 export function LearningSummary({ learning, state, onOpen }) {
   const guided = Object.values(learning.record.completed).filter(item => item.guided).length;
   return <section className="learning-summary">
     <h3>Small steps. Visible progress.</h3>
-    <p>{guided} guided {guided === 1 ? 'lesson' : 'lessons'} completed · {state.passedCount} checks passed</p>
+    <p>{state.finishedCount} {state.finishedCount === 1 ? 'lesson' : 'lessons'} finished · {state.passedCount} checks passed</p>
     <button onClick={onOpen}>Continue your learning path →</button>
-    <p className="hint">Guided practice builds familiarity. A check at the written tempo measures readiness for the next lesson.</p>
+    <p className="hint">Finishing a lesson opens the next one. A check at the written tempo shows how well you know it.</p>
   </section>;
 }
 
@@ -33,7 +36,7 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
   const dailyComplete = record.daily?.complete && record.daily.day === dayKey();
   const detail=pieceDetails(current);
   const week=weeklyPractice(days,settings.weeklyPracticeGoal);
-  const completedAny=guided>0||path.state.passedCount>0;
+  const completedAny=guided>0||path.state.finishedCount>0;
   const share=async()=>{
     try { await navigator.clipboard.writeText(sharedLessonUrl(instrument,current.id));setMessage('Lesson link copied. Your progress stays private.'); }
     catch {setMessage('Copy this lesson link: '+sharedLessonUrl(instrument,current.id));}
@@ -46,8 +49,8 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
   return <main className="learning-home" aria-labelledby="learning-home-title">
     <div className="learning-home-inner">
       <header className="learning-home-heading">
-        <div><h2 id="learning-home-title" ref={heading} tabIndex={-1}>{resume?'A little more music today.':'A clear path to your first song.'}</h2><p>{resume?`Pick up ${current.title} where you left off. Your place is waiting.`:'Find your notes, play a phrase, and make it your own.'}</p></div>
-        <div className="learning-instruments" role="group" aria-label="Learning instrument">{INSTRUMENTS.map(value => <button key={value} aria-pressed={instrument === value} onClick={() => onInstrument(value)}><InstrumentIcon instrument={value}/>{instrumentInfo(value).label}</button>)}</div>
+        <div><h2 id="learning-home-title" ref={heading} tabIndex={-1}>{resume?'A little more music today.':'A clear path to your first song.'}</h2><p>{resume?`Pick up ${current.title} where you left off. Your place is waiting.`:(instrument==='drums'?'Find each drum, play a beat, and make it your own.':'Find your notes, play a phrase, and make it your own.')}</p></div>
+        <div className="learning-instrument-choice"><InstrumentButtons className="learning-instruments" label="Learning instrument" current={instrument} onPick={value => onInstrument(chooseVariant(settings.variants, value))} content={value => <><InstrumentIcon instrument={value}/>{instrumentInfo(value).label}</>} /><TypeSwitch instrument={instrument} onChange={onInstrument} /></div>
       </header>
       {dailyComplete && <div className="daily-finished" role="status"><strong>Today’s practice is complete.</strong><span>You worked through {record.daily.ids.length} {record.daily.ids.length === 1 ? 'piece' : 'pieces'}. Your next lesson is ready whenever you are.</span></div>}
       <div className="learning-home-grid">
@@ -57,7 +60,7 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
           <p className="next-skill">{detail.skill || 'Find your first note and build a short phrase, one step at a time.'}</p>
           <div className="next-piece-facts"><span>{detail.level}</span><span>{detail.length}</span><span>{resume?`Next: ${{sound:'check your sound',note:'find your first note',listen:'hear the phrase',follow:'follow the notes',practice:'build your rhythm',check:'check your progress'}[record.step]}`:'No rush. The notes can wait.'}</span></div>
           {record.completed[current?.id]?.comfortableRate > 0 && <p className="comfortable-best">Your best comfortable tempo: {Math.round(record.completed[current.id].comfortableRate * 100)}%</p>}
-          <div className="lesson-method"><span>01 <b>Hear it</b></span><span>02 <b>Find the notes</b></span><span>03 <b>Build a rhythm</b></span></div>
+          <div className="lesson-method"><span>01 <b>Hear it</b></span><span>02 <b>{instrument==='drums'?'Find the drums':'Find the notes'}</b></span><span>03 <b>Build a rhythm</b></span></div>
           <button className="primary" disabled={!current} onClick={() => learning.startLesson(current.id)}>{resume ? 'Continue learning' : record.lessonId ? 'Start the next lesson' : 'Start my first lesson'} <span aria-hidden="true">→</span></button>
           <div className="next-secondary"><button disabled={!current} onClick={()=>preview.play(current)}>{preview.id===current?.id?(preview.loading?'Loading preview…':'■ Stop preview'):'▷ Hear a short preview'}</button><button disabled={!current} onClick={share}>Copy lesson link</button></div>
           <span className="learning-save-note">{storageProblem?'Your browser could not save recent changes. This session may not be available after you leave.':'Your place is saved on this device. Nothing starts until you’re ready.'}</span>
@@ -74,13 +77,14 @@ export default function LearningHome({ learning, path, instrument, onInstrument,
       <section className="weekly-practice" aria-label="Weekly practice goal"><div><h3>{week.count>=week.goal?'You made room for music.':`${week.count} of ${week.goal} practice days this week`}</h3><p>Finish a run or practise for three minutes to count a day. Rest days are welcome.</p></div><div className="week-days" aria-label={`${week.count} practice days this week`}>{week.days.map((day,i)=><span key={day.date} className={`${day.done?'done':''} ${day.today?'today':''}`} title={`${day.date}${day.done?': practised':day.future?': coming up':': not yet'}`}><small>{['M','T','W','T','F','S','S'][i]}</small><b aria-label={`${day.date}: ${day.done?'practised':day.future?'coming up':'not yet'}`}>{day.done?'✓':day.today?'·':'—'}</b></span>)}</div><label>Weekly goal<select aria-label="Weekly practice days" value={week.goal} onChange={e=>setSettings(s=>({...s,weeklyPracticeGoal:+e.target.value}))}>{[2,3,5].map(n=><option key={n} value={n}>{n} days</option>)}</select></label></section>
       <DiscoverPieces entries={entries} instrument={instrument} favorites={settings.favoritePieces??[]} onFavorite={onFavorite} onPick={onPick} preview={preview}/>
       <section className="learning-roadmap" aria-labelledby="roadmap-title">
-        <header><div><h3 id="roadmap-title">Your {instrument} path</h3></div><p>{guided} guided · {path.state.passedCount} / {path.state.total} checks passed</p></header>
-        <details className="learning-rule"><summary>How practice, passing and mastery work</summary><p>A completed guided lesson is saved as practice. Earn <strong>3 stars at 100% speed</strong> to pass an exercise; <strong>4 stars on every exercise</strong> opens the next stage. You can explore library pieces at any time.</p></details>
+        <header><div><h3 id="roadmap-title">Your {instrument} path</h3></div><p>{path.state.finishedCount} / {path.state.total} lessons finished · {path.state.passedCount} checks passed</p></header>
+        <p className="learning-key"><span><i className="lesson-mark done">✓</i>Finished: the next lesson is open</span><span><Stars count={3} />How well you know it</span></p>
+        <details className="learning-rule"><summary>How lessons open, and what the stars mean</summary><p><strong>Finish a lesson and the next one opens.</strong> Any complete run counts: at a slower speed, or with the notes waiting for you. Stars say how well you know it: <strong>3 stars at 100% speed</strong> passes its check, and <strong>4 stars</strong> masters it. You can explore library pieces at any time.</p></details>
         <div className="learning-stages">{path.state.stages.map((item, index) => {
           const isCurrent = item.id === stage?.id;
-          return <details key={item.id} open={isCurrent || undefined} className={`${item.cleared ? 'complete' : ''} ${isCurrent ? 'current' : ''}`}>
-            <summary><span className="learning-stage-number">{item.cleared ? '✓' : String(index + 1).padStart(2,'0')}</span><span><strong>{item.name}</strong><small>{item.goal}</small></span><span className="stage-state">{item.cleared ? 'Completed' : isCurrent ? 'You are here' : item.unlocked ? 'Available' : 'Coming up'}</span></summary>
-            <div className="learning-stage-lessons">{item.entries.map(entry => <button key={entry.id} disabled={!entry.unlocked} onClick={() => learning.startLesson(entry.id)}><span>{entries.find(e => e.id === entry.id)?.title ?? entry.id}</span><small>{entry.mastered ? 'Mastered' : entry.passed ? 'Check passed · aim for 4 stars' : record.completed[entry.id]?.guided ? 'Guided practice completed' : entry.unlocked ? 'Ready to learn' : 'Complete the previous step'}</small></button>)}</div>
+          return <details key={item.id} open={isCurrent || undefined} className={`${item.finished ? 'complete' : ''} ${isCurrent ? 'current' : ''}`}>
+            <summary><span className="learning-stage-number">{item.finished ? '✓' : String(index + 1).padStart(2,'0')}</span><span><strong>{item.name}</strong><small>{item.goal}</small></span><span className="stage-state">{isCurrent ? 'You are here' : item.cleared ? 'Mastered' : item.finished ? 'Finished' : item.unlocked ? 'Available' : 'Coming up'}</span></summary>
+            <div className="learning-stage-lessons">{item.entries.map(entry => <button key={entry.id} className={entry.id === current?.id ? 'next' : undefined} disabled={!entry.unlocked} onClick={() => learning.startLesson(entry.id)}><i className={`lesson-mark ${entry.finished ? 'done' : entry.unlocked ? 'open' : 'locked'}`} aria-hidden="true">{entry.finished ? '✓' : ''}</i><span>{entries.find(e => e.id === entry.id)?.title ?? entry.id}</span>{entry.id === current?.id ? <b className="lesson-next">{entry.finished ? 'Next · Play for stars' : 'Next · Start'} <span aria-hidden="true">→</span></b> : <Stars count={entry.bestStars} shown={entry.finished} />}<small>{entry.mastered ? 'Mastered' : entry.passed ? 'Check passed · aim for 4 stars' : entry.finished ? 'Finished · the check is there for stars' : record.completed[entry.id]?.guided ? 'Guided practice completed' : entry.unlocked ? 'Ready to learn' : 'Finish the lesson before this one'}</small></button>)}</div>
           </details>;
         })}</div>
       </section>

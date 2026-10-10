@@ -130,7 +130,20 @@ export class AppPage {
 
   async selectDrawerTab(name) {
     await this.openLibrary();
-    await this.page.getByRole('tab', { name: ({Path:'Today’s plan',Keyboard:'Settings'})[name] ?? name, exact:true }).click();
+    await this.page.getByRole('tab', { name: ({Path:'Today’s plan'})[name] ?? name, exact:true }).click();
+  }
+
+  /** Opens Input & sound with its More options out: timing, touch, the keyboard's size and fit, external sound. */
+  async openMoreOptions() {
+    await this.closeLibrary();
+    await this.page.locator('.setup-trigger').click();
+    const dialog = this.page.getByRole('dialog', { name: 'Your instrument, ready to play.' });
+    await dialog.locator('.setup-more > summary').click();
+    return dialog;
+  }
+
+  async closeMoreOptions() {
+    await this.page.getByRole('button', { name: 'Done', exact: true }).click();
   }
 
   /** Picks a piece from the "Practice library" list by its visible title. */
@@ -147,16 +160,16 @@ export class AppPage {
 
   /** `id` is one of the values in KEYBOARD_PROFILES (devices.js), e.g. 'mpk-mini', 'generic-88'. */
   async setKeyboardProfile(id) {
-    await this.selectDrawerTab('Keyboard');
-    await this.page.locator('select.picker').first().selectOption(id);
-    await this.closeLibrary();
+    const dialog = await this.openMoreOptions();
+    await dialog.getByLabel('Keyboard', { exact: true }).selectOption(id);
+    await this.closeMoreOptions();
   }
 
   /** `label` is one of 'As written' | 'Octave shift' | 'Fit my keys'. */
   async setFit(label) {
-    await this.selectDrawerTab('Keyboard');
-    await this.page.getByRole('button', { name: label, exact: true }).click();
-    await this.closeLibrary();
+    const dialog = await this.openMoreOptions();
+    await dialog.getByRole('button', { name: label, exact: true }).click();
+    await this.closeMoreOptions();
   }
 
   async setDailyGoalMinutes(minutes) {

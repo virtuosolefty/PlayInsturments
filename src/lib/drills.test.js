@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { canDrill, drillFrom, drillIdFor } from './drills.js';
+import { drillFrom, drillIdFor } from './drills.js';
 import { barAt } from './passages.js';
 import { noteName } from './theory.js';
 
@@ -44,7 +44,6 @@ describe('drillFrom', () => {
 
   it('returns nothing when there is no recorded trouble', () => {
     expect(drillFrom(score, [])).toBeNull();
-    expect(canDrill([])).toBe(false);
   });
 
   it('returns nothing for a score with no notes', () => {

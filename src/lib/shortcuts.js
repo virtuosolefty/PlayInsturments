@@ -79,7 +79,7 @@ export const LEGENDS = {
 };
 
 /** Steps the speed slider moves in, matching its own `step` attribute. */
-export const RATE_STEP = 0.05;
+const RATE_STEP = 0.05;
 export const RATE_MIN = 0.4;
 export const RATE_MAX = 1.5;
 

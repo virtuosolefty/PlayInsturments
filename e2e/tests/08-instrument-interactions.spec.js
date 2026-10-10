@@ -80,7 +80,10 @@ test('3D picking uses the visible string and fret, including the left-handed vie
 });
 test('up and down strums use opposite string order and selected strength',async({page})=>{
   await guitar(page);await workspace(page,'Free play').click();
+  // Strength and spread fold away under Feel, which says what they are set to.
+  await page.locator('.chord-feel > summary').click();
   await page.getByRole('slider',{name:'Strum strength',exact:true}).fill('0.5');
+  await expect(page.locator('.chord-feel > summary')).toContainText('50%');
   await page.getByRole('button',{name:'↓ Strum Em',exact:true}).click();await onCount(page).toBe(6);
   const down=(await events(page)).filter(m=>m.type==='noteon');expect(down.map(m=>m.string)).toEqual([0,1,2,3,4,5]);expect(down.every(m=>m.velocity===.5)).toBe(true);
   await page.evaluate(()=>window.__notes=[]);await page.getByRole('button',{name:'↑ Up strum',exact:true}).click();await onCount(page).toBe(6);

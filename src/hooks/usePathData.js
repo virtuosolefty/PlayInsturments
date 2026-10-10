@@ -10,7 +10,7 @@ import {
 } from '../lib/path.js';
 import { dayKey, streakFrom } from '../lib/streaks.js';
 import { getAllSongEntries } from '../lib/storage.js';
-import { stringKit } from '../lib/instruments.js';
+import { instrumentKit } from '../lib/instruments.js';
 
 /**
  * Everything the Path tab shows, derived in one pass.
@@ -27,7 +27,7 @@ export function usePathData(library, days, version, instrument = 'piano') {
   return useMemo(() => {
     const entries = getAllSongEntries();
     const sessionsFor = (id) => entries[id]?.sessions ?? [];
-    const kit = stringKit(instrument);
+    const kit = instrumentKit(instrument);
     const guitar = !!kit;
     const state = pathState(sessionsFor, kit ? kit.pathStages : undefined);
     const today = dayKey();

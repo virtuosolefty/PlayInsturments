@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 import { watchSound } from '../helpers/sound.js';
 
 test.beforeEach(async ({ page }) => {
+  await seedSettings(page, { renderer: 'canvas' });
   await page.addInitScript(() => {
-    if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({version:1,songs:{},settings:{settingsVersion:5,onboarded:true,renderer:'canvas',countInBars:0}}));
     window.__testInput = {id:'test-input',name:'Test MIDI keyboard',state:'connected',onmidimessage:null};
     window.__sentOutput = [];
     const output = {id:'test-output',name:'Test synth',state:'connected',send: (message,time) => window.__sentOutput.push({message,time})};
@@ -14,7 +15,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('output test makes sound without falsely verifying controller input or grading', async ({ page }) => {
-  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Instrument setup|Controller connected/}).click();
+  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Input & sound|Controller connected/}).click();
   const dialog=page.getByRole('dialog',{name:'Your instrument, ready to play.'});
   await dialog.getByRole('button',{name:/^MIDI controller/}).click();
   await dialog.getByRole('button',{name:/Look for a device|Refresh devices/}).click();
@@ -37,7 +38,7 @@ test('output test makes sound without falsely verifying controller input or grad
 test('test tone respects an external output and never falls back to browser notes', async ({ page }) => {
   await page.evaluate(()=>{const d=JSON.parse(localStorage.getItem('piano-practice-coach:v1'));d.settings.instrumentSource='external';d.settings.inputMethod='midi';localStorage.setItem('piano-practice-coach:v1',JSON.stringify(d));});
   await page.reload();
-  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Instrument setup|Controller connected/}).click();
+  await page.getByRole('group',{name:'Sound and input'}).getByRole('button',{name:/Input & sound|Controller connected/}).click();
   const dialog=page.getByRole('dialog',{name:'Your instrument, ready to play.'});
   await dialog.getByRole('button',{name:/Look for a device|Refresh devices/}).click();
   await page.evaluate(()=>window.__sentOutput=[]);

@@ -17,7 +17,7 @@ import { exportHistory } from '../lib/storage.js';
 const WHERE_DEPTH = 5;
 
 /** The innermost components of a React component stack, as "Inner › Outer"; '' when there is none. */
-export function failedIn(componentStack) {
+function failedIn(componentStack) {
   const names = String(componentStack ?? '').split('\n')
     .map(line => line.trim().match(/^at ([\w$.]+)|^([\w$.]+)@/))
     .filter(Boolean).map(match => match[1] ?? match[2]).filter(name => /^[A-Z]/.test(name));

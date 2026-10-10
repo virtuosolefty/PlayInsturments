@@ -126,6 +126,19 @@ describe('instrument selection', () => {
     expect(audio.instrumentType).toBe('cello');
     expect(audio.sourceLabel).toBe('Cello · synthesized');
   });
+  it('gives the bass a voice of its own', async () => {
+    audio._loadPromise = null;
+    audio.setInstrumentType('guitar');
+    const upgrade = vi.spyOn(audio, '_upgrade');
+    await audio.start();
+    const guitar = audio.instrument;
+    audio.setInstrumentType('bass');
+    expect(audio.instrumentType).toBe('bass');
+    expect(audio.sourceLabel).toBe('Bass · synthesized');
+    expect(audio.instrument).not.toBe(guitar);
+    // Neither is the piano, so neither sends for piano samples.
+    expect(upgrade).not.toHaveBeenCalled();
+  });
   it('treats an unknown instrument as the piano', () => {
     audio.setInstrumentType('guitar');
     audio.setInstrumentType('theremin');

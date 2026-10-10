@@ -36,6 +36,9 @@ const PATHS = {
   arrowRight: <><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>,
   arrowLeft: <><path d="M19 12H5" /><path d="m11 6-6 6 6 6" /></>,
   chevronDown: <path d="m6 9 6 6 6-6" />,
+  mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8.5 21h7" /></>,
+  // A tuning fork: two tines on a stem.
+  tuner: <><path d="M8.5 3v6.5a3.5 3.5 0 0 0 7 0V3" /><path d="M12 13v8" /></>,
   sparkle: <path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" />,
 };
 

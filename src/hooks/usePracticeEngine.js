@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { canonicalDrumMidi } from '../lib/drums.js';
 import { PracticeSession, NOTE_STATUS } from '../lib/matcher.js';
 import { Scheduler, Transport } from '../lib/transport.js';
 import { audio } from '../lib/audio.js';
@@ -84,6 +85,18 @@ function instrumentFor(settings) {
 }
 
 /**
+ * Should the app sound a note the player has just played?
+ *
+ * For the screen, the computer keys and a MIDI controller, always: none of
+ * them makes a sound of its own, and the app must feel like an instrument.
+ * For a note heard through the microphone, never: the real instrument has
+ * already sounded it, and playing it again would go straight back into the
+ * microphone as a note nobody played. The same goes for the buzz on a wrong
+ * note: heard by the microphone it is another wrong note, which buzzes again.
+ */
+export const soundsInput = (msg) => msg.source !== 'mic';
+
+/**
  * Silence both instruments. Which one is live can change between a note
  * starting and the stop that ends it, and a stuck note on a MIDI port rings
  * until something explicitly tells it not to.
@@ -104,6 +117,16 @@ export function referencePlaybackFor(settings) {
   if (settings.mode === MODES.LISTEN) return true;
   if (settings.mode === MODES.WAIT) return false;
   return !!settings.referenceAudio;
+}
+
+/**
+ * The note a message means. Pitched instruments take the input transpose; on
+ * the drums a controller's neighbouring General MIDI note counts as the drum
+ * the lessons are written in.
+ */
+export function playedMidi(cfg, midi) {
+  if (cfg.practiceInstrument === 'drums') return canonicalDrumMidi(midi) ?? midi;
+  return midi + (cfg.inputTranspose ?? 0);
 }
 
 export function usePracticeEngine(score, settings) {
@@ -487,7 +510,7 @@ export function usePracticeEngine(score, settings) {
       const cfg = settingsRef.current;
 
       if (msg.type === 'noteon') {
-        const midi = msg.midi + (cfg.inputTranspose ?? 0);
+        const midi = playedMidi(cfg, msg.midi);
         // Playing a key is the most natural "I'm ready" signal there is. Some
         // browsers still want a click first, which is what the banner is for.
         if (!audio.running) {
@@ -502,7 +525,7 @@ export function usePracticeEngine(score, settings) {
         // Always sound what the player pressed — the app must feel like an
         // instrument even when nothing is running.
         const instrument = instrumentFor(cfg);
-        if (instrument === audio || cfg.forwardInput !== false) {
+        if (soundsInput(msg) && (instrument === audio || cfg.forwardInput !== false)) {
           instrument.attack(midi, touch);
         }
 
@@ -515,7 +538,7 @@ export function usePracticeEngine(score, settings) {
           verdict = event;
           setEvents((prev) => [event, ...prev].slice(0, MAX_EVENTS));
 
-          if (cfg.errorCues) {
+          if (cfg.errorCues && soundsInput(msg)) {
             if (event.type === 'wrong') audio.errorCue(event.kind, event.severity);
             else if (event.type === 'timing' && event.severity > 0.35) audio.errorCue('timing', event.severity);
           }
@@ -548,9 +571,9 @@ export function usePracticeEngine(score, settings) {
         pushEffect({ midi, type: verdict.type, severity: verdict.severity ?? 0 });
         bumpCombo(verdict.type);
       } else if (msg.type === 'noteoff') {
-        const midi = msg.midi + (cfg.inputTranspose ?? 0);
+        const midi = playedMidi(cfg, msg.midi);
         const instrument = instrumentFor(cfg);
-        if (instrument === audio || cfg.forwardInput !== false) instrument.release(midi);
+        if (soundsInput(msg) && (instrument === audio || cfg.forwardInput !== false)) instrument.release(midi);
         activeInputRef.current.delete(midi);
         if (session && t.playing) {
           const songT = t.perfToSong(msg.at) - inputLatencySec(cfg);

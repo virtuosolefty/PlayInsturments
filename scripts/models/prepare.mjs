@@ -2,7 +2,7 @@
 /**
  * prepare.mjs — turns the downloaded instruments into the files the stage loads.
  *
- *   node scripts/models/prepare.mjs [guitar] [violin] [cello]
+ *   node scripts/models/prepare.mjs [guitar] [violin] [cello] [guitar-bass] ...
  *
  * Reads models-src/<name>/scene.gltf — Sketchfab's "glTF (Autoconverted)"
  * download, unzipped — and writes, for each instrument:
@@ -24,10 +24,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGlb, createGltfBuilder, readAccessor, transformNormals, transformPoints, worldMatrices } from './gltfIO.mjs';
 import { connectedComponents, describeComponents, weldByPosition } from './meshParts.mjs';
-import { crossSectionRadius, fitLine, fitScale, playingSpan, ringCentres } from './fit.mjs';
+import { crossSectionRadius, fitLine, fitScale, lowestFirst, playingSpan, ringCentres } from './fit.mjs';
 import { toWebp } from './images.mjs';
 import { quantizeFrame, quantizePart } from './quantize.mjs';
 import { RECIPES } from './recipes.mjs';
+import { asMetalRough, drumZonePart, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const NUT_X = -6.05;
@@ -87,7 +88,7 @@ function findPieces(source, recipe) {
     boxes.forEach((b, i) => {
       const piece = { primIndex, index: i, material: prim.materialName, box: b, triangles: b.triangles, largest: i === largest };
       piece.part = recipe.classify(piece, model);
-      piece.isFret = recipe.frets?.(piece) ?? false;
+      piece.isFret = recipe.frets?.(piece, model) ?? false;
       pieces.push(piece);
     });
     prim.parts = parts;
@@ -113,9 +114,8 @@ function piecePoints(source, piece) {
  * string first. A string bends at the nut and at the bridge, so its longest
  * straight stretch is the part that plays.
  *
- * Strings are ordered by where they sit across the neck. Which end of that
- * order is the bass is read from their thickness: artists rarely model true
- * gauges, but the thick side is still the thick side.
+ * Strings are ordered by where they sit across the neck, lowest first (see
+ * `lowestFirst` in fit.mjs).
  */
 function measureStrings(source, pieces, recipe, model) {
   const along = recipe.lengthAxis, [across, sign] = recipe.axes[2];
@@ -129,10 +129,7 @@ function measureStrings(source, pieces, recipe, model) {
     return { piece, nut, bridge, radius, side: sign * bridge[across] };
   });
   if (strings.length !== recipe.strings) throw new Error(`Expected ${recipe.strings} strings in the model, found ${strings.length}`);
-  strings.sort((p, q) => q.side - p.side);
-  const mean = key => strings.reduce((sum, s) => sum + s[key], 0) / strings.length;
-  const trend = strings.reduce((sum, s) => sum + (s.side - mean('side')) * (s.radius - mean('radius')), 0);
-  return trend >= 0 ? strings : strings.reverse();
+  return lowestFirst(strings, { rightHanded: recipe.rightHanded });
 }
 
 /** The stage transform: turn the model's axes onto the stage's, scale, and put the nut at x = NUT_X on the strings' centreline. */
@@ -163,14 +160,13 @@ function keptPieces(source, pieces, strings, along) {
 
 /** Moves the kept triangles into stage space as one compact primitive per part. */
 function buildParts(source, pieces, transform) {
-  const groups = new Map(); // `${part}|${material}` → { part, material, triangles: [] }
+  const groups = new Map(); // `${part}|${material}|${primitive}` → { part, material, primIndex, triangles: [] }
   for (const piece of pieces) {
     const prim = source.primitives[piece.primIndex];
-    const key = `${piece.part}|${prim.material}`;
+    // Vertices are numbered within a primitive, so two primitives stay two, even under one part and one material.
+    const key = `${piece.part}|${prim.material}|${piece.primIndex}`;
     if (!groups.has(key)) groups.set(key, { part: piece.part, material: prim.material, primIndex: piece.primIndex, triangles: [] });
-    const group = groups.get(key);
-    if (group.primIndex !== piece.primIndex) throw new Error(`Part ${piece.part} draws on two primitives with one material, which this script does not merge`);
-    group.triangles.push(...piece.triangles);
+    groups.get(key).triangles.push(...piece.triangles);
   }
   return [...groups.values()].map(group => {
     const prim = source.primitives[group.primIndex];
@@ -265,10 +261,79 @@ function writeGlb(name, recipe, parts, encoded) {
   return buildGlb(json, bin);
 }
 
+/**
+ * A model that is only shown (showcase.mjs): turned upright, scaled and
+ * re-encoded, with every part it came with. Its measurements are just the box
+ * the viewer frames and the angle it is first seen from.
+ */
+/**
+ * The downloaded model as the rest of this script reads it: every material
+ * written the way the stage draws (showcase.mjs), without the parts a recipe
+ * leaves out, and, where the recipe asks, without vertex data its materials
+ * cannot use.
+ */
+function sourceFor(name, recipe) {
+  const loaded = loadSource(name);
+  const materials = (loaded.json.materials ?? []).map(asMetalRough);
+  const kept = loaded.primitives.filter(prim => !recipe.omit?.(prim.materialName));
+  return { ...loaded, json: { ...loaded.json, materials }, primitives: recipe.lean ? kept.map(prim => leanPrimitive(prim, materials[prim.material])) : kept };
+}
+
+/**
+ * A kit's pieces, each drum's own in a part of its own (`drum-<id>-<n>`, see
+ * `drumZonePart`) so that the stage can move and light it when it is hit;
+ * what belongs to no drum stays in the part its primitive always was.
+ */
+function drumPieces(source, zones, transform) {
+  const length = Math.max(...[0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k))) - Math.min(...source.primitives.map(p => minOf(p.positions, k)))));
+  return source.primitives.flatMap((prim, primIndex) => {
+    const parts = connectedComponents(prim.indices, weldByPosition(prim.positions, length * 1e-6));
+    const names = describeComponents(prim.positions, prim.indices, parts).map(box => {
+      const lo = transform.apply(box.min), hi = transform.apply(box.max);
+      return drumZonePart(zones, { centre: lo.map((v, k) => (v + hi[k]) / 2), size: lo.map((v, k) => hi[k] - v) }) ?? `part${primIndex}`;
+    });
+    const triangles = new Map();
+    for (let t = 0; t < parts.ofTriangle.length; t++) {
+      const part = names[parts.ofTriangle[t]];
+      if (!triangles.has(part)) triangles.set(part, []);
+      triangles.get(part).push(t);
+    }
+    return [...triangles].map(([part, list]) => ({ primIndex, part, triangles: list }));
+  });
+}
+
+async function prepareShowcase(name, recipe) {
+  const source = sourceFor(name, recipe);
+  const box = { min: [0, 1, 2].map(k => Math.min(...source.primitives.map(p => minOf(p.positions, k)))), max: [0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k)))) };
+  const transform = showcaseTransform(box, recipe.axes);
+  const parts = buildParts(source, recipe.zones ? drumPieces(source, recipe.zones, transform) : wholePieces(source.primitives), transform);
+  const encoded = await encodeMaterials(source, parts, recipe);
+  const glb = writeGlb(name, recipe, parts, encoded);
+  const bounds = parts.map(part => boundsOf(part.positions));
+  const fit = {
+    name,
+    credit: recipe.credit,
+    showcase: true,
+    view: recipe.view,
+    bounds: { min: [0, 1, 2].map(k => Math.min(...bounds.map(b => b.min[k]))), max: [0, 1, 2].map(k => Math.max(...bounds.map(b => b.max[k]))) },
+  };
+  writeModel(name, glb, fit);
+  const triangles = parts.reduce((sum, p) => sum + p.indices.length / 3, 0);
+  return { name, kb: Math.round(glb.length / 1024), triangles, parts: parts.length, textures: encoded.report, bounds: fit.bounds };
+}
+
+function writeModel(name, glb, fit) {
+  const out = path.join(ROOT, 'public', 'models');
+  mkdirSync(out, { recursive: true });
+  writeFileSync(path.join(out, `${name}.glb`), glb);
+  writeFileSync(path.join(out, `${name}.json`), `${JSON.stringify(fit, null, 2)}\n`);
+}
+
 async function prepare(name) {
   const recipe = RECIPES[name];
   if (!recipe) throw new Error(`No recipe for "${name}"; known: ${Object.keys(RECIPES).join(', ')}`);
-  const source = loadSource(name);
+  if (recipe.showcase) return prepareShowcase(name, recipe);
+  const source = sourceFor(name, recipe);
   const { pieces, model } = findPieces(source, recipe);
   const strings = measureStrings(source, pieces, recipe, model);
   const along = recipe.lengthAxis;
@@ -306,10 +371,7 @@ async function prepare(name) {
     bounds: { min: [0, 1, 2].map(k => Math.min(...all.map(b => b.min[k]))), max: [0, 1, 2].map(k => Math.max(...all.map(b => b.max[k]))) },
     parts: partBounds,
   };
-  const out = path.join(ROOT, 'public', 'models');
-  mkdirSync(out, { recursive: true });
-  writeFileSync(path.join(out, `${name}.glb`), glb);
-  writeFileSync(path.join(out, `${name}.json`), `${JSON.stringify(fit, null, 2)}\n`);
+  writeModel(name, glb, fit);
   const triangles = parts.reduce((sum, p) => sum + p.indices.length / 3, 0);
   return { name, kb: Math.round(glb.length / 1024), triangles, parts: [...new Set(parts.map(p => p.part))], textures: encoded.report, strings: fit.strings, fretFitWorst: fit.fretFitWorst };
 }

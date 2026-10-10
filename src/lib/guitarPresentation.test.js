@@ -23,6 +23,16 @@ describe('guitar chord presentation', () => {
     expect(chordTone(c,1).midi).toBe(48);
     expect(chordTone(null,0)).toBeNull();
   });
+  it('describes a chord on another instrument by that instrument’s own tuning', () => {
+    // Four strings tuned G C E A: not the guitar's.
+    const TUNING = [67, 60, 64, 69], midi = (string, fret) => TUNING[string] + fret;
+    const c = { name: 'C', frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] }, am = { name: 'Am', frets: [2, 0, 0, 0], fingers: [2, 0, 0, 0] };
+    expect(c.frets.map((_, s) => chordTone(c, s, midi).interval)).toEqual(['5', 'R', '3', 'R']);
+    expect(am.frets.map((_, s) => chordTone(am, s, midi).note)).toEqual(['A', 'C', 'E', 'A']);
+    expect(chordPositionLabel(c, 3, 'fingers', midi)).toBe('3');
+    expect(chordPositionLabel(c, 0, 'notes', midi)).toBe('G');
+    expect([c, am].map(chordFullName)).toEqual(['C major', 'A minor']);
+  });
   it('names chord quality without modifying the authored shapes', () => {
     const before = JSON.stringify(GUITAR_CHORDS);
     expect(GUITAR_CHORDS.map(chordFullName)).toEqual(['E minor','A minor','C major','G major','D major']);

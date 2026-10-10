@@ -9,12 +9,17 @@ import { useDialog } from '../hooks/useDialog.js';
  * and everything you reach for once a week behind More. On a phone the
  * destinations are the tab bar along the bottom of the screen (chrome.css).
  */
-export default function TopBar({ midiState, audioReady, audioLabel, onStartAudio, libraryOpen, onToggleLibrary, score, onLeaveDrill, theme, onToggleTheme, onSetup, onProgress, onLearn, learningHome, storageProblem }) {
+export default function TopBar({ midiState, micListening = false, micChosen = false, midiChosen = false, deviceName = null, audioReady, audioLabel, onStartAudio, libraryOpen, onToggleLibrary, score, onLeaveDrill, theme, onToggleTheme, onSetup, onTuner, onProgress, onLearn, learningHome, storageProblem }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const menuRef = useDialog({ open: menuOpen, onClose: closeMenu });
   const connected = midiState.inputs.length > 0;
+  // A controller was chosen as the way to play, and none is there: say so here, where it is always in view.
+  const missing = midiChosen && !connected && !micChosen;
+  const inputLabel = micListening ? 'Microphone on' : micChosen ? 'Microphone off' : connected ? 'Controller connected' : missing ? 'No controller found' : 'Input & sound';
+  const inputTitle = micListening ? 'Listening to your instrument through the microphone' : connected ? `${deviceName ?? midiState.inputs[0]?.name ?? 'A MIDI controller'} is connected. Open Input & sound to check it.`
+    : missing ? 'You chose a MIDI controller, but none is connected. Open Input & sound to look for it or play on screen.' : 'Choose how you play, and check that you are heard';
   const saveNote = storageProblem
     ? 'Your browser could not save recent changes. This session may not be available after you leave.'
     : 'Progress and preferences are saved in this browser. Export a backup from Library → Progress.';
@@ -30,15 +35,16 @@ export default function TopBar({ midiState, audioReady, audioLabel, onStartAudio
     {/* Saving is silent while it works; it takes space in the bar only when it has failed. */}
     {storageProblem && <span className="saved-locally save-problem" role="status" title={saveNote}><i />Changes not saved</span>}
     <div className="sound-input" role="group" aria-label="Sound and input">
-      <button className="setup-trigger" onClick={onSetup}><span className={'connection-dot ' + (connected ? 'connected' : '')} /><Icon name="sliders" size={16} className="setup-icon" /><span className="setup-label">{connected ? 'Controller connected' : 'Instrument setup'}</span></button>
+      <button className={`setup-trigger ${missing ? 'missing' : ''}`} onClick={onSetup} title={inputTitle}><span className={'connection-dot ' + (connected || micListening ? 'connected' : missing ? 'missing' : '')} /><Icon name="sliders" size={16} className="setup-icon" /><span className="setup-label">{inputLabel}</span></button>
       <div className="io-strip" aria-label="Sound">
         {audioReady ? <span className="io-slot ok audio-slot" title={`Sound ready · ${audioLabel}`}><i className="dot" /><strong>Sound ready</strong><LevelMeter /></span> : <button className="io-slot audio-slot" onClick={onStartAudio}><Icon name="volume" size={15} /> Enable sound</button>}
       </div>
     </div>
     <div className="popover-host topbar-more">
-      <button className="more-toggle" aria-label="More" title="Help, theme and backup" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(open => !open)}><Icon name="more" size={18} /></button>
+      <button className="more-toggle" aria-label="More" title="Help, tuner, theme and backup" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(open => !open)}><Icon name="more" size={18} /></button>
       {menuOpen && <><div className="popover-scrim" onClick={closeMenu} /><div className="popover topbar-menu" ref={menuRef} role="dialog" aria-label="More" tabIndex={-1}>
         <button onClick={() => { closeMenu(); setHelpOpen(true); }}><Icon name="help" />Help</button>
+        <button onClick={() => { closeMenu(); onTuner(); }}><Icon name="tuner" />Tuner</button>
         <button onClick={() => { closeMenu(); onToggleTheme(); }} aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}><Icon name={theme === 'light' ? 'moon' : 'sun'} />{theme === 'light' ? 'Dark theme' : 'Light theme'}</button>
         <button onClick={() => { closeMenu(); onProgress(); }}><Icon name="download" />Back up progress</button>
         <p className={`saved-locally menu-status ${storageProblem ? 'save-problem' : ''}`} title={saveNote}><i />{storageProblem ? 'Changes not saved' : 'Saved on this device'}</p>

@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  *
- * The controls and labels the 3D string stages share: the Learn | Whole
+ * The controls and labels the 3D string stages share: the Fretboard | Whole
  * instrument switch, Reset view, the labels over the instrument, and the hook
  * that keeps free play opening on Learn.
  */
@@ -33,19 +33,29 @@ afterEach(() => {
   container.remove();
 });
 
-describe('the Learn | Whole instrument switch', () => {
+describe('the Fretboard | Whole instrument switch', () => {
   it('presses the view shown and reports the other when it is chosen', () => {
     const onChange = vi.fn();
-    render(<StageViewSwitch value="learn" onChange={onChange} />);
+    render(<StageViewSwitch label="Fretboard" short="Frets" value="learn" onChange={onChange} />);
     expect(container.querySelector('[role="group"]').getAttribute('aria-label')).toBe('Stage view');
-    expect(button('Learn').getAttribute('aria-pressed')).toBe('true');
+    expect(button('Fretboard').getAttribute('aria-pressed')).toBe('true');
     expect(button('Whole instrument').getAttribute('aria-pressed')).toBe('false');
     act(() => button('Whole instrument').click());
     expect(onChange).toHaveBeenCalledWith('whole');
   });
 
+  it('keeps the full name of the first view where a phone shows a short one', () => {
+    for (const [label, short] of [['Fretboard', 'Frets'], ['Fingerboard', 'Fingers'], ['Practice kit', 'Kit']]) {
+      render(<StageViewSwitch label={label} short={short} value="learn" onChange={() => {}} />);
+      const first = button(label);
+      expect(first.getAttribute('aria-label')).toBe(label);
+      expect(first.querySelector('.stage-view-long').textContent).toBe(label);
+      expect(first.querySelector('.stage-view-short').textContent).toBe(short);
+    }
+  });
+
   it('keeps the full name of the second view where a phone shows only "Whole"', () => {
-    render(<StageViewSwitch value="whole" onChange={() => {}} />);
+    render(<StageViewSwitch label="Fretboard" short="Frets" value="whole" onChange={() => {}} />);
     const whole = button('Whole instrument');
     expect(whole.getAttribute('aria-pressed')).toBe('true');
     // The name is the visible text in full, and the part a phone hides is its own span.

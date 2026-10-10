@@ -41,6 +41,10 @@ const BAND_LABELS = {
   dynamics: 'Dynamics',
 };
 
+/** The tempo slider's step down, and the slowest it goes (Controls.jsx). */
+const RATE_STEP = 0.1;
+const SLOWEST_RATE = 0.4;
+
 const BAND_TONE = (v) => (v >= 85 ? 'var(--good)' : v >= 60 ? 'var(--warn)' : 'var(--bad)');
 
 function Stars({ count }) {
@@ -72,6 +76,7 @@ export default function PracticeReport({
   onSpokenCoachingChange,
   scoreNotes = [],
   onHearPassage,
+  next = null,
 }) {
   const { grade, summary, passages, title } = result;
   const comparison = compareToBest(grade.overall, previousSessions);
@@ -147,6 +152,9 @@ export default function PracticeReport({
   };
 
   const dialogRef = useDialog({ onClose });
+  // One step down the tempo ladder, for a run that got away: never below the slowest the slider goes.
+  const slower = Math.max(SLOWEST_RATE, Math.round(((result.rate ?? 1) - RATE_STEP) * 100) / 100);
+  const offerSlower = slower < (result.rate ?? 1) - 0.001;
 
   return (
     <div className="report-overlay">
@@ -175,6 +183,8 @@ export default function PracticeReport({
             </button>
           )}
           <h2>{grade.headline}</h2>
+          {/* Finishing and rating are two things: the tick opens the next lesson, the stars say how well it went. */}
+          {grade.complete && <span className="report-finished"><i aria-hidden="true">✓</i> Finished</span>}
           {grade.complete ? (
             <Stars count={grade.stars} />
           ) : (
@@ -187,14 +197,15 @@ export default function PracticeReport({
               this line are real, and they are also not worth what they look
               like: with the clock stopped there is no timing to measure, so
               timing's weight falls onto the notes and the same playing rates
-              higher than it would in Practice. Leaving that unsaid let the app
-              congratulate somebody fourteen times for work it was quietly
-              throwing away. */}
+              higher than it would in Practice. So the run finishes the lesson,
+              which opens the next one on the Path, and its stars are not the
+              Path's stars; unsaid, that had the app congratulate somebody
+              fourteen times and show them nothing for it. */}
           {result.mode === 'wait' && grade.complete && (
             <p className="report-note">
-              <strong>Not counted towards the Path.</strong> Wait for me stops the clock at
-              every chord, so this run was graded on notes and touch alone. Play it in
-              Practice, at full speed, for it to unlock anything.
+              <strong>Finished, without Path stars.</strong> Wait for me stops the clock at
+              every chord, so this run was graded on notes and touch alone. It opens the
+              next lesson on the Path; play it in Practice, at full speed, for the stars.
             </p>
           )}
         </header>
@@ -317,6 +328,8 @@ export default function PracticeReport({
           )}
           <span className="report-actions-spacer" />
           <button onClick={onRepeat}>↻ Run again</button>
+          {offerSlower && <button onClick={() => onApplyRate(slower)} title="Play it again, one step slower">Slower · {Math.round(slower * 100)}%</button>}
+          {next && <button onClick={next.go}>{next.label} →</button>}
           <button onClick={onClose}>Close</button>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { MODEL_CREDITS } from '../lib/modelCredits.js';
 const SHORTCUTS = [
   ['Space', 'Play or pause'], ['0', 'Stop and save the run'], ['1', 'Listen mode'], ['2', 'Practice mode'], ['3', 'Wait for me'],
   ['[', 'Toggle passage loop'], [']', 'Toggle metronome'], ['\\', 'Hear the phrase / your turn'], ['← / →', 'Move through the piece'], ['↑ / ↓', 'Change tempo'],
-  ['A–J', 'Play the middle-C octave'], ['Z–M', 'Play the lower octave'], ['Esc', 'Close a panel or exit Focus'],
+  ['A–J', 'Play the middle-C octave'], ['Z–M', 'Play the lower octave'], ['K S H T M F C R O', 'On the drums: each letter is the drum it starts (O is the open hi-hat)'], ['Esc', 'Close a panel or exit Focus'],
 ];
 export default function HelpDialog({ onClose }) {
   const [query, setQuery] = useState('');
@@ -20,7 +20,7 @@ export default function HelpDialog({ onClose }) {
     <p className="hint">In a passage loop, focus either boundary and use the arrow keys to move it by one bar. Home and End move it to its limit.</p>
     <section className="model-credits" aria-labelledby="model-credits-title">
       <h3 id="model-credits-title">3D instruments</h3>
-      <ul>{MODEL_CREDITS.map(credit => <li key={credit.instrument}>
+      <ul>{MODEL_CREDITS.map(credit => <li key={credit.model}>
         <a href={credit.source} target="_blank" rel="noopener noreferrer">“{credit.title}”</a> by <a href={credit.authorUrl} target="_blank" rel="noopener noreferrer">{credit.author}</a>, licensed under <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer">{credit.license}</a>. Changed: {credit.changes}.
       </li>)}</ul>
     </section>

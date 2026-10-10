@@ -12,7 +12,7 @@
  * actually stops rather than merely muting notes already queued.
  */
 
-export const CLIP_DEFAULTS = {
+const CLIP_DEFAULTS = {
   /** A key barely touched still has to be audible. */
   minDuration: 0.12,
   /** A note held to the end of the run should not ring for a minute. */
@@ -28,13 +28,13 @@ const playable = (played) =>
   );
 
 /** Song time of the first note in a set, or null if there isn't one. */
-export const firstOnset = (played = []) => {
+const firstOnset = (played = []) => {
   const usable = playable(played);
   return usable.length ? Math.min(...usable.map((p) => p.start)) : null;
 };
 
 /** Score notes in the shape a captured performance has. */
-export const notesAsPlayed = (notes = []) =>
+const notesAsPlayed = (notes = []) =>
   notes.map((n) => ({
     midi: n.midi,
     start: n.time,

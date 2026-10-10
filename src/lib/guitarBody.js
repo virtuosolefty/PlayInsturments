@@ -11,8 +11,8 @@ import { CanvasTexture, CircleGeometry, CylinderGeometry, ExtrudeGeometry, Group
  * across its width, so these parts sit in a group that undoes that squash.
  */
 
-export const BODY_START = 6.0; // where the neck meets the body, at fret 12
-export const BODY_LENGTH = 18;
+const BODY_START = 6.0; // where the neck meets the body, at fret 12
+const BODY_LENGTH = 18;
 const TOP_W = 1024, TOP_H = 740, UNIT = TOP_W / BODY_LENGTH;
 const SOUNDHOLE = { x: BODY_START + 2.65, r: 1.45 };
 export const STRING_POSTS = [-8.15, -7.55, -6.95, -6.95, -7.55, -8.15]; // low E … high E
@@ -26,7 +26,7 @@ const HALF_BODY = [
 ];
 
 /** Traces the body outline onto a THREE.Shape or a 2D canvas context. */
-export function traceBody(path, x0 = BODY_START) {
+function traceBody(path, x0 = BODY_START) {
   path.moveTo(x0, 0);
   HALF_BODY.forEach(([a, b, c, d, e, f]) => path.bezierCurveTo(x0 + a, b, x0 + c, d, x0 + e, f));
   for (let i = HALF_BODY.length - 1; i >= 0; i--) {

@@ -328,14 +328,6 @@ button.danger {
     white-space: nowrap;
   }
 
-  .midi-status .midi-long {
-    display: none;
-  }
-
-  .midi-status .midi-short {
-    display: inline;
-  }
-
   .topbar .chip strong {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -428,12 +420,6 @@ button.danger {
   .pane.right {
     transition: none;
   }
-}
-
-/* The long MIDI label is the default; the short one only appears where the
-   media query above asks for it. */
-.midi-status .midi-short {
-  display: none;
 }
 
 /* A hint that is telling you something is wrong rather than explaining how
@@ -1149,16 +1135,6 @@ button.linky:hover:not(:disabled) {
   color: var(--text-faint);
 }
 
-.piece-stars i {
-  font-style: normal;
-  color: var(--bg-3);
-  font-size: var(--fs-md);
-}
-
-.piece-stars i.on {
-  color: var(--warn);
-}
-
 .piece-best .fresh {
   color: var(--text-dim);
 }
@@ -1192,18 +1168,6 @@ button.linky:hover:not(:disabled) {
   text-align: right;
 }
 
-.piece-facts dd.fit-fits {
-  color: var(--good);
-}
-
-.piece-facts dd.fit-shift {
-  color: var(--accent);
-}
-
-.piece-facts dd.fit-fold {
-  color: var(--warn);
-}
-
 .drill-build {
   width: 100%;
   margin-top: var(--sp-3);
@@ -1217,12 +1181,6 @@ button.linky:hover:not(:disabled) {
   font-size: var(--fs-sm);
   color: var(--accent);
   border-color: var(--accent-dim);
-}
-
-.piece-play {
-  width: 100%;
-  padding: var(--sp-3);
-  font-size: var(--fs-md);
 }
 
 .piece-hint {
@@ -1725,14 +1683,6 @@ button.io-slot:hover {
   color: var(--text);
 }
 
-.io-label {
-  font-size: var(--fs-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-caps);
-  color: var(--text-faint);
-  flex: none;
-}
-
 .io-slot strong {
   font-weight: var(--fw-medium);
   color: var(--text);
@@ -1797,10 +1747,6 @@ button.io-slot:hover {
 
 .level-meter i.hot {
   background: var(--warn);
-}
-
-.io-latency {
-  font-family: var(--mono);
 }
 
 /* Inside a slot the select is already in a bordered frame, so it drops its own
@@ -1931,34 +1877,10 @@ button.io-slot:hover {
   width: 100%;
 }
 
-.run-waiting {
-  display: grid;
-  gap: var(--sp-1);
-  margin: 0;
-}
-
-.run-waiting strong {
-  font-family: var(--mono);
-  font-size: var(--fs-xl);
-  color: var(--text);
-}
-
-.run-waiting span {
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
-}
-
 /* ====================================================== wrong-note breakdown */
 .kv.head {
   color: var(--text-faint);
   font-size: var(--fs-xs);
-}
-
-.wrong-notes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1);
-  margin-top: 6px;
 }
 
 .wrong-note {
@@ -2462,61 +2384,6 @@ button.io-slot:hover {
   width: min(520px, 100%);
 }
 
-.first-run-steps {
-  list-style: none;
-  margin: var(--sp-1) 0 var(--sp-4);
-  padding: 0;
-  display: grid;
-  gap: var(--sp-4);
-}
-
-.first-run-steps li {
-  display: flex;
-  gap: var(--sp-3);
-  align-items: flex-start;
-}
-
-.first-run-steps .n {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-bold);
-  background: var(--bg-3);
-  color: var(--text-dim);
-}
-
-/* A step that is already true. Green because it is a fact about the world
-   being right, not a control — the same green a correct note wears. */
-.first-run-steps li.done .n {
-  background: rgb(69 214 138 / 16%);
-  color: var(--good);
-}
-
-.first-run-steps div {
-  display: grid;
-  gap: 2px;
-}
-
-.first-run-steps strong {
-  font-size: var(--fs-md);
-  font-weight: var(--fw-bold);
-}
-
-.first-run-steps span {
-  font-size: var(--fs-sm);
-  color: var(--text-dim);
-  line-height: 1.45;
-}
-
-.first-run-steps button.linky {
-  justify-self: start;
-  margin-top: 2px;
-}
-
 /* ================================================================== modals */
 .modal-scrim {
   position: fixed;
@@ -2753,171 +2620,12 @@ button.io-slot:hover {
    remaining numbers stay as gauges, because they are reference rather than
    verdict — how hard you hit, how evenly — and reference does not need to be
    the first thing your eye lands on. */
-.perf-head {
-  display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
-  gap: var(--sp-3);
-  align-items: center;
-  padding: var(--sp-3) var(--sp-3) var(--sp-3);
-  border-radius: var(--radius);
-  background: var(--screen);
-  box-shadow: var(--bezel-inset);
-}
 
-.score-ring {
-  position: relative;
-  width: 104px;
-  height: 104px;
-}
-
-.score-ring svg {
-  width: 100%;
-  height: 100%;
-  /* Zero at twelve o'clock. */
-  transform: rotate(-90deg);
-}
-
-.score-ring circle {
-  fill: none;
-  stroke-width: 7;
-  stroke-linecap: round;
-}
-
-.score-ring .ring-track {
-  stroke: rgb(255 255 255 / 7%);
-}
-
-.score-ring .ring-fill {
-  transition: stroke-dasharray var(--dur-base) var(--ease-out);
-  filter: drop-shadow(0 0 6px currentcolor);
-}
-
-.ring-read {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  font-family: var(--mono);
-  pointer-events: none;
-}
-
-.ring-read strong {
-  font-size: var(--fs-xl);
-  font-weight: var(--fw-bold);
-  line-height: 1;
-}
-
-.ring-read span {
-  font-size: var(--fs-2xs);
-  color: var(--text-faint);
-}
-
-.perf-side {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-2);
-  min-width: 0;
-}
-
-/* ------------------------------------------------------------- the needle */
-.needle-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-2);
-  font-size: var(--fs-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-caps);
-  color: var(--text-faint);
-}
-
-.needle-head em {
-  font-style: normal;
-  font-weight: var(--fw-bold);
-  color: var(--warn);
-}
-
-.needle-head em.ok {
-  color: var(--good);
-}
-
-/* Nothing measured yet. Quiet, and never green — a verdict colour on a
-   non-verdict is the whole bug this state exists to stop. */
-.needle-head em.unmeasured {
-  color: var(--text-faint);
-  font-weight: var(--fw-regular);
-}
-
-.needle-track.empty {
-  opacity: 0.45;
-}
-
-/* An empty ring should read as empty rather than as a stroke that failed. */
-.score-ring.empty .ring-read strong {
-  color: var(--text-faint);
-}
-
-.needle-track {
-  position: relative;
-  height: 10px;
-  margin-top: var(--sp-1);
-  border-radius: var(--radius-xs);
-  overflow: visible;
-  background: linear-gradient(
-    90deg,
-    rgb(242 181 68 / 22%) 0%,
-    rgb(255 255 255 / 4%) 38%,
-    rgb(69 214 138 / 20%) 50%,
-    rgb(255 255 255 / 4%) 62%,
-    rgb(242 181 68 / 22%) 100%
-  );
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / 60%);
-}
-
-.needle-centre {
-  position: absolute;
-  left: 50%;
-  top: -2px;
-  bottom: -2px;
-  width: 1px;
-  background: rgb(255 255 255 / 22%);
-}
-
-/* The pin itself, not a filled bar: a bar reads as "how much", and this is a
-   "which way". Translated rather than offset so it lands on the exact centre. */
-.needle-pin {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 3px;
-  border-radius: var(--radius-xs);
-  background: var(--text);
-  box-shadow: 0 0 8px rgb(232 237 245 / 60%);
-  transform: translateX(-50%);
-  transition: left var(--dur-base) var(--ease-out);
-}
-
-.needle-scale {
-  display: flex;
-  justify-content: space-between;
-  margin-top: var(--sp-1);
-  font-size: var(--fs-2xs);
-  font-family: var(--mono);
-  color: var(--text-faint);
-}
 
 /* --------------------------------------------------------------- the lamps
    Dark until they have something to report. A row of zeroes is four numbers
    to read that all say "nothing happened"; four unlit lamps say it at a
    glance and cost no reading at all. */
-.leds {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-1) var(--sp-2);
-}
 
 .led {
   display: inline-flex;
@@ -3517,6 +3225,7 @@ button.io-slot:hover {
   color: var(--text-faint);
 }
 
+.path-mark.finished { color: var(--text-dim); }
 .path-mark.passed { color: var(--now); }
 .path-mark.mastered { color: var(--good); }
 .path-mark.open { color: var(--accent); }

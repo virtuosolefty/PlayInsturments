@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom';
 import BowCard from './BowCard.jsx';
 import BowedStage from './BowedStage.jsx';
 import StringTab from './StringTab.jsx';
+import StudyOptions from './StudyOptions.jsx';
+import Icon from './Icon.jsx';
+import TypeSwitch from './TypeSwitch.jsx';
 import { bowedReach } from '../lib/bowed.js';
 import { stringKit } from '../lib/instruments.js';
 import { noteInstruction } from '../lib/learning.js';
@@ -21,7 +24,7 @@ const BowedStage3D = lazy(() => import('./BowedStage3D.jsx'));
  * out, it is the 2D fingerboard (BowedStage.jsx). Under the 3D stage the 2D
  * fingerboard stays one click away for keyboard players.
  */
-export default function BowedWorkspace({ instrument, score, engine, settings, setSettings, onStudy, freePlay, onFreePlay, inspector }) {
+export default function BowedWorkspace({ instrument, onInstrument, onTuner, score, engine, settings, setSettings, onStudy, freePlay, onFreePlay, inspector }) {
   const kit = stringKit(instrument);
   const { bow, lift, silence, activePositions } = useStringInput(instrument);
   const [scale, setScale] = useState(kit.scales[0]);
@@ -65,8 +68,9 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
       {!freePlay && <StringTab instrument={instrument} score={score} engine={engine} pps={settings.pps} />}
       {!freePlay && <div className="guitar-next"><span>UP NEXT</span><strong>{next ? noteInstruction(next, instrument) : 'Study complete'}</strong><span className="guitar-tab-key">0 = open string · numbers are fingers</span></div>}
       <div className="guitar-view-controls">
+        {onInstrument && <TypeSwitch instrument={instrument} onChange={onInstrument} />}
         {!freePlay && <label className="guitar-exercise">Exercise<select aria-label={`${kit.label} exercise`} value={score.id} onChange={e => onStudy(e.target.value)}>
-          {kit.studies.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
+          <StudyOptions kit={kit} />
         </select></label>}
         <label>Reach<select aria-label="Visible finger places" value={maxFret === 12 ? 'octave' : 'first'} onChange={e => setSettings(s => ({ ...s, bowedRange: e.target.value }))}>
           <option value="first">First position · 0–{reach}</option><option value="octave">Up to the octave · 0–12</option>
@@ -75,6 +79,7 @@ export default function BowedWorkspace({ instrument, score, engine, settings, se
           <option value="fingers">Fingers</option><option value="notes">Notes</option>
         </select></label>
         <label>Text<select aria-label="Instrument label size" value={labelSize} onChange={e => setSettings(s => ({ ...s, instrumentLabelSize: +e.target.value }))}><option value="14">Standard</option><option value="18">Large</option></select></label>
+        {onTuner && !freePlay && <button type="button" className="view-tool" onClick={onTuner} title="Tune your instrument with the microphone"><Icon name="tuner" size={14} />Tuner</button>}
       </div>
       {solid ? <>
         <Suspense fallback={<div className="guitar-stage-loading">Preparing your {kit.label.toLowerCase()}…</div>}>

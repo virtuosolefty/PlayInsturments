@@ -1,7 +1,8 @@
 /**
- * The rules of the Path. The one that matters most is that turning up does not
- * unlock anything — every gate here is on how well you played, never on how
- * often, because a curriculum that advances on attendance is lying.
+ * The rules of the Path. Finishing a lesson opens the next one, however it was
+ * played; an abandoned run opens nothing. Stars are kept apart from that: they
+ * say how well a lesson is known, and only a timed run at the written speed
+ * earns the ones that pass its check.
  */
 
 import { describe, expect, it } from 'vitest';
@@ -17,13 +18,11 @@ import {
   atTempo,
   badgeState,
   blockerHelp,
-  benchmarkDue,
   benchmarkRuns,
   benchmarkTrend,
   dailyProgress,
   dailySet,
   exerciseState,
-  isPathExercise,
   pathState,
   qualifyingRuns,
   rungAt,
@@ -74,10 +73,6 @@ describe('the curriculum', () => {
     expect(new Set(recitals).size).toBe(recitals.length);
   });
 
-  it('knows what belongs to it', () => {
-    expect(isPathExercise('path-01-home-five-right')).toBe(true);
-    expect(isPathExercise('fur-elise')).toBe(false);
-  });
 });
 
 describe('what counts as a run', () => {
@@ -149,6 +144,26 @@ describe('the tempo ladder', () => {
   });
 });
 
+describe('finishing an exercise', () => {
+  it('takes one complete run, in any mode and at any speed', () => {
+    expect(exerciseState([run({ mode: 'wait', stars: 2 })]).finished).toBe(true);
+    expect(exerciseState([run({ stars: 1, rate: 0.4 })]).finished).toBe(true);
+    expect(exerciseState([run({ stars: 5 })]).finished).toBe(true);
+  });
+
+  it('is not earned by a run that was abandoned, or by junk in the ledger', () => {
+    // An incomplete run is stored without stars.
+    expect(exerciseState([run({ stars: 0 }), run({ stars: null }), run({ mode: 'wait', stars: null })]).finished).toBe(false);
+    expect(exerciseState([null, undefined, {}]).finished).toBe(false);
+    expect(exerciseState([]).finished).toBe(false);
+  });
+
+  it('says nothing about how well it was played', () => {
+    const state = exerciseState([run({ mode: 'wait', stars: 5 })]);
+    expect(state).toMatchObject({ finished: true, passed: false, mastered: false, bestStars: 0 });
+  });
+});
+
 describe('passing an exercise', () => {
   it('takes three stars at tempo', () => {
     expect(exerciseState([run({ stars: 2 })]).passed).toBe(false);
@@ -175,15 +190,15 @@ describe('passing an exercise', () => {
 });
 
 /**
- * Why a gate is shut.
+ * Why a check has not been passed.
  *
  * Reported from a real one: fourteen complete runs of the first exercise at 95%
  * of the notes, the daily goal declared done, and the Path still reading 0/15
  * with no stars and no explanation anywhere. Every run had been in Wait for me,
- * which is excluded on purpose — the rule is right, and saying nothing about it
- * is what turned it into a dead end.
+ * which earns no stars on purpose. Those runs now open the next lesson, and the
+ * app still says why they carry no stars.
  */
-describe('why an exercise has not passed', () => {
+describe('why an exercise has not passed its check', () => {
   const waited = (n) => Array.from({ length: n }, () => run({ mode: 'wait', stars: 4 }));
 
   it('separates never played from played and never graded', () => {
@@ -213,11 +228,18 @@ describe('why an exercise has not passed', () => {
     expect(blockerHelp(state)).toBeNull();
   });
 
-  it('counts the wasted runs back to the player', () => {
+  it('counts the guided runs back to the player, and says what earns the stars', () => {
     const help = blockerHelp(exerciseState(waited(14)));
     expect(help).toMatch(/14 runs/);
     expect(help).toMatch(/Wait for me/);
     expect(help).toMatch(/Practice/);
+  });
+
+  it('never tells a player the next lesson is shut, because it is not', () => {
+    const states = [exerciseState(waited(3)), exerciseState([run({ stars: 5, rate: 0.7 })]), exerciseState([run({ stars: 2 })])];
+    for (const state of states) for (const short of [true, false]) {
+      expect(blockerHelp(state, { short })).not.toMatch(/unlock|opens the next/i);
+    }
   });
 
   it('has a shorter form, because both places that need it share a screen', () => {
@@ -234,12 +256,21 @@ describe('why an exercise has not passed', () => {
     expect(blockerHelp(undefined)).toBeNull();
   });
 
-  it('puts the reason on the work card, where the player is looking', () => {
-    // The daily set is the screen this was reported from.
+  it('moves the work card on to the next lesson after guided runs, with nothing to explain', () => {
+    // The daily set is the screen this was reported from. The fourteen runs finished the lesson.
     const state = pathState(historyOf({ [PATH_EXERCISES[0]]: waited(14) }));
     const work = dailySet(state, { dayKey: '2026-01-01', library: [] }).find((i) => i.kind === 'work');
+    expect(work.songId).toBe(PATH_EXERCISES[1]);
+    expect(work.note).toBeNull();
+    expect(work.why).toMatch(/next one opens/);
+  });
+
+  it('puts the reason on the work card once the player comes back for the stars', () => {
+    const everything = Object.fromEntries(PATH_EXERCISES.map((id) => [id, waited(2)]));
+    const work = dailySet(pathState(historyOf(everything)), { dayKey: '2026-01-01', library: [] }).find((i) => i.kind === 'work');
     expect(work.songId).toBe(PATH_EXERCISES[0]);
     expect(work.note).toMatch(/Wait for me/);
+    expect(work.why).toMatch(/passes its check/);
   });
 
   it('leaves the card unadorned when there is nothing to say', () => {
@@ -249,6 +280,8 @@ describe('why an exercise has not passed', () => {
 });
 
 describe('unlocking', () => {
+  const waited = (stars = 4) => [run({ mode: 'wait', stars })];
+
   it('opens only the first exercise to a new player', () => {
     const state = pathState(historyOf({}));
     expect(state.exercises[PATH_EXERCISES[0]].unlocked).toBe(true);
@@ -256,41 +289,71 @@ describe('unlocking', () => {
     expect(state.currentId).toBe(PATH_EXERCISES[0]);
   });
 
-  it('opens the next exercise when the one before it passes', () => {
-    const state = pathState(historyOf({ [PATH_EXERCISES[0]]: [run({ stars: 3 })] }));
-    expect(state.exercises[PATH_EXERCISES[1]].unlocked).toBe(true);
-    expect(state.currentId).toBe(PATH_EXERCISES[1]);
+  it('opens the next exercise when the one before it is finished, however it was played', () => {
+    for (const first of [waited(), [run({ stars: 1, rate: 0.5 })], [run({ stars: 3 })]]) {
+      const state = pathState(historyOf({ [PATH_EXERCISES[0]]: first }));
+      expect(state.exercises[PATH_EXERCISES[1]].unlocked).toBe(true);
+      expect(state.exercises[PATH_EXERCISES[2]].unlocked).toBe(false);
+      expect(state.currentId).toBe(PATH_EXERCISES[1]);
+    }
   });
 
-  it('does not open the next stage until this one is mastered end to end', () => {
-    // Three passes is enough to reach the end of stage one, but not to leave it.
+  it('opens the next stage once every lesson in this one is finished', () => {
+    const finished = {};
+    for (const id of STAGES[0].exercises.slice(0, 2)) finished[id] = waited();
+    const before = pathState(historyOf(finished));
+    expect(before.stages[0].finished).toBe(false);
+    expect(before.stages[1].unlocked).toBe(false);
+
+    finished[STAGES[0].exercises[2]] = waited();
+    const after = pathState(historyOf(finished));
+    expect(after.stages[0].finished).toBe(true);
+    expect(after.stages[1].unlocked).toBe(true);
+    expect(after.exercises[STAGES[1].exercises[0]].unlocked).toBe(true);
+    expect(after.currentId).toBe(STAGES[1].exercises[0]);
+  });
+
+  it('keeps mastery of a stage apart from finishing it', () => {
     const passes = {};
     for (const id of STAGES[0].exercises) passes[id] = [run({ stars: PASS_STARS })];
-    const state = pathState(historyOf(passes));
-    expect(state.stages[0].cleared).toBe(false);
-    expect(state.stages[1].unlocked).toBe(false);
+    expect(pathState(historyOf(passes)).stages[0]).toMatchObject({ finished: true, cleared: false });
 
     const masteries = {};
     for (const id of STAGES[0].exercises) masteries[id] = [run({ stars: MASTER_STARS })];
-    const after = pathState(historyOf(masteries));
-    expect(after.stages[0].cleared).toBe(true);
-    expect(after.stages[1].unlocked).toBe(true);
+    expect(pathState(historyOf(masteries)).stages[0]).toMatchObject({ finished: true, cleared: true });
   });
 
-  it('hands over the recital piece only when the stage is cleared', () => {
+  it('hands over the recital piece when the stage is finished', () => {
     expect(pathState(historyOf({})).unlockedRecitals).toEqual([]);
-    const cleared = pathState(historyOf(masteredThrough(STAGES[0].exercises[2])));
-    expect(cleared.unlockedRecitals).toEqual([STAGES[0].recital]);
+    const finished = {};
+    for (const id of STAGES[0].exercises) finished[id] = waited();
+    expect(pathState(historyOf(finished)).unlockedRecitals).toEqual([STAGES[0].recital]);
   });
 
-  it('cannot be advanced by turning up — only by playing well', () => {
-    // A hundred incomplete runs of everything unlocks precisely nothing.
+  it('cannot be advanced by starting runs and leaving them', () => {
+    // A hundred incomplete runs of everything open precisely nothing.
     const grinding = {};
     for (const id of PATH_EXERCISES) grinding[id] = Array.from({ length: 100 }, () => run({ stars: 0 }));
     const state = pathState(historyOf(grinding));
+    expect(state.finishedCount).toBe(0);
     expect(state.passedCount).toBe(0);
     expect(state.currentId).toBe(PATH_EXERCISES[0]);
     expect(state.exercises[PATH_EXERCISES[1]].unlocked).toBe(false);
+  });
+
+  it('counts lessons finished and checks passed separately', () => {
+    const history = { [PATH_EXERCISES[0]]: [run({ stars: 4 })], [PATH_EXERCISES[1]]: waited() };
+    expect(pathState(historyOf(history))).toMatchObject({ finishedCount: 2, passedCount: 1 });
+  });
+
+  it('sends a player who has finished everything back to the first check not yet passed', () => {
+    const all = {};
+    for (const id of PATH_EXERCISES) all[id] = waited();
+    all[PATH_EXERCISES[0]] = [run({ stars: 4 })];
+    const state = pathState(historyOf(all));
+    expect(state.finishedCount).toBe(PATH_EXERCISES.length);
+    expect(state.complete).toBe(false);
+    expect(state.currentId).toBe(PATH_EXERCISES[1]);
   });
 
   it('reports completion once every exercise has passed', () => {
@@ -388,12 +451,6 @@ describe('the benchmark', () => {
     expect(trend.latest.overall).toBe(88);
   });
 
-  it('comes due a week after the last one', () => {
-    expect(benchmarkDue([], '2026-01-08', daysBetween)).toBe(true);
-    const week = [run({ at: at('2026-01-01') })];
-    expect(benchmarkDue(week, '2026-01-05', daysBetween)).toBe(false);
-    expect(benchmarkDue(week, '2026-01-08', daysBetween)).toBe(true);
-  });
 });
 
 describe('trouble decay', () => {

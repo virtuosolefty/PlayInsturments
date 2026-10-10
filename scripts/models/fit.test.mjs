@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { crossSectionRadius, fitLine, fitScale, playingSpan, ringCentres } from './fit.mjs';
+import { crossSectionRadius, fitLine, fitScale, lowestFirst, playingSpan, ringCentres } from './fit.mjs';
 
 describe('fitting a straight line through points', () => {
   it('recovers a line from points spread along it', () => {
@@ -91,5 +91,31 @@ describe('measuring how thick a string is', () => {
     const points = [];
     for (const t of [0, 1, 2, 3]) for (let a = 0; a < 12; a++) points.push([0.004 * Math.cos(a * Math.PI / 6), 1 + 0.004 * Math.sin(a * Math.PI / 6), t]);
     expect(crossSectionRadius(points, fitLine(points, 2))).toBeCloseTo(0.004, 10);
+  });
+});
+
+describe('putting measured strings in order, lowest first', () => {
+  const at = (side, radius) => ({ side, radius });
+
+  it('reads the bass side from the strings\' thickness', () => {
+    // Thick strings on the positive side: the lowest is the one furthest that way.
+    expect(lowestFirst([at(-1, 0.01), at(1, 0.04), at(0.3, 0.03), at(-0.3, 0.02)]).map(s => s.side)).toEqual([1, 0.3, -0.3, -1]);
+    // Thick strings on the negative side, as on a left-handed instrument.
+    expect(lowestFirst([at(-1, 0.04), at(1, 0.01), at(0.3, 0.02), at(-0.3, 0.03)]).map(s => s.side)).toEqual([-1, -0.3, 0.3, 1]);
+  });
+
+  it('takes the instrument as strung right-handed where the recipe says thickness cannot tell', () => {
+    // All one gauge, as an artist often models them.
+    expect(lowestFirst([at(-1, 0.02), at(1, 0.02), at(0.3, 0.02), at(-0.3, 0.02)], { rightHanded: true }).map(s => s.side)).toEqual([1, 0.3, -0.3, -1]);
+    // One string measured far too thick, on the treble side, would otherwise turn the order round.
+    const fooled = [at(-0.65, 0.045), at(-0.18, 0.0128), at(0.22, 0.0138), at(0.61, 0.0163)];
+    expect(lowestFirst(fooled).map(s => s.side)).toEqual([-0.65, -0.18, 0.22, 0.61]);
+    expect(lowestFirst(fooled, { rightHanded: true }).map(s => s.side)).toEqual([0.61, 0.22, -0.18, -0.65]);
+  });
+
+  it('leaves the list it was given as it was', () => {
+    const strings = Object.freeze([at(-1, 0.01), at(1, 0.04)]);
+    expect(lowestFirst(strings)).not.toBe(strings);
+    expect(strings.map(s => s.side)).toEqual([-1, 1]);
   });
 });

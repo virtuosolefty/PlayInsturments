@@ -1,0 +1,154 @@
+{
+  "name": "cello-antique",
+  "credit": {
+    "title": "Cello",
+    "author": "slidon",
+    "authorUrl": "https://sketchfab.com/slidon",
+    "source": "https://sketchfab.com/3d-models/cello-a1e5e2a37d6a42299dcd5cec06cd1ddc",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "line": "\"Cello\" (https://sketchfab.com/3d-models/cello-a1e5e2a37d6a42299dcd5cec06cd1ddc) by slidon (https://sketchfab.com/slidon), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modified: the strings between nut and bridge replaced, scaled and re-encoded for Practice Deck."
+  },
+  "nutX": -6.05,
+  "scaleLength": 24.1,
+  "strings": [
+    {
+      "nut": [
+        -6.2685,
+        -0.0546,
+        0.36
+      ],
+      "bridge": [
+        17.9064,
+        5.1849,
+        0.9677
+      ],
+      "radius": 0.0332
+    },
+    {
+      "nut": [
+        -5.8686,
+        0.0174,
+        0.1429
+      ],
+      "bridge": [
+        17.9474,
+        5.3255,
+        0.4313
+      ],
+      "radius": 0.033
+    },
+    {
+      "nut": [
+        -6.0089,
+        0.0339,
+        -0.1223
+      ],
+      "bridge": [
+        18.423,
+        5.4191,
+        -0.0901
+      ],
+      "radius": 0.0333
+    },
+    {
+      "nut": [
+        -6.054,
+        0.0033,
+        -0.3806
+      ],
+      "bridge": [
+        17.9233,
+        5.2599,
+        -0.8082
+      ],
+      "radius": 0.0331
+    }
+  ],
+  "bounds": {
+    "min": [
+      -12.157,
+      -4.7205,
+      -7.824
+    ],
+    "max": [
+      31.0786,
+      5.4612,
+      7.8239
+    ]
+  },
+  "parts": {
+    "body": {
+      "min": [
+        3.8974,
+        -4.7205,
+        -7.824
+      ],
+      "max": [
+        31.0092,
+        2.2354,
+        7.8239
+      ]
+    },
+    "bridge": {
+      "min": [
+        18.1564,
+        1.9358,
+        -1.388
+      ],
+      "max": [
+        18.7093,
+        5.4161,
+        1.3386
+      ]
+    },
+    "fingerboard": {
+      "min": [
+        -5.8684,
+        -0.1325,
+        -1.1015
+      ],
+      "max": [
+        13.9186,
+        4.3613,
+        1.1014
+      ]
+    },
+    "neck": {
+      "min": [
+        -12.157,
+        -4.6458,
+        -0.9848
+      ],
+      "max": [
+        4.5336,
+        1.9251,
+        0.9846
+      ]
+    },
+    "fittings": {
+      "min": [
+        -9.8458,
+        -3.0746,
+        -2.8366
+      ],
+      "max": [
+        31.0786,
+        4.5001,
+        2.7505
+      ]
+    },
+    "stringEnds": {
+      "min": [
+        -9.4697,
+        -2.9056,
+        -0.8495
+      ],
+      "max": [
+        22.5107,
+        5.4612,
+        1.0128
+      ]
+    }
+  }
+}

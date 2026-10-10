@@ -4,6 +4,7 @@ import { playInput } from '../lib/playInput.js';
 import { emitSyntheticMidi, KEYBOARD_MAP } from '../lib/midiInput.js';
 import { secondsPerBar } from '../lib/passages.js';
 import { ACTIONS, nextRate, shortcutFor } from '../lib/shortcuts.js';
+import { DRUM_KEYS } from '../lib/drums.js';
 
 /**
  * useComputerKeyboard — the QWERTY keyboard doing two jobs at once.
@@ -138,9 +139,11 @@ export function useComputerKeyboard({
       }
 
       if (dialogOpen || e.target.closest?.('[data-instrument-navigation]')) return;
-      const key=e.key.toLowerCase(), base=KEYBOARD_MAP[key];
+      // On the drums a letter is the drum it starts (K for kick); elsewhere the keys are a piano.
+      const drums=inputSettings.current.practiceInstrument==='drums';
+      const key=e.key.toLowerCase(), base=(drums?DRUM_KEYS:KEYBOARD_MAP)[key];
       if(base===undefined||down.has(key))return;
-      const midi=base+(inputSettings.current.typingOctave??0)*12;
+      const midi=drums?base:base+(inputSettings.current.typingOctave??0)*12;
       down.set(key,midi); playInput.press('typing-'+key,midi,inputSettings.current.playVelocity??0.72,{source:'typing'});
     };
     const onKeyUp = e => { const key=e.key.toLowerCase(); if(!down.has(key))return; down.delete(key);playInput.release('typing-'+key); };

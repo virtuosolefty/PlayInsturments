@@ -1,9 +1,10 @@
 import { watchSound } from '../helpers/sound.js';
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 const workspace = (page, name) => page.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true });
 const instrument = (page, name) => page.getByRole('group', { name: 'Practice instrument' }).getByRole('button', { name, exact: true });
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => { if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { onboarded: true, countInBars: 0, settingsVersion: 5, renderer: 'canvas' } })); });
+  await seedSettings(page, { renderer: 'canvas' });
   await page.goto('/'); await expect(page.locator('.piece-title')).toContainText('C Major');
 });
 
@@ -91,7 +92,7 @@ test('the stage takes most of a small laptop window, and saving is a line in the
 });
 
 test('setup tests input without grading and contains keyboard focus', async ({ page }) => {
-  await page.getByRole('button', { name: 'Instrument setup', exact: true }).click();
+  await page.getByRole('button', { name: 'Input & sound', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Your instrument, ready to play.' });
   await expect(dialog).toBeVisible();
   await dialog.getByRole('button', { name: 'Play a test note' }).click();
@@ -99,10 +100,10 @@ test('setup tests input without grading and contains keyboard focus', async ({ p
   await expect(dialog.locator('.setup-detected')).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Done', exact: true }).focus();
   await page.keyboard.press('Tab');
-  await expect(dialog.getByRole('button', { name: 'Close instrument setup' })).toBeFocused();
+  await expect(dialog.getByRole('button', { name: 'Close input and sound' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Instrument setup', exact: true })).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Input & sound', exact: true })).toBeFocused();
   expect(await page.evaluate(() => Object.keys(JSON.parse(localStorage.getItem('piano-practice-coach:v1')).songs))).toEqual([]);
 });
 

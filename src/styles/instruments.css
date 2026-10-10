@@ -13,7 +13,7 @@
 .guitar-position-label { position:absolute; transform:translate(-50%,-50%); z-index:1; pointer-events:none; line-height:1; font: var(--fw-bold) var(--fs-md) var(--sans); color:var(--text); }
 .guitar-position-label.string { color:#fffaf0; background:#2b221de6; padding:2px var(--sp-1); border-radius: var(--radius-xs); }
 .guitar-stage { flex-shrink:0; overflow:hidden; }
-.guitar-stage-label,.guitar-stage-hint { top:8px; font-size: var(--fs-xs); letter-spacing:0; }
+.guitar-stage-hint { top:8px; font-size: var(--fs-xs); letter-spacing:0; }
 .guitar-stage-hint { top:auto; bottom:6px; right:12px; background:var(--bg-1); padding:3px 6px; border-radius: var(--radius-xs); }
 .guitar-left-toggle { margin-left:auto; }
 .fret-numbers,.guitar-string { grid-template-columns:32px repeat(var(--frets,13),minmax(26px,1fr)); min-width:0; }
@@ -80,16 +80,16 @@
   .studio-app .guitar-stage,.studio-app .guitar-stage-loading { height:var(--fretboard-height,230px); min-height:180px; flex:0 1 var(--fretboard-height,230px); }
   .studio-app.free-play .guitar-stage { flex:1 1 auto; min-height:300px; }
   .studio-app.free-play .guitar-fret-controls:not(.with-stage) { margin:auto 0; }
-  .studio-app.free-play .guitar-fret-controls:not(.with-stage) .guitar-string button { height:40px; }
+  /* The same room for the strings whatever their number: six at 40px, four at 60px. */
+  .studio-app.free-play .guitar-fret-controls:not(.with-stage) .guitar-string button { height:calc(240px / var(--strings, 6)); }
   .guitar-fret-controls > summary { padding:5px 16px; }
   .guitar-fretboard { padding:6px 16px; }
   .studio-app .guitar-string button { height:28px; }
   .guitar-chords { padding:var(--sp-1) var(--sp-4); flex-wrap:nowrap; }
   .guitar-chords > span { font-size: var(--fs-2xs); letter-spacing:0; margin-left:auto; }
   .guitar-chords button { min-height: var(--control-h-sm); padding:3px var(--sp-2); }
-  .studio-app .section,.studio-app .studio-coach { padding:var(--sp-4); }
+  .studio-app .section { padding:var(--sp-4); }
   .studio-app .piece-title { font-size: var(--fs-xl); margin-top:var(--sp-3); }
-  .studio-app .studio-coach ol { gap:var(--sp-3); }
 }
 @media(min-width:901px) and (max-height:800px) {
   .studio-app .minimap { display:none; }
@@ -98,8 +98,6 @@
   .studio-app .chord-diagram { height:180px; }
   .studio-app .chord-card.section { padding:var(--sp-4) var(--sp-4); }
   .chord-card-heading h2 { margin:6px 0; }
-  .studio-app .studio-coach { padding-top:var(--sp-4); }
-  .studio-coach ol { display:none; }
 }
 @media(prefers-reduced-motion:reduce) {
   .playable-piano *,.guitar-workspace * { animation:none!important; transition:none!important; }

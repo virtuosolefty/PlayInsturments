@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BoxGeometry, Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 import { guitarMidi } from './guitar.js';
 import { fretSpace, NUT_X } from './guitarNeck.js';
-import { buildModelGuitarRig, INLAY_FRETS } from './guitarModelRig.js';
+import { BASS_STRINGS, buildModelGuitarRig, INLAY_FRETS, MODEL_STRINGS } from './guitarModelRig.js';
 
 // Measurements shaped like public/models/guitar.json: six strings fanning out from the nut to the saddle.
 const FIT = {
@@ -155,5 +155,62 @@ describe('the downloaded guitar, made playable', () => {
     const model = fakeModel();
     buildModelGuitarRig({ owned: owned(), maxFret: 12, model });
     model.scene.traverse(object => { if (object.isMesh) expect(object.castShadow && object.receiveShadow).toBe(true); });
+  });
+});
+
+describe('a model strung as a bass guitar', () => {
+  // Measurements shaped like public/models/guitar-bass.json: four strings, and no part called a fretboard.
+  const BASS_FIT = {
+    nutX: NUT_X, scaleLength: 24.1,
+    strings: [0, 1, 2, 3].map(s => ({ nut: [NUT_X, 0, 0.43 - s * 0.3], bridge: [18.2, 0, 0.6 - s * 0.42], radius: 0.01 })),
+    bounds: { min: [-12.5, -2.1, -6.3], max: [20.2, 0.6, 6.4] },
+  };
+  const bass = () => {
+    const scene = new Group();
+    const body = new Mesh(new BoxGeometry(18, 0.4, 12), new MeshStandardMaterial());
+    body.userData.part = 'part4';
+    scene.add(body);
+    return buildModelGuitarRig({ owned: owned(), maxFret: 12, model: { scene, fit: BASS_FIT }, strings: BASS_STRINGS });
+  };
+
+  it('has four strings, each played by the guitar string of the same name', () => {
+    const rig = bass();
+    expect(rig.strings).toHaveLength(4);
+    expect(rig.neck.count).toBe(4);
+    expect(new Set(rig.dots.map(dot => dot.userData.string))).toEqual(new Set([0, 1, 2, 3]));
+    expect(rig.dots.find(dot => dot.userData.string === 0 && dot.userData.fret === 0).userData.midi).toBe(guitarMidi(0, 0));
+    expect(rig.targets).toHaveLength(4 * 13);
+  });
+
+  it('plays its own notes and wears its own colours when it is an instrument in its own right', () => {
+    const scene = new Group();
+    const BASS = [28, 33, 38, 43], colors = ['#111111', '#222222', '#333333', '#444444'];
+    const rig = buildModelGuitarRig({ owned: owned(), maxFret: 12, model: { scene, fit: BASS_FIT }, strings: BASS_STRINGS, midiAt: (string, fret) => BASS[string] + fret, colors });
+    const dot = (string, fret) => rig.dots.find(each => each.userData.string === string && each.userData.fret === fret);
+    expect(dot(0, 0).userData.midi).toBe(28);
+    expect(dot(3, 2).userData.midi).toBe(45);
+    expect(rig.targets.find(each => each.userData.string === 1 && each.userData.fret === 3).userData.midi).toBe(36);
+    expect(dot(2, 0).material.color.getHexString()).toBe('333333');
+  });
+
+  it('says which set of strings each model that is not an acoustic guitar wears', () => {
+    expect(MODEL_STRINGS['guitar-bass']).toBe(BASS_STRINGS);
+    expect(MODEL_STRINGS.guitar).toBeUndefined();
+  });
+
+  it('is strung far heavier than a guitar, every string wound', () => {
+    const rig = bass(), guitar = build();
+    const width = wire => wire.scale.x;
+    expect(width(rig.strings[0])).toBeGreaterThan(width(guitar.strings[0]) * 1.3);
+    expect(width(rig.strings[0])).toBeGreaterThan(width(rig.strings[3]));
+    expect(new Set(rig.strings.map(wire => wire.material.color.getHexString())).size).toBe(1);
+  });
+
+  it('lays no inlays of its own on a model that has no fretboard part to rest them on', () => {
+    expect(bass().instrument.children.filter(child => child.userData.inlay)).toHaveLength(0);
+  });
+
+  it('frames the whole instrument for the whole-instrument view', () => {
+    expect(bass().showcase.box).toEqual(BASS_FIT.bounds);
   });
 });

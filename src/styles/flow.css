@@ -1,0 +1,135 @@
+/* flow.css — the pass that made free play, practice and input easier to follow.
+   Loaded after the instrument styles and before chrome.css and phone.css, which still have the last word on a phone. */
+
+/* ------------------------------------------------------------ one segmented control
+   Every "pick one of these" row is the same object: a trough, and a raised segment for the one chosen. They had
+   grown six sets of colours, radii and paddings between them. Sizes stay where each control sets them. */
+:is(.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .type-switch, .practice-size, .chord-label-modes, .fit-switch, .stage-view-switch, .studio-app .mode-switch) {
+  background: var(--seg-trough); border: 1px solid var(--line-soft); border-radius: var(--control-r); padding: 3px; gap: 2px; box-shadow: none;
+}
+:is(.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .type-switch, .practice-size, .chord-label-modes, .fit-switch, .stage-view-switch, .studio-app .mode-switch) > button {
+  border: 0; background: transparent; box-shadow: none; color: var(--text-dim); border-radius: calc(var(--control-r) - 3px); font-weight: var(--fw-medium);
+}
+:is(.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .type-switch, .practice-size, .chord-label-modes, .fit-switch, .stage-view-switch, .studio-app .mode-switch) > button:hover:not(:disabled) { color: var(--text); }
+:is(.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .type-switch, .practice-size, .chord-label-modes, .fit-switch, .stage-view-switch, .studio-app .mode-switch) > button:is([aria-pressed="true"], .on) {
+  background: var(--seg-on); color: var(--text); box-shadow: var(--seg-on-shadow); font-weight: var(--fw-bold);
+}
+:is(.instrument-picker, .library-instruments, .learning-instruments) > button[aria-pressed="true"] svg { color: var(--accent); }
+.type-switch { display: inline-flex; flex-shrink: 0; }
+.type-switch button { min-height: 28px; padding: 0 var(--sp-3); font-size: var(--fs-xs); line-height: 1; cursor: pointer; }
+.type-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ------------------------------------------------------------ small tools, one height
+   The tuner, Reset view and the stage's view switch are tools of one kind and were three sizes. */
+.view-tool, .guitar-reset-view, .stage-view-toggle button { min-height: 28px; padding-block: 0; display: inline-flex; align-items: center; font-size: var(--fs-xs); }
+@media (max-width: 900px) { .view-tool, .guitar-reset-view, .stage-view-toggle button, .type-switch button { min-height: 36px; } }
+
+/* ------------------------------------------------------------ free play's bar */
+.free-play-bar { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) var(--sp-5); border-top: 1px solid var(--line-soft); min-height: 46px; }
+.free-play-last { display: inline-flex; align-items: baseline; gap: var(--sp-2); margin-inline-start: var(--sp-3); padding-inline-start: var(--sp-4); border-inline-start: 1px solid var(--line-soft); }
+.free-play-last small { font-size: var(--fs-2xs); letter-spacing: var(--tracking-caps); color: var(--text-faint); }
+.free-play-last strong { font: var(--fw-bold) var(--fs-md)/1 var(--mono); min-width: 3ch; color: var(--text); }
+.free-play-hint { margin-inline-start: auto; font-size: var(--fs-xs); color: var(--text-dim); text-align: end; }
+.free-play-hint kbd { font: var(--fw-bold) var(--fs-2xs)/1 var(--mono); padding: 2px 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: var(--radius-xs); background: var(--bg-1); color: var(--text); }
+.studio-app.focus-view .free-play-bar { border-top: 0; padding-block: 0 var(--sp-2); }
+/* Where the bar's first button leads: the card says "here" once. */
+@keyframes spotlight { from { box-shadow: 0 0 0 3px var(--accent); } to { box-shadow: 0 0 0 3px transparent; } }
+.spotlight { animation: spotlight 1.2s var(--ease-out) both; border-radius: var(--radius); }
+/* On a phone the instrument gets the screen: the bar sits under the stage, in one row, without the line about
+   computer keys, and steps aside altogether when the phone is held sideways. */
+@media (max-width: 900px) {
+  .free-play-bar { order: 5; flex-wrap: nowrap; padding: var(--sp-1) var(--sp-3); border-top: 0; min-height: 0; overflow: hidden; }
+  .studio-app.free-play .studio-footer { order: 6; }
+  .free-play-hint { display: none; }
+  .free-play-last { margin-inline-start: auto; border: 0; padding: 0; }
+  .free-play-last small { display: none; }
+}
+@media (max-height: 500px) { .free-play-bar { display: none; } }
+}
+
+/* ------------------------------------------------------------ the explorer cards */
+.chord-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-1) var(--sp-3); margin: 0 0 var(--sp-2); font-size: var(--fs-2xs); color: var(--text-dim); }
+.chord-legend span { display: inline-flex; align-items: center; gap: var(--sp-1); white-space: nowrap; }
+.chord-legend i { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.chord-legend i.root { background: var(--guitar-root); }
+.chord-legend i.played { background: var(--guitar-played); }
+/* Strength, spread and tempo are set once and left: they fold away under what they are set to. */
+.chord-feel { margin-top: var(--sp-3); border-top: 1px solid var(--line-soft); }
+.chord-feel summary { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); min-height: var(--control-h-sm); cursor: pointer; font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--text-dim); list-style: none; }
+.chord-feel summary::-webkit-details-marker { display: none; }
+.chord-feel summary::before { content: '▸'; margin-inline-end: var(--sp-1); color: var(--text-faint); }
+.chord-feel[open] summary::before { content: '▾'; }
+.chord-feel summary small { margin-inline-start: auto; font: var(--fs-2xs) var(--mono); font-weight: var(--fw-regular); color: var(--text-faint); }
+.chord-feel summary:hover { color: var(--text); }
+.chord-feel .chord-dynamics { margin-top: var(--sp-1); padding-bottom: var(--sp-2); }
+@media (min-width: 901px) { .guitar-workspace > .chord-card .chord-feel { grid-column: 3; grid-row: 3; margin: 0; } }
+
+/* ------------------------------------------------------------ the path: finished is a tick, stars are quality */
+.path-stars i { font-style: normal; color: var(--line-strong); }
+.path-next, .lesson-next { flex: none; font-size: var(--fs-2xs); font-weight: var(--fw-bold); letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--on-accent); background: var(--accent); border-radius: var(--radius-pill); padding: 3px var(--sp-2); white-space: nowrap; }
+.lesson-mark { flex: none; display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line-strong); font: var(--fw-bold) var(--fs-2xs)/1 var(--sans); font-style: normal; color: transparent; }
+.lesson-mark.done { background: var(--good); border-color: var(--good); color: var(--bg-1); }
+.lesson-mark.open { border-color: var(--accent); }
+.lesson-mark.locked { border-style: dashed; }
+.learning-stage-lessons button { justify-content: flex-start; gap: var(--sp-3); }
+.learning-stage-lessons button > span:not(.path-stars) { flex: 1; min-width: 0; }
+.learning-stage-lessons button > small { flex: none; max-width: 42%; text-align: end; }
+.learning-stage-lessons button .path-stars { font-size: var(--fs-xs); }
+.learning-stage-lessons button.next { background: var(--accent-soft); border-color: var(--accent); }
+.learning-stage-lessons button.next > small { display: none; }
+.lesson-next { font-size: var(--fs-xs); padding: var(--sp-1) var(--sp-3); letter-spacing: 0; text-transform: none; }
+.learning-key { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); margin: var(--sp-3) 0 0; font-size: var(--fs-xs); color: var(--text-dim); }
+.learning-key span { display: inline-flex; align-items: center; gap: var(--sp-2); }
+@media (max-width: 600px) {
+  .learning-stage-lessons button { flex-wrap: wrap; }
+  .learning-stage-lessons button > small { max-width: none; flex-basis: 100%; text-align: start; padding-inline-start: 32px; }
+}
+
+/* ------------------------------------------------------------ the report */
+.report-finished { display: inline-flex; align-items: center; gap: var(--sp-1); margin: 0 auto var(--sp-2); padding: 3px var(--sp-3); border-radius: var(--radius-pill); background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); font-size: var(--fs-xs); font-weight: var(--fw-bold); }
+.report-finished i { font-style: normal; }
+.report-actions { flex-wrap: wrap; row-gap: var(--sp-2); }
+
+/* ------------------------------------------------------------ the tempo slider's written tempo */
+.tempo-slider { position: relative; display: inline-flex; align-items: center; }
+/* 100% on a slider that runs from 40% to 150%, allowing for the thumb's width. */
+.tempo-target { position: absolute; left: calc(54.5% + 1px); bottom: -5px; width: 2px; height: 6px; border-radius: 1px; background: var(--accent); pointer-events: none; }
+.tempo-reset { min-height: 24px; padding: 0 var(--sp-2); font-size: var(--fs-2xs); border-radius: var(--radius-pill); color: var(--accent); border-color: var(--accent-dim); background: transparent; white-space: nowrap; }
+
+/* ------------------------------------------------------------ Input & sound, in three steps */
+.setup-dialog { max-height: min(92vh, 900px); overflow-y: auto; }
+.setup-step { padding: var(--sp-4) 0 var(--sp-3); border-top: 1px solid var(--line-soft); }
+.setup-step .setup-section-title { display: flex; align-items: center; gap: var(--sp-2); margin: 0 0 var(--sp-3); }
+.setup-step .setup-section-title i { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--bg-2); color: var(--text-dim); font: var(--fw-bold) var(--fs-xs)/1 var(--sans); font-style: normal; }
+.setup-step.done .setup-section-title i { background: var(--good); color: var(--bg-1); }
+.setup-step .setup-help, .setup-step .setup-connection p { margin: var(--sp-2) 0; }
+.setup-connection h4 { font-size: var(--fs-sm); margin: 0; }
+.setup-step .setup-sound { border-top: 0; margin-top: 0; padding: 0 0 var(--sp-2); }
+.setup-step .sound-recovery { margin-top: var(--sp-2); }
+.setup-microphone ul.setup-mic-limits { margin: var(--sp-2) 0 var(--sp-3); padding-inline-start: var(--sp-5); color: var(--text-dim); line-height: 1.6; }
+.setup-more { border-top: 1px solid var(--line-soft); }
+.setup-more > summary { display: flex; align-items: baseline; gap: var(--sp-3); min-height: var(--control-h); padding-top: var(--sp-3); cursor: pointer; font-size: var(--fs-md); font-weight: var(--fw-bold); }
+.setup-more > summary small { font-size: var(--fs-xs); font-weight: var(--fw-regular); color: var(--text-dim); }
+.setup-more-body { padding-bottom: var(--sp-2); }
+.setup-more-body .setup-section-title { margin-top: var(--sp-5); }
+.setup-more-body .latency-row { align-items: center; padding: var(--sp-3) 0; }
+.setup-more-body .latency-row > span:first-child { display: grid; gap: 2px; color: var(--text); font-family: var(--sans); }
+.setup-more-body .latency-row strong { font-size: var(--fs-sm); }
+.setup-more-body .latency-row small { font-size: var(--fs-xs); color: var(--text-dim); line-height: 1.5; }
+.setup-more-body .latency-value { flex: none; }
+.setup-more-body .latency-value .val { white-space: nowrap; font-size: var(--fs-xs); color: var(--text-dim); }
+.setup-more-body svg.velocity-curve, .setup-more-body .velocity-curve { max-width: 280px; }
+.setup-more-body .tiny-action { min-height: var(--control-h-sm); padding: 0 var(--sp-3); font-size: var(--fs-xs); font-family: var(--sans); }
+.advanced-sound { margin-top: var(--sp-5); border-top: 1px solid var(--line-soft); }
+.advanced-sound > summary { min-height: var(--control-h); display: flex; align-items: center; cursor: pointer; font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--text-dim); }
+.setup-actions { justify-content: flex-end; }
+
+/* ------------------------------------------------------------ the input button, and a controller arriving */
+.connection-dot.missing { background: var(--bad); }
+.setup-trigger.missing { border-color: var(--bad); color: var(--text); }
+.device-toast { position: fixed; z-index: 60; inset: auto auto var(--sp-5) var(--sp-5); display: flex; align-items: center; gap: var(--sp-3); max-width: min(480px, calc(100vw - 2 * var(--sp-5))); padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4); border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--bg-1); box-shadow: var(--shadow); font-size: var(--fs-sm); line-height: 1.5; animation: hud-in var(--dur-base) var(--ease-out); }
+.device-toast .icon { color: var(--good); flex: none; }
+.device-toast span { flex: 1; min-width: 0; }
+.device-toast button { flex: none; min-height: var(--control-h-sm); }
+.device-toast button:last-child { border: 0; background: transparent; font-size: var(--fs-lg); padding: 0 var(--sp-2); color: var(--text-dim); }
+@media (max-width: 600px) { .device-toast { inset-inline: var(--sp-3); bottom: calc(72px + env(safe-area-inset-bottom, 0px)); max-width: none; } }

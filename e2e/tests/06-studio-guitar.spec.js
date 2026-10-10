@@ -1,10 +1,9 @@
 import { watchSound } from '../helpers/sound.js';
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { onboarded: true, countInBars: 0, settingsVersion: 5, renderer: 'canvas' } }));
-  });
+  await seedSettings(page, { renderer: 'canvas' }, { everyLoad: true });
   await page.goto('/');
   await expect(page.locator('.piece-title')).toContainText('C Major');
 });

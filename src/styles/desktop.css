@@ -5,7 +5,7 @@ button { box-shadow: none; text-shadow: none; }
 .studio-app .topbar, .studio-app .studio-footer { background: transparent; }
 .studio-app .brand .mark { background: repeating-linear-gradient(90deg, var(--brand) 0 4px, transparent 4px 7px); }
 /* Eyebrows label; they are not actions, so they do not take the accent. */
-.studio-app .brand .ver, .studio-heading .eyebrow, .studio-coach .eyebrow, .eyebrow { color: var(--text-dim); }
+.studio-app .brand .ver, .studio-heading .eyebrow, .eyebrow { color: var(--text-dim); }
 .studio-app .pane.center, .studio-app .pane.right, .studio-app .pane.left { background: var(--bg-1); border-color: var(--line-soft); box-shadow: var(--studio-shadow); }
 .studio-app .io-strip, .setup-trigger, .focus-toggle { background: var(--bg-1); border: 1px solid var(--line-strong); color: var(--text-dim); box-shadow: none; }
 .studio-app .io-slot { color: var(--text-dim); }
@@ -15,10 +15,7 @@ button { box-shadow: none; text-shadow: none; }
 .studio-heading p, .studio-heading p span { color: var(--text-dim); }
 .studio-header-actions { display: flex; gap: var(--sp-2); align-items: center; flex-shrink: 0; }
 .instrument-picker, .workspace-switch, .library-instruments { background: var(--bg-2); border: 1px solid var(--line-soft); display: flex; align-items: center; border-radius: var(--control-r); padding: 3px; gap: 3px; }
-.instrument-picker button, .workspace-switch button, .library-instruments button { background: transparent; border: 0; color: var(--text-dim); border-radius: var(--radius-sm); box-shadow: none; }
-.instrument-picker button[aria-pressed="true"], .workspace-switch button[aria-pressed="true"], .library-instruments button[aria-pressed="true"] { background: var(--bg-1); color: var(--text); box-shadow: 0 2px 5px #25243b12; }
 /* One selected state for every segmented control: a raised segment with a text label. The accent marks only the icon. */
-.instrument-picker button[aria-pressed="true"] svg, .library-instruments button[aria-pressed="true"] svg, .learning-instruments button[aria-pressed="true"] svg { color: var(--accent); }
 .workspace-switch button { padding: var(--sp-2) var(--sp-3); font-size: var(--fs-xs); }
 .instrument-picker button { min-width: 84px; min-height: var(--control-h-sm); font-size: var(--fs-xs); }
 .instrument-picker svg { width: 18px; height: 18px; }
@@ -41,7 +38,6 @@ button { box-shadow: none; text-shadow: none; }
 .studio-app .piece-composer { color: var(--text-dim); }
 .studio-app .piece-facts > div { border-color: var(--line-soft); }
 .studio-app .piece-facts dd { color: var(--text); }
-.studio-app .piece-facts dd.fit-fits { color: var(--good); }
 .studio-app .song.active { background: var(--accent-soft); border-color: var(--accent-dim); }
 input[type="range"] { accent-color: var(--accent); }
 input[type="range"]::-webkit-slider-thumb { background: var(--accent); box-shadow: none; }
@@ -51,7 +47,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .studio-app .zone + .zone { border-color: var(--line-soft); }
 .stage-view-switch button { color: var(--text-dim); }
 .stage-view-switch button[aria-pressed="true"] { background: var(--bg-1); color: var(--text); }
-.session-dot.live, .studio-footer i { background: var(--accent); }
+.studio-footer i { background: var(--accent); }
 .studio-app .studio-footer { color: var(--text-faint); border-color: var(--line-soft); font-size: var(--fs-2xs); padding: var(--sp-2) var(--sp-4); }
 .studio-app .studio-footer kbd { color: var(--text-dim); background: var(--bg-2); border-color: var(--line); }
 .studio-app .lcd { background: var(--bg-2); border: 1px solid var(--line-soft); box-shadow: none; }
@@ -66,11 +62,7 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .studio-app .piece-best { margin: var(--sp-4) 0; }
 .studio-app .piece-facts { margin: var(--sp-4) 0; }
 .studio-app .piece-facts > div { padding: var(--sp-2) 0; }
-.piece-ready { display: flex; gap: var(--sp-2); align-items: center; padding: var(--sp-3) var(--sp-3); border-radius: var(--radius); background: var(--accent-soft); color: var(--accent); font-size: var(--fs-sm); }
 .studio-app .piece-hint, .studio-app .hint { font-size: var(--fs-xs); line-height: 1.7; }
-.studio-app .studio-coach { border-color: var(--line-soft); background: transparent; }
-.studio-coach p, .studio-coach li { color: var(--text-dim); }
-.studio-coach li b { background: var(--accent-soft); color: var(--accent); }
 .studio-app .library-search input { background: var(--bg); border-color: var(--line-strong); color: var(--text); }
 .library-intro { padding: var(--sp-5) var(--sp-4) var(--sp-2); }
 .library-intro h2 { font-size: var(--fs-xl); letter-spacing: var(--tracking-tight); margin: var(--sp-2) 0 var(--sp-4); }
@@ -141,23 +133,17 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
 .welcome-steps li b { color: var(--accent); font: var(--fs-xs) var(--mono); }
 .welcome-steps li strong { display: block; color: var(--text); font-size: var(--fs-sm); margin-bottom: var(--sp-1); }
 .studio-app .guitar-workspace { background: var(--screen); }
-.guitar-study-row label { color: var(--text-dim); }
-.guitar-study-row select { background: var(--bg-1); color: var(--text); border-color: var(--line-strong); }
-.tuning-badge, .tuning-badge b { color: var(--text-dim); }
 .guitar-next { background: var(--now-soft); border-color: var(--line-soft); }
 .guitar-next strong { color: var(--now); font-size: var(--fs-sm); }
 .guitar-next > span, .guitar-next .guitar-tab-key { color: var(--text-dim); }
-.guitar-fret-controls > summary, .guitar-input-note, .guitar-left-toggle, .guitar-chords > span { color: var(--text-dim); font-size: var(--fs-xs); }
+.guitar-fret-controls > summary, .guitar-left-toggle, .guitar-chords > span { color: var(--text-dim); font-size: var(--fs-xs); }
 .guitar-chords button { background: var(--bg-1); color: var(--text); border-color: var(--line-strong); font-size: var(--fs-xs); }
-.guitar-chords button[aria-pressed="true"], .guitar-chords .strum-button { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
+.guitar-chords button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-dim); }
 .guitar-chords button:disabled { opacity: 0.45; }
 .guitar-stage, .guitar-stage-loading { background: radial-gradient(ellipse at center, var(--bg-1), var(--bg-2)); }
-.guitar-stage-label { position: absolute; left: 20px; top: 15px; color: var(--text-faint); font-size: var(--fs-2xs); letter-spacing: var(--tracking-caps); pointer-events: none; }
 .guitar-stage-hint { position: absolute; right: 20px; top: 15px; color: var(--text-dim); font-size: var(--fs-2xs); pointer-events: none; }
 .fret-numbers span { color: var(--text-dim); font-size: var(--fs-2xs); }
 .string-name { color: var(--text-dim) !important; }
-.chord-explore-hint { padding: var(--sp-2) var(--sp-4); font-size: var(--fs-xs); color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); }
-.chord-explore-hint button { font-size: var(--fs-xs); }
 .chord-fingers { font-size: var(--fs-2xs); color: var(--text-dim); margin: 0 var(--sp-4) var(--sp-3); }
 @media (min-width: 901px) {
   .studio-app { padding: 0 var(--sp-5) var(--sp-4); gap: var(--sp-2); }
@@ -188,7 +174,6 @@ input[type="range"]::-moz-range-thumb { background: var(--accent); box-shadow: n
   .studio-app .lcd-bpm { display: none; }
   .studio-app .zone-perf .zone-row { gap: var(--sp-2); }
   .studio-app .section { padding: var(--sp-5); }
-  .studio-app .studio-coach { padding: var(--sp-5); }
   .studio-app .guitar-stage, .studio-app .guitar-stage-loading { height: clamp(200px, 27vh, 300px); min-height: 200px; }
   .studio-app.free-play .guitar-stage { flex: 1; height: auto; min-height: 300px; }
   .studio-app.focus-view .app-body { grid-template-columns: minmax(0, 1fr); }

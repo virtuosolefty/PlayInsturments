@@ -9,7 +9,7 @@ export const PITCH_CLASS_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#
 export const FLAT_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
 
 export const pitchClass = (midi) => ((midi % 12) + 12) % 12;
-export const octaveOf = (midi) => Math.floor(midi / 12) - 1;
+const octaveOf = (midi) => Math.floor(midi / 12) - 1;
 
 export function noteName(midi, { flats = false } = {}) {
   const names = flats ? FLAT_NAMES : PITCH_CLASS_NAMES;
@@ -22,7 +22,7 @@ export function isBlackKey(midi) {
 
 /* ------------------------------------------------------------------ scales */
 
-export const SCALE_INTERVALS = {
+const SCALE_INTERVALS = {
   major: [0, 2, 4, 5, 7, 9, 11],
   naturalMinor: [0, 2, 3, 5, 7, 8, 10],
   harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
@@ -170,7 +170,7 @@ export const ERROR_KINDS = {
 };
 
 /** Human-readable severity 0..1 — drives colour and the error audio cue. */
-export const ERROR_SEVERITY = {
+const ERROR_SEVERITY = {
   [ERROR_KINDS.OCTAVE]: 0.2,
   [ERROR_KINDS.CHORD_TONE]: 0.35,
   [ERROR_KINDS.NEIGHBOUR]: 0.6,

@@ -106,6 +106,13 @@ describe('checking a model\'s measurements', () => {
     expect(fitProblem({ ...FIT, bounds: { min: [0, 0, 0], max: [1, 0, 1] } })).toMatch(/bounds/);
     expect(fitProblem(null)).toMatch(/no strings/);
   });
+
+  it('asks only for the bounds of a model that is shown, not played', () => {
+    const shown = { name: 'kit', showcase: true, bounds: { min: [-10, 0, -6], max: [10, 9, 6] } };
+    expect(fitProblem(shown)).toBeNull();
+    expect(fitProblem({ ...shown, bounds: undefined })).toMatch(/bounds/);
+    expect(fitProblem({ ...shown, bounds: { min: [0, 0, 0], max: [1, 0, 1] } })).toMatch(/bounds/);
+  });
 });
 
 describe('the parts of a loaded model', () => {

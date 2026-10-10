@@ -21,12 +21,17 @@ const isPoint = value => Array.isArray(value) && value.length === 3 && value.eve
  * after its drawn instrument had already gone, so the file is refused instead.
  */
 export function fitProblem(fit) {
+  // A model that is only shown (stageModels.js) has nothing to play, so it needs only a box to frame.
+  if (fit?.showcase) return boundsProblem(fit);
   if (!Array.isArray(fit?.strings) || !fit.strings.length) return 'have no strings';
   if (!fit.strings.every(s => isPoint(s?.nut) && isPoint(s?.bridge) && s.bridge[0] > s.nut[0])) return 'have a string without both ends';
   if (!Number.isFinite(fit.nutX) || !(fit.scaleLength > 0)) return 'have no nut or scale length';
+  return boundsProblem(fit);
+}
+
+function boundsProblem(fit) {
   const { min, max } = fit.bounds ?? {};
-  if (!isPoint(min) || !isPoint(max) || ![0, 1, 2].every(k => max[k] > min[k])) return 'have no bounds';
-  return null;
+  return !isPoint(min) || !isPoint(max) || ![0, 1, 2].every(k => max[k] > min[k]) ? 'have no bounds' : null;
 }
 
 /**
@@ -72,7 +77,7 @@ function fetchFiles(name, base, timeoutMs) {
  * The instrument's model and measurements, ready to add to a scene, or null
  * when there is no model to use: the stage then keeps the instrument it draws.
  *
- * @param {string} name 'guitar', 'violin' or 'cello'
+ * @param {string} name a model's id (stageModels.js): 'guitar', 'violin', 'cello', or one that is only shown
  * @param {{ base?: string, timeoutMs?: number }} [options] where the files are served from, and how long they may take
  * @returns {Promise<{ scene: import('three').Group, fit: object } | null>}
  */

@@ -16,9 +16,10 @@
  */
 
 import * as Tone from 'tone';
+import { buildDrumVoice } from './drumVoice.js';
 import { getSamplePack } from './vault.js';
 
-export const INSTRUMENT_SOURCES = {
+const INSTRUMENT_SOURCES = {
   IMPORTED: 'imported-pack',
   LOCAL: 'local-pack',
   CDN: 'salamander-cdn',
@@ -38,7 +39,23 @@ const SALAMANDER_SAMPLES = {
 };
 
 const midiToName = (midi) => Tone.Frequency(midi, 'midi').toNote();
-const VOICES = ['piano', 'guitar', 'violin', 'cello'];
+const VOICES = ['piano', 'guitar', 'bass', 'violin', 'cello', 'drums'];
+
+/**
+ * The plucked voices. A steel-strung guitar rings on and is bright; a bass
+ * has a heavy fundamental under little else, and is louder because low notes
+ * read as quieter than they are.
+ */
+const PLUCKED = Object.freeze({
+  guitar: { label: 'Guitar', partials: [1, 0.45, 0.2, 0.08, 0.035], decay: 1.15, release: 0.35, volume: -12 },
+  bass: { label: 'Bass', partials: [1, 0.5, 0.22, 0.1, 0.04], decay: 1.6, release: 0.3, volume: -6 },
+});
+
+/** The bowed voices, the same instrument at two sizes: the larger one is darker and slower to speak. */
+const BOWED = Object.freeze({
+  violin: { label: 'Violin', cutoff: 3000, vibrato: [5.6, 0.08], partials: [1, 0.5, 0.36, 0.26, 0.2, 0.15, 0.12, 0.09, 0.06], attack: 0.06, release: 0.4, volume: -14 },
+  cello: { label: 'Cello', cutoff: 1500, vibrato: [4.8, 0.06], partials: [1, 0.62, 0.42, 0.3, 0.2, 0.14, 0.1, 0.07], attack: 0.09, release: 0.55, volume: -10 },
+});
 
 class AudioEngine {
   constructor() {
@@ -366,19 +383,22 @@ class AudioEngine {
     if (next === 'piano') this._upgrade();
   }
 
-  _buildGuitar() {
+  /** A plucked string, offline: a few partials and an envelope that only dies away. */
+  _buildPlucked(type) {
+    const voice = PLUCKED[type];
     const instrument = new Tone.PolySynth(Tone.Synth, {
       maxPolyphony: 16,
-      oscillator: { type: 'custom', partials: [1, 0.45, 0.2, 0.08, 0.035] },
-      envelope: { attack: 0.002, decay: 1.15, sustain: 0, release: 0.35 },
-      volume: -12,
+      oscillator: { type: 'custom', partials: voice.partials },
+      envelope: { attack: 0.002, decay: voice.decay, sustain: 0, release: voice.release },
+      volume: voice.volume,
     }).connect(this.reverb);
-    return { instrument, source: INSTRUMENT_SOURCES.SYNTH, label: 'Guitar · synthesized' };
+    return { instrument, source: INSTRUMENT_SOURCES.SYNTH, label: `${voice.label} · synthesized` };
   }
 
   _buildVoice(type) {
-    if (type === 'guitar') return this._buildGuitar();
-    if (type === 'violin' || type === 'cello') return this._buildBowed(type);
+    if (type in PLUCKED) return this._buildPlucked(type);
+    if (type in BOWED) return this._buildBowed(type);
+    if (type === 'drums') return { instrument: buildDrumVoice(Tone, this.reverb), source: INSTRUMENT_SOURCES.SYNTH, label: 'Drums · synthesized' };
     return this._buildSynth();
   }
 
@@ -388,21 +408,21 @@ class AudioEngine {
    * for as long as the bow moves, and a gentle vibrato from the left hand.
    */
   _buildBowed(type) {
-    const cello = type === 'cello';
-    const filter = new Tone.Filter({ type: 'lowpass', frequency: cello ? 1500 : 3000, Q: 0.7 }).connect(this.reverb);
-    const vibrato = new Tone.Vibrato({ frequency: cello ? 4.8 : 5.6, depth: cello ? 0.06 : 0.08 }).connect(filter);
+    const voice = BOWED[type];
+    const filter = new Tone.Filter({ type: 'lowpass', frequency: voice.cutoff, Q: 0.7 }).connect(this.reverb);
+    const vibrato = new Tone.Vibrato({ frequency: voice.vibrato[0], depth: voice.vibrato[1] }).connect(filter);
     const instrument = new Tone.PolySynth(Tone.Synth, {
       maxPolyphony: 8,
-      oscillator: { type: 'custom', partials: cello ? [1, 0.62, 0.42, 0.3, 0.2, 0.14, 0.1, 0.07] : [1, 0.5, 0.36, 0.26, 0.2, 0.15, 0.12, 0.09, 0.06] },
-      envelope: { attack: cello ? 0.09 : 0.06, decay: 0.25, sustain: 0.82, release: cello ? 0.55 : 0.4 },
-      volume: cello ? -10 : -14,
+      oscillator: { type: 'custom', partials: voice.partials },
+      envelope: { attack: voice.attack, decay: 0.25, sustain: 0.82, release: voice.release },
+      volume: voice.volume,
     }).connect(vibrato);
     // _install disposes the old voice; take the effects it feeds with it.
     const chain = [vibrato, filter];
     const disposeSynth = instrument.dispose.bind(instrument);
     instrument._chain = chain;
     instrument.dispose = () => { disposeSynth(); chain.forEach(part => part.dispose()); return instrument; };
-    return { instrument, source: INSTRUMENT_SOURCES.SYNTH, label: `${cello ? 'Cello' : 'Violin'} · synthesized` };
+    return { instrument, source: INSTRUMENT_SOURCES.SYNTH, label: `${voice.label} · synthesized` };
   }
 
   /* ------------------------------------------------------------- playback */

@@ -55,33 +55,6 @@ export async function writeToBackup(key, data) {
 }
 
 /**
- * Read data from IndexedDB.
- * Returns null if not found or IndexedDB unavailable.
- */
-export async function readFromBackup(key) {
-  try {
-    await initDb();
-    return new Promise((resolve) => {
-      const tx = db.transaction([STORE_NAME], 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.get(key);
-      request.onsuccess = () => {
-        if (request.result !== undefined) {
-          console.log('[indexedDbBackup] restored from IndexedDB:', key);
-          resolve(request.result);
-        } else {
-          resolve(null);
-        }
-      };
-      request.onerror = () => resolve(null);
-    });
-  } catch (err) {
-    console.warn('[indexedDbBackup] read failed:', err.message);
-    return null;
-  }
-}
-
-/**
  * Clear IndexedDB backup.
  */
 export async function clearBackup(key) {

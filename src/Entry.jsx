@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState } from 'react';
 import WelcomePage from './components/WelcomePage.jsx';
 import { loadSettings, saveSettings } from './lib/storage.js';
+import { INSTRUMENTS, PICKER } from './lib/instruments.js';
 const App=lazy(()=>import('./App.jsx'));
 
 export default function Entry() {
@@ -11,9 +12,9 @@ export default function Entry() {
     ? `/${window.location.pathname.slice(base.length)}`.replace(/\/+/g,'/')
     : window.location.pathname;
   const sharedLesson=query.get('lesson');
-  const routed=['guitar','violin','cello'].find(id=>route===`/${id}/`);
-  const requested=['guitar','violin','cello'].includes(query.get('instrument'))?query.get('instrument'):routed??'piano';
-  const publicRoute=['/welcome/','/piano/','/guitar/','/violin/','/cello/','/learn/first-melody/'].includes(route);
+  const routed=PICKER.find(id=>route===`/${id}/`);
+  const requested=INSTRUMENTS.includes(query.get('instrument'))?query.get('instrument'):routed??'piano';
+  const publicRoute=['/welcome/',...PICKER.map(id=>`/${id}/`),'/learn/first-melody/'].includes(route);
   const [entered,setEntered]=useState(()=>!!saved.onboarded&&!publicRoute&&!sharedLesson);
   const [startup,setStartup]=useState(null);
   const enter=({kind,instrument=requested,lessonId})=>{

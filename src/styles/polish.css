@@ -21,8 +21,6 @@ body { background: var(--app-wash), var(--bg); background-attachment: fixed; }
 .studio-app .instrument-controls { background: var(--bg-1); }
 
 /* Segmented controls: a well, and a raised segment for the choice. */
-.instrument-picker, .workspace-switch, .library-instruments, .learning-instruments, .studio-app .mode-switch, .stage-view-switch { background: var(--seg-trough); border-color: var(--line-soft); }
-.instrument-picker button[aria-pressed="true"], .workspace-switch button[aria-pressed="true"], .library-instruments button[aria-pressed="true"], .learning-instruments button[aria-pressed="true"], .studio-app .mode-switch button.on, .stage-view-switch button[aria-pressed="true"] { background: var(--seg-on); color: var(--text); border-color: transparent; box-shadow: var(--seg-on-shadow); }
 
 /* The primary action, and the same button while a run is playing. */
 button.primary, .studio-app button.primary, .studio-app .pad.primary { background: var(--primary-bg); border-color: var(--primary-border); color: var(--on-accent); box-shadow: var(--primary-shadow); text-shadow: none; }
@@ -46,7 +44,7 @@ select, input[type="search"], input[type="text"] { background-color: var(--field
 .keycap, kbd { background: var(--bg-2); color: var(--text-dim); border-color: var(--line); }
 .count-in { background: var(--bg-1); color: var(--text); border: 1px solid var(--line); }
 .toast { background: var(--bg-1); color: var(--bad); border-color: var(--bad); }
-.score-ring, .report-next { background: var(--accent-soft); }
+.report-next { background: var(--accent-soft); }
 
 /* ---------------------------------------------------------------- icons */
 .icon { display: inline-block; flex: none; vertical-align: -0.18em; }

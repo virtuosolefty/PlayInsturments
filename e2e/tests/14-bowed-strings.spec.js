@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 
 const pick = (p, name) => p.getByRole('group', { name: 'Practice instrument' }).getByRole('button', { name, exact: true }).click();
 const workspace = (p, name) => p.getByRole('group', { name: 'Workspace', exact: true }).getByRole('button', { name, exact: true });
@@ -6,7 +7,7 @@ const events = p => p.evaluate(() => window.__notes);
 const count = (p, type) => expect.poll(async () => (await events(p)).filter(m => m.type === type).length);
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { onboarded: true, countInBars: 0, settingsVersion: 5, renderer: 'canvas' } })));
+  await seedSettings(page, { renderer: 'canvas' }, { everyLoad: true });
   await page.goto('/');
   await expect(page.locator('.piece-title')).toContainText('C Major', { timeout: 30000 });
   await page.evaluate(async () => { window.__notes = []; (await import('/src/lib/midiInput.js')).midiInput.onMessage(m => window.__notes.push(m)); });

@@ -1,12 +1,16 @@
 {
   "name": "Practice Deck",
   "short_name": "Practice Deck",
-  "description": "Your piano and guitar practice studio.",
-  "start_url": "/",
+  "description": "Your practice studio for piano, guitar, strings and drums.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0b0b10",
   "theme_color": "#0b0b10",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

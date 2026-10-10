@@ -1,12 +1,19 @@
 /**
  * path.js — the curriculum, and the rules that let you through it.
  *
- * The load-bearing decision here is that **unlocks are gated on mastery, not on
- * attendance**. If showing up unlocked the next exercise, the streak would
- * become the point and the app would be quietly lying about skill. Turning up
- * every day earns music to play; only playing well earns progress.
+ * Two things are kept apart here. **Finishing a lesson opens the next one**:
+ * one complete run, guided or timed, at any speed. **Stars say how well it is
+ * known**: three at the written tempo pass its check, four master it, and
+ * neither is ever given for a guided or a slowed run.
  *
- * The second decision is that the reward for clearing a stage is a real piece
+ * Until October 2026 the next lesson waited on those stars, so that turning up
+ * could never stand in for skill. It kept that promise and lost beginners at
+ * the first gate: someone who had played a lesson through, with the notes
+ * waiting for them, was told to come back when they could play it in time.
+ * Opening the door on a finished run costs the stars nothing, because the
+ * stars still have to be earned the old way.
+ *
+ * The second decision is that the reward for finishing a stage is a real piece
  * from the library rather than a trophy. Nineteen pieces given away at once is
  * a list; the same nineteen earned one at a time is a repertoire.
  *
@@ -14,9 +21,9 @@
  * own, so every threshold and edge is testable.
  */
 
-/** Stars needed to pass an exercise and unlock the next one. */
+/** Stars, at the written tempo, needed to pass an exercise's check. */
 export const PASS_STARS = 3;
-/** Stars needed to master it — clears a tempo rung and counts toward the stage. */
+/** Stars needed to master it — clears a tempo rung and counts toward mastering the stage. */
 export const MASTER_STARS = 4;
 
 /**
@@ -89,12 +96,10 @@ export const STAGES = [
 /** Every exercise id in curriculum order. */
 export const PATH_EXERCISES = STAGES.flatMap((s) => s.exercises);
 
-export const isPathExercise = (id) => PATH_EXERCISES.includes(id);
-
 /* ------------------------------------------------------------- one exercise */
 
 /**
- * Runs that count toward the Path.
+ * Runs that are assessed: the ones stars, checks and tempo rungs are read from.
  *
  * Wait mode is excluded on purpose: it stops the clock for you, so timing is
  * never measured and its weight falls onto the notes — an easier grade for the
@@ -114,10 +119,10 @@ export function qualifyingRuns(sessions = []) {
  * have played this fourteen times in Wait for me" are entirely different
  * situations and the app used to say the same nothing to both — while the daily
  * counter cheerfully counted all fourteen and the end-of-run report handed out
- * four stars for them. Somebody can do everything right, be told so twice, and
- * watch the padlock stay shut with no way to find out why.
+ * four stars for them. They finish the lesson, which opens the next one; they
+ * earn no stars, and `blockerHelp` says why.
  */
-export function unassessedRuns(sessions = []) {
+function unassessedRuns(sessions = []) {
   return (sessions ?? []).filter(
     (s) => s && s.mode === 'wait' && Number.isFinite(s.stars) && s.stars > 0,
   );
@@ -132,12 +137,14 @@ function blockerOf(passed, runs, fullSpeed, unassessed) {
 }
 
 /**
- * What is actually standing between this exercise and the next one.
+ * What is actually standing between this exercise and its check being passed.
+ * It never stands between the player and the next lesson: finishing a run
+ * opens that, and nothing here may say otherwise.
  *
  * One function so the Path list, the daily work card and the end-of-run report
  * cannot describe the same situation three different ways. Returns null when
  * there is nothing to explain — including for an exercise nobody has attempted,
- * where a padlock and a title already say everything true.
+ * where a title already says everything true.
  *
  * Two lengths, because both places that need this are on screen together and
  * the same paragraph printed twice reads as a rendering fault. The card carries
@@ -152,16 +159,16 @@ export function blockerHelp(entry, { short = false } = {}) {
   switch (entry?.blocker) {
     case 'wait':
       return short
-        ? `${runs(entry.unassessed)} saved in Wait for me. Guided practice counts as learning, not a mastery check.`
-        : `${runs(entry.unassessed)} saved in Wait for me. You received feedback on notes and touch; timing was not assessed. Earn ${PASS_STARS} stars in Practice at 100% speed to unlock the next exercise.`;
+        ? `${runs(entry.unassessed)} saved in Wait for me. Guided practice finishes the lesson; it earns no stars.`
+        : `${runs(entry.unassessed)} saved in Wait for me. You received feedback on notes and touch; timing was not assessed, so there are no stars yet. Earn ${PASS_STARS} in Practice at 100% speed to pass the check.`;
     case 'slow':
       return short
         ? `Best so far is ${entry.bestStars} of 5, but below the written tempo.`
-        : `Best so far is ${entry.bestStars} of 5, but below the written tempo. ${PASS_STARS} stars at 100% speed is what opens the next one.`;
+        : `Best so far is ${entry.bestStars} of 5, but below the written tempo. ${PASS_STARS} stars at 100% speed passes the check.`;
     case 'stars':
       return short
-        ? `Best so far is ${entry.bestStars} of 5 at tempo, and ${PASS_STARS} opens the next one.`
-        : `Best so far is ${entry.bestStars} of 5 at tempo, and ${PASS_STARS} opens the next one. The rating is notes, timing and touch together, so clean notes on their own may not reach it.`;
+        ? `Best so far is ${entry.bestStars} of 5 at tempo, and ${PASS_STARS} passes the check.`
+        : `Best so far is ${entry.bestStars} of 5 at tempo, and ${PASS_STARS} passes the check. The rating is notes, timing and touch together, so clean notes on their own may not reach it.`;
     default:
       return null;
   }
@@ -179,11 +186,11 @@ export function rungAt(rate) {
 /**
  * @param {Array} sessions every recorded run of this exercise
  * @returns {{
- *   attempts: number, unassessed: number, bestStars: number,
+ *   attempts: number, unassessed: number, finished: boolean, bestStars: number,
  *   bestOverall: number|null, passed: boolean, mastered: boolean,
  *   rungsCleared: number, nextRung: object|null,
  *   blocker: 'none'|'wait'|'slow'|'stars'|null
- * }}
+ * }} `finished` is one complete run of any kind, which is what opens the next exercise
  */
 export function exerciseState(sessions = []) {
   const runs = qualifyingRuns(sessions);
@@ -208,6 +215,8 @@ export function exerciseState(sessions = []) {
   return {
     attempts: runs.length,
     unassessed: unassessed.length,
+    // Only a complete run is stored with stars, so either list holding one means the lesson was played through.
+    finished: runs.length + unassessed.length > 0,
     bestStars,
     bestOverall: overalls.length ? Math.max(...overalls) : null,
     passed,
@@ -226,8 +235,10 @@ export function exerciseState(sessions = []) {
  * @param {(songId: string) => Array} sessionsFor returns every run of a song
  * @returns {{
  *   stages: Array, exercises: object, currentId: string|null,
- *   unlockedRecitals: string[], passedCount: number, total: number, complete: boolean
- * }}
+ *   unlockedRecitals: string[], finishedCount: number, passedCount: number, total: number, complete: boolean
+ * }} `currentId` is the lesson to work on: the first one open and unfinished, or, once every lesson is finished,
+ *   the first whose check has not been passed. A stage is `finished` when every lesson in it is, and `cleared`
+ *   when every one is mastered.
  */
 export function pathState(sessionsFor, curriculum = STAGES) {
   const exercises = {};
@@ -235,43 +246,46 @@ export function pathState(sessionsFor, curriculum = STAGES) {
   const unlockedRecitals = [];
 
   let stageUnlocked = true;
-  let currentId = null;
 
   for (const stage of curriculum) {
     // The first exercise of an unlocked stage is open; after that each one waits
-    // on the one before it passing.
-    let previousPassed = true;
+    // on the one before it being finished.
+    let previousFinished = true;
     const entries = stage.exercises.map((id) => {
       const state = exerciseState(sessionsFor(id) ?? []);
-      const unlocked = stageUnlocked && previousPassed;
-      previousPassed = state.passed;
+      const unlocked = stageUnlocked && previousFinished;
+      previousFinished = state.finished;
       const entry = { id, ...state, unlocked, stageId: stage.id };
       exercises[id] = entry;
-      if (unlocked && !state.passed && !currentId) currentId = id;
       return entry;
     });
 
-    const cleared = entries.every((e) => e.mastered);
-    if (cleared && stage.recital) unlockedRecitals.push(stage.recital);
+    const finished = entries.every((e) => e.finished);
+    if (finished && stage.recital) unlockedRecitals.push(stage.recital);
 
     stages.push({
       ...stage,
       unlocked: stageUnlocked,
-      cleared,
+      finished,
+      cleared: entries.every((e) => e.mastered),
       entries,
       passedCount: entries.filter((e) => e.passed).length,
     });
 
-    // The next stage opens only when this one is mastered end to end.
-    stageUnlocked = stageUnlocked && cleared;
+    // The next stage opens when every lesson in this one has been played through.
+    stageUnlocked = stageUnlocked && finished;
   }
 
-  const passedCount = Object.values(exercises).filter((e) => e.passed).length;
+  const all = Object.values(exercises);
+  const passedCount = all.filter((e) => e.passed).length;
+  const open = all.filter((e) => e.unlocked);
+  const currentId = (open.find((e) => !e.finished) ?? open.find((e) => !e.passed))?.id ?? null;
   return {
     stages,
     exercises,
     currentId,
     unlockedRecitals,
+    finishedCount: all.filter((e) => e.finished).length,
     passedCount,
     total: curriculum.flatMap(s => s.exercises).length,
     complete: passedCount === curriculum.flatMap(s => s.exercises).length,
@@ -322,7 +336,9 @@ export function dailySet(state, { dayKey = '', library = [] } = {}) {
       kind: 'work',
       songId: state.currentId,
       label: titleOf(state.currentId),
-      why: `Your current rung — ${PASS_STARS} stars at tempo unlocks the next one.`,
+      why: state.exercises[state.currentId]?.finished
+        ? `You have played this one through — ${PASS_STARS} stars at tempo passes its check.`
+        : 'Your current lesson — play it through and the next one opens.',
       // Only once there is something specific to say. "Play it well" under a
       // card that already says "3 stars at tempo" is noise; "all fourteen of
       // your runs were in a mode that is never graded" is the whole answer.
@@ -365,7 +381,6 @@ export function dailyProgress(days = {}, dayKey, goal = DAILY_RUN_GOAL) {
 
 /** The fixed exercise, at the fixed tempo, that proves the whole thing works. */
 export const BENCHMARK_ID = 'path-08-scale-right';
-export const BENCHMARK_INTERVAL_DAYS = 7;
 
 /**
  * Benchmark runs only. Same piece, same tempo, same arrangement — anything else
@@ -405,23 +420,10 @@ export function benchmarkTrend(sessions = []) {
   };
 }
 
-/**
- * Is a fresh benchmark due? Never on day one — there is nothing to compare a
- * first run against, and asking for one before there is a Path to measure is
- * just a chore.
- */
-export function benchmarkDue(sessions, todayKey, daysBetween) {
-  const runs = benchmarkRuns(sessions);
-  if (!runs.length) return true;
-  const last = runs[runs.length - 1];
-  const lastDay = String(last.at).slice(0, 10);
-  return daysBetween(lastDay, todayKey) >= BENCHMARK_INTERVAL_DAYS;
-}
-
 /* ------------------------------------------------------------ trouble decay */
 
 /** A spot is called clean once this many runs have passed without it recurring. */
-export const DECAY_RUNS = 3;
+const DECAY_RUNS = 3;
 
 /**
  * How many of your recorded trouble spots have gone quiet.

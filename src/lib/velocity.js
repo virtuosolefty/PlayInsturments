@@ -37,7 +37,7 @@ export const MIN_NOTES_PER_PASS = 4;
  * storing that curve would make the grading worse than leaving it alone — the
  * one outcome worth engineering against.
  */
-export const MIN_SPREAD = 0.12;
+const MIN_SPREAD = 0.12;
 
 /**
  * Where each pass should land once corrected.

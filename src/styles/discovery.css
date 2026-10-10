@@ -54,7 +54,6 @@
 .next-secondary button { padding: var(--sp-2) 0; margin-right: var(--sp-4); background: transparent; border: 0; font-size: var(--fs-xs); color: var(--accent); }
 .practice-size { display: flex; gap: var(--sp-1); background: var(--seg-trough); padding: var(--sp-1); border-radius: var(--control-r); }
 .practice-size button { flex: 1; background: transparent; border: 0; font-size: var(--fs-xs); min-height: var(--control-h-sm); }
-.practice-size button[aria-pressed="true"] { background: var(--seg-on); color: var(--text); box-shadow: var(--seg-on-shadow); }
 .weekly-practice { display: flex; align-items: center; gap: var(--sp-5); margin-block: var(--sp-5) 48px; padding: var(--sp-5) var(--sp-5); border: 1px solid var(--line-soft); border-radius: var(--radius); background: var(--bg-1); }
 .weekly-practice > div:first-child { flex: 1; }
 .weekly-practice h3 { font-size: var(--fs-lg); margin: var(--sp-2) 0 6px; }

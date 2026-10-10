@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { seedSettings } from '../helpers/studio.js';
 import { chooseWorkspace as workspace } from '../helpers/workspace.js';
 
 /**
@@ -12,9 +13,7 @@ const stage = page => page.locator('.guitar-stage');
 
 function open(page, { instrument = 'guitar', free = true } = {}) {
   return async () => {
-    await page.addInitScript(inst => {
-      if (!localStorage.getItem('piano-practice-coach:v1')) localStorage.setItem('piano-practice-coach:v1', JSON.stringify({ version: 1, songs: {}, settings: { settingsVersion: 5, onboarded: true, renderer: 'gl', practiceInstrument: inst, countInBars: 0 } }));
-    }, instrument);
+    await seedSettings(page, { renderer: 'gl', practiceInstrument: instrument });
     await page.goto('/');
     if (free) await workspace(page, 'Free play');
   };

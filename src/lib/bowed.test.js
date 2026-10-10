@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   BOWED, BOWED_MAX_POSITION, CELLO_TUNING, VIOLIN_TUNING,
-  bowedFinger, bowedMidi, bowedPositions, bowedReach, bowedStringName,
+  bowedFinger, bowedMidi, bowedReach, bowedStringName,
 } from './bowed.js';
 import { PracticeSession } from './matcher.js';
 
@@ -20,15 +20,7 @@ describe('violin and cello tuning', () => {
     for (const [s, p] of [[-1, 0], [4, 0], [0, -1], [0, BOWED_MAX_POSITION + 1], [1, 2.5]]) {
       expect(bowedMidi('violin', s, p)).toBeNull();
     }
-    expect(bowedMidi('viola', 0, 0)).toBeNull();
-  });
-  it('finds every playable place for a pitch without changing it', () => {
-    for (const instrument of ['violin', 'cello']) {
-      for (let midi = 0; midi <= 127; midi++) {
-        bowedPositions(instrument, midi).forEach(p => expect(bowedMidi(instrument, p.string, p.fret)).toBe(midi));
-      }
-    }
-    expect(bowedPositions('violin', 69)).toEqual([{ string: 1, fret: 7 }, { string: 2, fret: 0 }]);
+    expect(bowedMidi('banjo', 0, 0)).toBeNull();
   });
   it('names strings the way players do: the highest string is string 1', () => {
     expect(bowedStringName('violin', 3)).toEqual({ note: 'E', number: 1 });
