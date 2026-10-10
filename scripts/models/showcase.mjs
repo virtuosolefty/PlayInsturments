@@ -83,3 +83,27 @@ export function wholePieces(primitives) {
     .map((prim, primIndex) => ({ primIndex, part: `part${primIndex}`, triangles: Array.from({ length: prim.indices.length / 3 }, (_, t) => t) }))
     .filter(piece => piece.triangles.length);
 }
+
+/**
+ * Which drum a piece of a kit belongs to, as the name of the part it goes in.
+ *
+ * A zone is a box in stage units: a piece whose centre is inside it, and whose
+ * longest side is no more than `maxSize`, is that drum's. The size limit leaves
+ * out a stand or a rack tube that merely passes through. A drum with more than
+ * one zone (two crash cymbals) numbers them, and a piece in two zones goes to
+ * the first listed.
+ *
+ * @param {{ id: string, at: number[], maxSize: number }[]} zones `at` is [x0, y0, z0, x1, y1, z1]
+ * @param {{ centre: number[], size: number[] }} piece in stage units
+ * @returns {string | null} `drum-<id>-<n>`, or null when the piece is no drum's
+ */
+export function drumZonePart(zones, { centre, size }) {
+  const counts = new Map();
+  for (const zone of zones) {
+    const n = counts.get(zone.id) ?? 0;
+    counts.set(zone.id, n + 1);
+    const inside = [0, 1, 2].every(k => centre[k] >= zone.at[k] && centre[k] <= zone.at[k + 3]);
+    if (inside && Math.max(...size) <= zone.maxSize) return `drum-${zone.id}-${n}`;
+  }
+  return null;
+}

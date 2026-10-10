@@ -42,7 +42,9 @@ test('the drums open with lanes to read, a 3D kit to hit and the pads a click aw
   await expect(page.locator('.drum-lanes')).toHaveAttribute('data-lanes', '8');
   await expect(page.locator('.drum-label')).toHaveCount(8, { timeout: 30_000 });
   await expect(page.locator('.guitar-next')).toContainText('Kick · press K');
-  await expect(page.getByLabel('Drum exercise').locator('option')).toHaveCount(6);
+  // Six lessons, then the ten beats under a heading of their own.
+  await expect(page.getByLabel('Drum exercise').locator('optgroup').nth(0).locator('option')).toHaveCount(6);
+  await expect(page.getByLabel('Drum exercise').locator('optgroup').nth(1).locator('option')).toHaveCount(10);
   // On a wide screen the pads fold away under the kit, and open for anyone who wants them.
   await expect(pads(page)).toBeHidden();
   await page.getByText('Show drum pads · keyboard accessible').click();
@@ -233,6 +235,8 @@ test('a guided drum phrase waits for each drum in turn and saves the lesson', as
   await page.reload();
   await expect(page.locator('.lesson-bar [aria-current="step"]')).toContainText('Practice');
   await page.getByRole('button', { name: 'Save & leave' }).click();
-  await expect(page.locator('.learning-roadmap > header')).toContainText('1 guided');
+  // The guided run finished the lesson, which opens the next one; it passed no check.
+  await expect(page.locator('.learning-roadmap > header')).toContainText('1 / 6 lessons finished · 0 checks passed');
+  await expect(page.locator('.learning-stage-lessons button').filter({ hasText: 'Four on the floor' })).toBeEnabled();
   expect(errors).toEqual([]);
 });

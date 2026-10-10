@@ -38,10 +38,13 @@ test.describe('Smoke — the app boots', () => {
     // one of the five missing imports — walking every tab is a direct,
     // low-effort regression guard against that whole bug class recurring
     // one component at a time.
-    for (const tab of ['Songs', 'Path', 'Keyboard', 'Progress']) {
+    for (const tab of ['Songs', 'Path', 'Progress']) {
       console.log(`[smoke] opening drawer tab: ${tab}`);
       await appPage.selectDrawerTab(tab);
       await appPage.assertNoFatalError();
     }
+    // The keyboard's settings are in Input & sound now, under More options.
+    await appPage.openMoreOptions();
+    await appPage.assertNoFatalError();
   });
 });

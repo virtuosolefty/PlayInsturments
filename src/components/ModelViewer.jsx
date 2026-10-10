@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { castShadows } from '../lib/stage/modelFinish.js';
 import { barEdges, clearOfBars } from '../lib/stage/stageBars.js';
+import { buildDrumModelRig } from '../lib/stage/drumModelRig.js';
 import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
 import { createStudio, disposeResources } from '../lib/stage/studio.js';
 import { NO_TURN, attachTurntable, isTurned } from '../lib/stage/turntable.js';
@@ -19,15 +20,19 @@ const DOWNLOAD_LIMIT_MS = 60000;
  * A frame is drawn only when something changed. The model's files are fetched
  * once a page (models.js); a stalled or broken download calls `onFailed`.
  *
+ * A drum kit (`struck` in stageModels.js) answers to the hits it is told of
+ * through `hits`: each drum lights and moves (drumModelRig.js).
+ *
  * @param {object} props
- * @param {{ id: string, label: string }} props.model from stageModels.js
+ * @param {{ id: string, label: string, struck?: boolean }} props.model from stageModels.js
  * @param {'auto'|'full'|'light'} [props.quality]
  * @param {(why: string) => void} props.onFailed
+ * @param {(listener: (hit: { id: string, color: string, strength: number }) => void) => () => void} [props.hits] subscribes to the drum hits; gives back a way to stop
  */
-export default function ModelViewer({ model, quality = 'auto', onFailed }) {
+export default function ModelViewer({ model, quality = 'auto', onFailed, hits }) {
   const host = useRef(null);
   const latest = useRef(null);
-  latest.current = { onFailed };
+  latest.current = { onFailed, hits };
   const reset = useRef(() => {});
   const [ready, setReady] = useState(false);
   const [turned, setTurned] = useState(false);
@@ -44,7 +49,7 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
     }
     const canvas = studio.renderer.domElement;
     canvas.setAttribute('aria-hidden', 'true');
-    let stopped = false, raf = 0, dirty = false, shot = null, turn = NO_TURN, bounds;
+    let stopped = false, raf = 0, dirty = false, shot = null, turn = NO_TURN, bounds, rig = null;
     // The viewer covers the stage, whose bars lie over it: the caption at the top, the view switch at the bottom.
     const stage = el.parentElement ?? el;
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -55,10 +60,12 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
       bounds = clearOfBars(barEdges(stage, { top: '.model-caption' }));
       if (shot && studio.frame(shot, { view: VIEWER_LENS, turn, bounds })) dirty = true;
     };
-    const tick = () => {
+    const tick = now => {
       if (stopped) return;
       raf = requestAnimationFrame(tick);
-      if (!dirty || document.hidden) return;
+      if (document.hidden) return;
+      if (rig?.update(now)) dirty = true;
+      if (!dirty) return;
       dirty = false;
       studio.render();
     };
@@ -80,6 +87,8 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
       if (!loaded) { latest.current.onFailed('its files could not be loaded'); return; }
       try {
         castShadows(loaded.scene);
+        // Before the resources are gathered: the rig gives each drum materials of its own.
+        if (model.struck) rig = buildDrumModelRig(loaded.scene, { reducedMotion: () => calm.matches });
         const found = collectResources(loaded.scene);
         for (const kind of ['geometries', 'materials', 'textures']) found[kind].forEach(item => studio.owned[kind].add(item));
         studio.scene.add(loaded.scene);
@@ -93,6 +102,11 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
       }
     }, error => { if (!stopped) latest.current.onFailed(error.message); });
 
+    const stopHits = model.struck ? latest.current.hits?.(({ id, color, strength }) => {
+      if (!rig) return;
+      rig.hit(id, color, strength);
+      dirty = true;
+    }) : undefined;
     const onLost = event => { event.preventDefault(); latest.current.onFailed('the graphics context was lost'); };
     canvas.addEventListener('webglcontextlost', onLost);
     const resize = new ResizeObserver(frame);
@@ -103,6 +117,7 @@ export default function ModelViewer({ model, quality = 'auto', onFailed }) {
       stopped = true;
       cancelAnimationFrame(raf);
       resize.disconnect();
+      stopHits?.();
       table.stop();
       canvas.removeEventListener('webglcontextlost', onLost);
       reset.current = () => {};

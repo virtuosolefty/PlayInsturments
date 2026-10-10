@@ -160,6 +160,33 @@ describe('labels on a downloaded guitar', () => {
   });
 });
 
+describe('labels on a four-string instrument', () => {
+  const BASS = [28, 33, 38, 43];
+  const neck = modelNeck({ nutX: NUT_X, strings: [0, 1, 2, 3].map(s => ({ nut: [NUT_X, 0, 0.6 - s * 0.4], bridge: [18.4, 0.22, 0.9 - s * 0.6] })) });
+  const onBass = (options = {}) => labels({ neck, tuning: BASS, stringBand: { top: -1e4, bottom: 1e4 }, ...options });
+
+  it('names its own four strings and numbers them from four down to one', () => {
+    const names = of(onBass(), 'string');
+    expect(names.map(label => label.text)).toEqual(['E1', 'A1', 'D2', 'G2']);
+    expect(names.map(label => label.number)).toEqual([4, 3, 2, 1]);
+  });
+
+  it('still numbers every fret, and shows no chord labels when there is no chord', () => {
+    const all = onBass();
+    expect(of(all, 'fret').map(label => label.text)).toEqual(Array.from({ length: 12 }, (_, i) => String(i + 1)));
+    expect(of(all, 'finger')).toEqual([]);
+    expect(of(all, 'muted')).toEqual([]);
+  });
+
+  it('labels a chord by the instrument’s own notes when given its pitch lookup', () => {
+    const TUNING = [67, 60, 64, 69], midiAt = (string, fret) => TUNING[string] + fret;
+    const c = { name: 'C', frets: [0, 0, 0, 3], fingers: [0, 0, 0, 3] };
+    const shown = labels({ neck, tuning: TUNING, midiAt, chord: c, labelMode: 'notes', stringBand: { top: -1e4, bottom: 1e4 } });
+    expect(of(shown, 'finger').map(label => label.text)).toEqual(['G', 'C', 'E', 'C']);
+    expect(of(shown, 'finger').map(label => label.root)).toEqual([false, true, false, true]);
+  });
+});
+
 describe('labels on a cramped stage', () => {
   // A phone-sized camera: the whole neck squeezed into about 370 px, strings about 6 px apart.
   const tiny = (x, y, z) => ({ x: 190 + x * 9 + z, y: 90 - z * 4.6 + y * 20 });
@@ -342,6 +369,11 @@ describe('hover hint on the guitar stage', () => {
   it('names the string as tablature does, the fret and the pitch', () => {
     expect(hoverText({ string: 0, fret: 0, midi: 40 })).toBe('String 6 · open · E2');
     expect(hoverText({ string: 3, fret: 4, midi: 59 })).toBe('String 3 · fret 4 · B3');
+  });
+
+  it('numbers the strings of a four-string instrument out of four', () => {
+    expect(hoverText({ string: 0, fret: 3, midi: 31 }, 4)).toBe('String 4 · fret 3 · G1');
+    expect(hoverText({ string: 3, fret: 0, midi: 43 }, 4)).toBe('String 1 · open · G2');
   });
 
   it('says nothing when nothing is under the pointer', () => {

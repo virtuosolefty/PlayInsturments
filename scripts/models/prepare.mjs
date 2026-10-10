@@ -28,7 +28,7 @@ import { crossSectionRadius, fitLine, fitScale, lowestFirst, playingSpan, ringCe
 import { toWebp } from './images.mjs';
 import { quantizeFrame, quantizePart } from './quantize.mjs';
 import { RECIPES } from './recipes.mjs';
-import { asMetalRough, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
+import { asMetalRough, drumZonePart, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export const NUT_X = -6.05;
@@ -279,10 +279,34 @@ function sourceFor(name, recipe) {
   return { ...loaded, json: { ...loaded.json, materials }, primitives: recipe.lean ? kept.map(prim => leanPrimitive(prim, materials[prim.material])) : kept };
 }
 
+/**
+ * A kit's pieces, each drum's own in a part of its own (`drum-<id>-<n>`, see
+ * `drumZonePart`) so that the stage can move and light it when it is hit;
+ * what belongs to no drum stays in the part its primitive always was.
+ */
+function drumPieces(source, zones, transform) {
+  const length = Math.max(...[0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k))) - Math.min(...source.primitives.map(p => minOf(p.positions, k)))));
+  return source.primitives.flatMap((prim, primIndex) => {
+    const parts = connectedComponents(prim.indices, weldByPosition(prim.positions, length * 1e-6));
+    const names = describeComponents(prim.positions, prim.indices, parts).map(box => {
+      const lo = transform.apply(box.min), hi = transform.apply(box.max);
+      return drumZonePart(zones, { centre: lo.map((v, k) => (v + hi[k]) / 2), size: lo.map((v, k) => hi[k] - v) }) ?? `part${primIndex}`;
+    });
+    const triangles = new Map();
+    for (let t = 0; t < parts.ofTriangle.length; t++) {
+      const part = names[parts.ofTriangle[t]];
+      if (!triangles.has(part)) triangles.set(part, []);
+      triangles.get(part).push(t);
+    }
+    return [...triangles].map(([part, list]) => ({ primIndex, part, triangles: list }));
+  });
+}
+
 async function prepareShowcase(name, recipe) {
   const source = sourceFor(name, recipe);
   const box = { min: [0, 1, 2].map(k => Math.min(...source.primitives.map(p => minOf(p.positions, k)))), max: [0, 1, 2].map(k => Math.max(...source.primitives.map(p => maxOf(p.positions, k)))) };
-  const parts = buildParts(source, wholePieces(source.primitives), showcaseTransform(box, recipe.axes));
+  const transform = showcaseTransform(box, recipe.axes);
+  const parts = buildParts(source, recipe.zones ? drumPieces(source, recipe.zones, transform) : wholePieces(source.primitives), transform);
   const encoded = await encodeMaterials(source, parts, recipe);
   const glb = writeGlb(name, recipe, parts, encoded);
   const bounds = parts.map(part => boundsOf(part.positions));

@@ -1540,6 +1540,465 @@
     "approxDuration": 21.7
   },
   {
+    "id": "hot-cross-buns",
+    "title": "Hot Cross Buns",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Three notes, stepping down. The best first tune there is.",
+    "bpm": 84,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      3,
+      2,
+      1,
+      3,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      3,
+      2,
+      1
+    ],
+    "url": "/songs/hot-cross-buns.mid",
+    "noteCount": 17,
+    "range": [
+      60,
+      64
+    ],
+    "approxDuration": 11.3
+  },
+  {
+    "id": "mary-had-a-little-lamb",
+    "title": "Mary Had a Little Lamb",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Four notes that mostly move by step, with one small jump up.",
+    "bpm": 96,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      3,
+      2,
+      1,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      3,
+      5,
+      5,
+      3,
+      2,
+      1,
+      2,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      3,
+      2,
+      1
+    ],
+    "url": "/songs/mary-had-a-little-lamb.mid",
+    "noteCount": 26,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 19.8
+  },
+  {
+    "id": "au-clair-de-la-lune",
+    "title": "Au Clair de la Lune",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "A French lullaby on three notes, with long notes to rest on.",
+    "bpm": 92,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      1,
+      1,
+      1,
+      2,
+      3,
+      2,
+      1,
+      3,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      2,
+      3,
+      2,
+      1,
+      3,
+      2,
+      2,
+      1
+    ],
+    "url": "/songs/au-clair-de-la-lune.mid",
+    "noteCount": 22,
+    "range": [
+      60,
+      64
+    ],
+    "approxDuration": 20.6
+  },
+  {
+    "id": "lightly-row",
+    "title": "Lightly Row",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Five notes under one hand, falling in small skips and climbing back by step.",
+    "bpm": 96,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      5,
+      3,
+      3,
+      4,
+      2,
+      2,
+      1,
+      2,
+      3,
+      4,
+      5,
+      5,
+      5,
+      5,
+      3,
+      3,
+      3,
+      4,
+      2,
+      2,
+      2,
+      1,
+      3,
+      5,
+      5,
+      1
+    ],
+    "url": "/songs/lightly-row.mid",
+    "noteCount": 26,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 19.8
+  },
+  {
+    "id": "go-tell-aunt-rhody",
+    "title": "Go Tell Aunt Rhody",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Long and short notes side by side. Count the long ones all the way through.",
+    "bpm": 88,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      3,
+      3,
+      2,
+      1,
+      1,
+      2,
+      2,
+      4,
+      3,
+      2,
+      1,
+      5,
+      5,
+      4,
+      3,
+      3,
+      2,
+      1,
+      2,
+      3,
+      1
+    ],
+    "url": "/songs/go-tell-aunt-rhody.mid",
+    "noteCount": 21,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 21.5
+  },
+  {
+    "id": "jingle-bells",
+    "title": "Jingle Bells",
+    "composer": "James Pierpont",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "The chorus. Mostly one note, so the rhythm is what you are learning.",
+    "bpm": 104,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      5,
+      1,
+      2,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      3,
+      2,
+      5,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      3,
+      5,
+      1,
+      2,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      3,
+      3,
+      3,
+      3,
+      5,
+      5,
+      4,
+      2,
+      1
+    ],
+    "url": "/songs/jingle-bells.mid",
+    "noteCount": 51,
+    "range": [
+      60,
+      67
+    ],
+    "approxDuration": 36.7
+  },
+  {
+    "id": "london-bridge",
+    "title": "London Bridge",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "One note higher than the others reach, and a long-short lilt at the start of each line.",
+    "bpm": 100,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/london-bridge.mid",
+    "noteCount": 24,
+    "range": [
+      60,
+      69
+    ],
+    "approxDuration": 19
+  },
+  {
+    "id": "old-macdonald",
+    "title": "Old MacDonald Had a Farm",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Dips below the home note and comes back up. Listen for where home is.",
+    "bpm": 100,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/old-macdonald.mid",
+    "noteCount": 25,
+    "range": [
+      55,
+      64
+    ],
+    "approxDuration": 19
+  },
+  {
+    "id": "yankee-doodle",
+    "title": "Yankee Doodle",
+    "composer": "Traditional",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Quick and even, with notes on both sides of home. Keep every beat the same length.",
+    "bpm": 108,
+    "timeSignature": [
+      4,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/yankee-doodle.mid",
+    "noteCount": 28,
+    "range": [
+      55,
+      65
+    ],
+    "approxDuration": 17.7
+  },
+  {
+    "id": "happy-birthday",
+    "title": "Happy Birthday to You",
+    "composer": "Patty and Mildred Hill",
+    "difficulty": 1,
+    "tags": [
+      "beginner",
+      "melody",
+      "easy-song"
+    ],
+    "description": "Three beats to the bar, and it starts before the first full one. The tune you will be asked for most.",
+    "bpm": 92,
+    "timeSignature": [
+      3,
+      4
+    ],
+    "key": [
+      "C",
+      "major"
+    ],
+    "fingering": null,
+    "url": "/songs/happy-birthday.mid",
+    "noteCount": 25,
+    "range": [
+      55,
+      67
+    ],
+    "approxDuration": 17.4
+  },
+  {
     "id": "twinkle-musicxml",
     "title": "Twinkle (MusicXML import)",
     "composer": "Traditional",
@@ -1566,15 +2025,27 @@
     "id": "amma-amma",
     "title": "Amma Amma",
     "composer": "Anirudh Ravichander",
+    "localOnly": true,
     "difficulty": 4,
-    "tags": ["film-music", "anirudh-ravichander", "intermediate", "indian"],
-    "description": "Beautiful emotional piece from Maryan. A contemplative melody with rich harmonies — perfect for developing touch sensitivity and emotional expression.",
+    "tags": [
+      "film-music",
+      "anirudh-ravichander",
+      "intermediate",
+      "indian"
+    ],
+    "description": "Beautiful emotional piece from Velaiilla Pattadhari. A contemplative melody with rich harmonies — perfect for developing touch sensitivity and emotional expression.",
     "bpm": 75,
-    "timeSignature": [4, 4],
+    "timeSignature": [
+      4,
+      4
+    ],
     "key": "D Major",
     "url": "/songs/amma-amma-88key.mid",
     "noteCount": 11,
-    "range": [59, 66],
+    "range": [
+      59,
+      66
+    ],
     "approxDuration": 11,
     "keyboardVersions": {
       "25-key": "/songs/amma-amma-25key.mid",
@@ -1586,30 +2057,54 @@
     "id": "raga-of-revenge",
     "title": "Raga of Revenge",
     "composer": "Anirudh Ravichander",
+    "localOnly": true,
     "difficulty": 2,
-    "tags": ["film-music", "anirudh-ravichander", "melody", "indian"],
+    "tags": [
+      "film-music",
+      "anirudh-ravichander",
+      "melody",
+      "indian"
+    ],
     "description": "The theme from DC (2026), as a single line in D minor. It sits inside a tenth and stays under one hand, so it fits any keyboard without folding — the tune on its own, with no accompaniment underneath it.",
     "bpm": 100,
     "timeSignature": null,
-    "key": ["D", "minor"],
+    "key": [
+      "D",
+      "minor"
+    ],
     "url": "/songs/raga-of-revenge.mid",
     "noteCount": 90,
-    "range": [69, 79],
+    "range": [
+      69,
+      79
+    ],
     "approxDuration": 30.6
   },
   {
     "id": "rowdy-baby",
     "title": "Rowdy Baby",
-    "composer": "Anirudh Ravichander",
+    "composer": "Yuvan Shankar Raja",
+    "localOnly": true,
     "difficulty": 3,
-    "tags": ["film-music", "anirudh-ravichander", "upbeat", "indian"],
+    "tags": [
+      "film-music",
+      "yuvan-shankar-raja",
+      "upbeat",
+      "indian"
+    ],
     "description": "Catchy, energetic theme from Maari 2. Fun to play with distinctive rhythmic patterns and playful melodies — great for building confidence.",
     "bpm": 120,
-    "timeSignature": [4, 4],
+    "timeSignature": [
+      4,
+      4
+    ],
     "key": "G Major",
     "url": "/songs/rowdy-baby-88key.mid",
     "noteCount": 10,
-    "range": [67, 72],
+    "range": [
+      67,
+      72
+    ],
     "approxDuration": 9,
     "keyboardVersions": {
       "25-key": "/songs/rowdy-baby-25key.mid",
@@ -1621,15 +2116,27 @@
     "id": "kannazhaga",
     "title": "Kannazhaga",
     "composer": "Anirudh Ravichander",
+    "localOnly": true,
     "difficulty": 4,
-    "tags": ["film-music", "anirudh-ravichander", "romantic", "indian"],
-    "description": "Enchanting romantic melody from VIP. Flowing passages with subtle dynamic variations — develops nuanced control and artistic expression.",
+    "tags": [
+      "film-music",
+      "anirudh-ravichander",
+      "romantic",
+      "indian"
+    ],
+    "description": "Enchanting romantic melody from 3. Flowing passages with subtle dynamic variations — develops nuanced control and artistic expression.",
     "bpm": 85,
-    "timeSignature": [4, 4],
+    "timeSignature": [
+      4,
+      4
+    ],
     "key": "E Major",
     "url": "/songs/kannazhaga-88key.mid",
     "noteCount": 10,
-    "range": [61, 68],
+    "range": [
+      61,
+      68
+    ],
     "approxDuration": 9,
     "keyboardVersions": {
       "25-key": "/songs/kannazhaga-25key.mid",
@@ -1640,16 +2147,28 @@
   {
     "id": "theevandi-theme",
     "title": "Theevandi Theme",
-    "composer": "Anirudh Ravichander",
+    "composer": "Kailas Menon",
+    "localOnly": true,
     "difficulty": 3,
-    "tags": ["film-music", "anirudh-ravichander", "folk", "indian"],
+    "tags": [
+      "film-music",
+      "kailas-menon",
+      "folk",
+      "indian"
+    ],
     "description": "Spirited theme from Theevandi. Folk-influenced melody with traditional rhythmic elements — bridges classical and contemporary styles.",
     "bpm": 110,
-    "timeSignature": [4, 4],
+    "timeSignature": [
+      4,
+      4
+    ],
     "key": "C Major",
     "url": "/songs/theevandi-theme-88key.mid",
     "noteCount": 10,
-    "range": [60, 71],
+    "range": [
+      60,
+      71
+    ],
     "approxDuration": 9,
     "keyboardVersions": {
       "25-key": "/songs/theevandi-theme-25key.mid",
@@ -1661,15 +2180,27 @@
     "id": "anjathe-pookkal",
     "title": "Anjathe Pookkal",
     "composer": "Anirudh Ravichander",
+    "localOnly": true,
     "difficulty": 3,
-    "tags": ["film-music", "anirudh-ravichander", "devotional", "indian"],
+    "tags": [
+      "film-music",
+      "anirudh-ravichander",
+      "devotional",
+      "indian"
+    ],
     "description": "Serene devotional piece from Natarang. Meditative quality with gentle ornamentation — excellent for mindful practice and breath control.",
     "bpm": 70,
-    "timeSignature": [4, 4],
+    "timeSignature": [
+      4,
+      4
+    ],
     "key": "F Major",
     "url": "/songs/anjathe-pookkal-88key.mid",
     "noteCount": 9,
-    "range": [65, 72],
+    "range": [
+      65,
+      72
+    ],
     "approxDuration": 9,
     "keyboardVersions": {
       "25-key": "/songs/anjathe-pookkal-25key.mid",

@@ -30,12 +30,15 @@ describe('credits for the 3D instruments', () => {
     }
   });
 
-  it('does not claim to have replaced anything on a model that is only shown', () => {
-    expect(creditLine(modelCredit('drums-acoustic'))).toMatch(/Modified: scaled and re-encoded for Practice Deck\.$/);
+  it('says that each drum of a kit was lifted out as its own part, and claims no more than that', () => {
+    expect(creditLine(modelCredit('drums-acoustic'))).toMatch(/Modified: each drum made a part of its own, scaled and re-encoded for Practice Deck\.$/);
+    expect(creditLine(modelCredit('drums-electronic'))).toMatch(/Modified: its trailing cable left out, each drum made a part of its own, scaled and re-encoded for Practice Deck\.$/);
+    // Nothing on a kit was replaced, as the strings of a played string instrument are.
+    for (const id of ['drums-acoustic', 'drums-electronic']) expect(modelCredit(id).changes, id).not.toMatch(/replaced/);
   });
 
   it('says so where a part of a model was left out', () => {
-    expect(modelCredit('drums-electronic').changes).toBe('its trailing cable left out, scaled and re-encoded');
+    expect(modelCredit('drums-electronic').changes).toBe('its trailing cable left out, each drum made a part of its own, scaled and re-encoded');
   });
 
   it('has no credit for an instrument without a model', () => {

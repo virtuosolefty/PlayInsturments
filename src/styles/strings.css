@@ -73,8 +73,10 @@
 .guitar-reset-view:not([aria-disabled="true"]):hover, .stage-view-toggle button:hover { border-color:var(--accent); color:var(--accent); }
 .guitar-reset-view[aria-disabled="true"] { cursor:default; opacity:.55; }
 .guitar-reset-view:focus-visible, .stage-view-toggle button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-/* Learn | Whole instrument: two halves of one pill. */
+/* Fretboard | Whole instrument: two halves of one pill. */
 .stage-view-toggle { display:inline-flex; flex-shrink:0; }
+/* The playable view's name has a short form for a phone, where the bar must leave room to turn the instrument. */
+.stage-view-toggle .stage-view-short { display:none; }
 .stage-view-toggle button:first-child { border-start-end-radius:0; border-end-end-radius:0; }
 .stage-view-toggle button:last-child { border-start-start-radius:0; border-end-start-radius:0; margin-inline-start:-1px; }
 .stage-view-toggle button[aria-pressed="true"], .stage-view-toggle button[aria-pressed="true"]:hover { background:var(--accent); border-color:var(--accent); color:var(--on-accent); position:relative; }
@@ -86,7 +88,8 @@
   .guitar-stage-bottom { inset:auto 12px 10px; gap:var(--sp-2); flex-wrap:wrap; }
   .guitar-stage-end { margin-inline-start:auto; }
   .guitar-reset-view, .stage-view-toggle button { padding:var(--sp-1) var(--sp-2); }
-  .stage-view-toggle .stage-view-more, .guitar-reset-view .reset-text { display:none; }
+  .stage-view-toggle .stage-view-more, .stage-view-toggle .stage-view-long, .guitar-reset-view .reset-text { display:none; }
+  .stage-view-toggle .stage-view-short { display:inline; }
   .guitar-reset-view .reset-icon { display:block; }
   .guitar-reset-view + .guitar-stage-hint, .stage-view-toggle ~ .guitar-stage-hint { display:none; }
 }
@@ -173,13 +176,24 @@
 .bow-card .bow-actions { margin:var(--sp-3) 0 0; }
 .bow-card .bow-actions button { flex:1; }
 
-/* Five instruments in the pickers. */
+/* Eight instruments in the pickers. */
 .instrument-picker button span { white-space:nowrap; }
-/* On tighter desktops keep the names for assistive tech, show icons only. */
-@media (max-width: 1200px) and (min-width:901px) {
-  .studio-header .instrument-picker button span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
-  .studio-header .instrument-picker button { padding-inline:var(--sp-2); }
+/* Eight names do not fit the studio header beside a title on anything short of a wide desktop. Below that it shows
+   icons, and the name of the instrument chosen; the others keep their names for assistive tech and as tooltips.
+   That holds at every width below it, a tablet's included; only the phone's sheet, which has the room, shows all eight names. */
+@media (max-width: 1299px) {
+  .studio-header .studio-header-actions:not(.open) .instrument-picker button span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .studio-header .studio-header-actions:not(.open) .instrument-picker button { min-width:0; padding-inline:var(--sp-2); }
+  .studio-header .studio-header-actions:not(.open) .instrument-picker button[aria-pressed="true"] span { position:static; width:auto; height:auto; overflow:visible; clip:auto; }
 }
+/* The home page's picker drops under its heading when the two cannot share a line. */
+.learning-home-heading { flex-wrap:wrap; }
+.learning-instruments { flex-wrap:wrap; flex-shrink:1; }
+.library-instruments button { flex:1 1 0; min-width:0; padding-inline:var(--sp-1); }
+/* The welcome page lists every instrument twice, as links and as previews; both wrap rather than run off the page. */
+.welcome-nav nav, .welcome-preview-bar, .welcome-preview-bar > div { flex-wrap:wrap; }
+.welcome-nav nav { justify-content:flex-end; row-gap:0; }
+.welcome-preview-bar > div { justify-content:flex-end; }
 /* In a lesson the stage title repeats the header; the string names take its corner. */
 .studio-app:not(.free-play) .guitar-stage-top > div:first-child { display:none; }
 
@@ -188,3 +202,21 @@
   .bowed-stage { overflow-x:auto; overscroll-behavior-x:contain; }
   .bowed-svg { min-width:820px; }
 }
+
+/* Guitar | Bass: the kind of an instrument, a small segmented switch beside the studio's controls. */
+.learning-instrument-choice { display:grid; gap:var(--sp-2); justify-items:start; min-width:0; }
+.library-type { margin:var(--sp-2) 0 0; }
+@media (max-width:600px) { .learning-instrument-choice { justify-items:stretch; } .learning-instrument-choice .type-switch { justify-self:start; } }
+/* A small tool beside a studio's controls (the tuner). */
+.view-tool { display:inline-flex; align-items:center; gap:var(--sp-1); min-height:28px; padding:0 var(--sp-3); border:1px solid var(--line-soft); border-radius:var(--radius-pill); background:transparent; color:var(--text-dim); font:var(--fw-bold) var(--fs-xs)/1 var(--sans); cursor:pointer; }
+.view-tool:hover { color:var(--accent); border-color:var(--accent); }
+.view-tool:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.guitar-view-controls .view-tool { margin-inline-start:auto; }
+.guitar-view-controls .view-tool + .guitar-left-toggle { margin-inline-start:var(--sp-3); }
+/* The row now holds a type switch and a tuner beside the selects: where it cannot fit on one line it takes two, rather than cut a select down to a letter. */
+@media (min-width:901px) and (max-width:1250px) {
+  .guitar-view-controls { flex-wrap:wrap; row-gap:var(--sp-2); }
+  .guitar-view-controls .guitar-exercise { max-width:none; }
+}
+/* The line under the studio's title says something ("Nothing is scored or saved"); it takes a second line before it is cut. */
+@media (min-width:901px) { .studio-heading p { white-space:normal; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; } }

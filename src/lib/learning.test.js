@@ -12,17 +12,31 @@ describe('beginner learning rules', () => {
     expect(lessonOutcome(result('practice',1,4)).kind).toBe('mastered');
     expect(lessonOutcome(result('practice',1,5,false)).kind).toBe('incomplete');
   });
-  it('recommends mastery within the current stage if all its exercises merely passed', () => {
+  it('recommends the next unfinished lesson once a stage is finished', () => {
     const state=pathState(id=>STAGES[0].exercises.includes(id)?[run(3)]:[]);
-    expect(state.currentId).toBeNull();
-    expect(recommendedLesson(state)).toBe(STAGES[0].exercises[0]);
+    expect(recommendedLesson(state)).toBe(STAGES[1].exercises[0]);
     expect(state.exercises[recommendedLesson(state)].unlocked).toBe(true);
   });
-  it('uses a separate guitar path with the same pass and mastery thresholds', () => {
+  it('recommends an unpassed check, then mastery, once every lesson is finished', () => {
+    const all=STAGES.flatMap(stage=>stage.exercises);
+    const guidedOnly=pathState(id=>id===all[0]?[run(3)]:[run(5,'wait')]);
+    expect(recommendedLesson(guidedOnly)).toBe(all[1]);
+    const passedOnly=pathState(id=>id===all[0]?[run(4)]:[run(3)]);
+    expect(recommendedLesson(passedOnly)).toBe(all[1]);
+    expect(recommendedLesson(pathState(()=>[run(5)]))).toBe(all[0]);
+  });
+  it('uses a separate guitar path with the same rules: guided runs open lessons and pass no checks', () => {
     const first='guitar-open-strings';
     expect(pathState(()=>[run(5,'wait')],GUITAR_PATH_STAGES).passedCount).toBe(0);
-    expect(pathState(id=>id===first?[run(3)]:[],GUITAR_PATH_STAGES).stages[1].unlocked).toBe(false);
-    expect(pathState(id=>id===first?[run(4)]:[],GUITAR_PATH_STAGES).exercises['guitar-first-frets'].unlocked).toBe(true);
+    expect(pathState(id=>id===first?[run(5,'wait')]:[],GUITAR_PATH_STAGES).stages[1].unlocked).toBe(true);
+    expect(pathState(id=>id===first?[run(5,'wait')]:[],GUITAR_PATH_STAGES).exercises['guitar-first-frets'].unlocked).toBe(true);
+    expect(pathState(()=>[],GUITAR_PATH_STAGES).stages[1].unlocked).toBe(false);
+  });
+  it('tells a learner the next lesson is open after a guided or a slow run', () => {
+    expect(lessonOutcome(result('wait',1,5)).message).toMatch(/next lesson is open/i);
+    expect(lessonOutcome(result('practice',.65,5)).message).toMatch(/next lesson is open/i);
+    expect(lessonOutcome(result('practice',1,2)).message).toMatch(/next lesson is open/i);
+    expect(lessonOutcome(result('practice',1,5,false)).message).not.toMatch(/next lesson is open/i);
   });
   it('picks only guitar exercises for a guitar daily session', () => {
     const state=pathState(()=>[],GUITAR_PATH_STAGES);
@@ -81,6 +95,9 @@ describe('note instructions for each instrument', () => {
   it('names the string and finger for violin and cello', () => {
     expect(noteInstruction({ name: 'B4', string: 2, fret: 2, finger: 1 }, 'violin')).toBe('B4 · A string · finger 1');
     expect(noteInstruction({ name: 'C2', string: 0, fret: 0, finger: 0 }, 'cello')).toBe('C2 · C string · open (no finger)');
+  });
+  it('numbers a bass string out of four', () => {
+    expect(noteInstruction({ name: 'E1', string: 0, fret: 0, finger: 0 }, 'bass')).toBe('E1 · string 4 · open (no finger)');
   });
   it('keeps piano instructions short', () => {
     expect(noteInstruction({ name: 'C4', finger: 1 }, 'piano')).toBe('C4 · finger 1');

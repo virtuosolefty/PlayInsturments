@@ -2,13 +2,15 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRe
 import TopBar from './components/TopBar.jsx';
 import Icon from './components/Icon.jsx';
 import LiveHud from './components/LiveHud.jsx';
+import FreePlayBar from './components/FreePlayBar.jsx';
 import SetupDialog from './components/SetupDialog.jsx';
+import TunerDialog from './components/TunerDialog.jsx';
 import StudioLibrary from './components/StudioLibrary.jsx';
 import StudioHeader, { InstrumentSettings, stageCaption } from './components/StudioHeader.jsx';
 import GuitarWorkspace from './components/GuitarWorkspace.jsx';
 import BowedWorkspace from './components/BowedWorkspace.jsx';
 import DrumWorkspace from './components/DrumWorkspace.jsx';
-import { instrumentForStudy, instrumentInfo, instrumentKit, normalizeInstrument, studyIdFor, usesKit } from './lib/instruments.js';
+import { chooseVariant, familyOf, instrumentForStudy, instrumentInfo, instrumentKit, normalizeInstrument, studyIdFor, usesKit } from './lib/instruments.js';
 import Controls from './components/Controls.jsx';
 import PianoRoll from './components/PianoRoll.jsx';
 import Minimap from './components/Minimap.jsx';
@@ -34,6 +36,8 @@ import { usePassages } from './hooks/usePassages.js';
 import { useKeyboardSetup } from './hooks/useKeyboardSetup.js';
 import { usePathData } from './hooks/usePathData.js';
 import { useAppData } from './hooks/useAppData.js';
+import { useMicNotes, useMicStatus } from './hooks/useMicInput.js';
+import { MIC_STATUS } from './lib/micInput.js';
 import { NARROW_QUERY, useMediaQuery } from './hooks/useMediaQuery.js';
 import { INSTRUMENT_MODES, midiOutput } from './lib/midiOutput.js';
 import { arrangeScore, assessFit, FIT_MODES, FULL_VARIANT, HAND_FILTERS } from './lib/arrange.js';
@@ -42,6 +46,7 @@ import { emitSyntheticMidi, midiInput, MIDI_STATUS } from './lib/midiInput.js';
 import { DRILL_RATE, nextStep, suggestNext } from './lib/coaching.js';
 import { drillFrom } from './lib/drills.js';
 import { webglAvailable } from './lib/webgl.js';
+import { pageTitle } from './lib/pageTitle.js';
 import { audio } from './lib/audio.js';
 import { playInput } from './lib/playInput.js';
 import { pianoViewRange } from './lib/instrumentView.js';
@@ -83,6 +88,8 @@ export default function App({ startupSettings = {} }) {
   const kitted = usesKit(instrument);
   const kit = instrumentKit(instrument);
   const guitar = instrument === 'guitar';
+  // Guitar and bass share one studio; violin and cello another.
+  const fretted = !!kit?.fretted;
   const drums = instrument === 'drums';
   const studyId = studyIdFor(settings, instrument);
   const theme = settings.theme === 'dark' ? 'dark' : 'light';
@@ -99,6 +106,23 @@ export default function App({ startupSettings = {} }) {
   const [sustain, setSustain] = useState(false);
   useEffect(() => midiInput.onMessage(msg => { if (msg.type === 'sustain') { setSustain(msg.value); playInput.sustained = msg.value; } }), []);
   const [setupOpen, setSetupOpen] = useState(false);
+  const [tunerOpen, setTunerOpen] = useState(false);
+  // A real instrument, heard through the microphone, plays as a controller would. A drum kit has no one pitch to hear.
+  const micChosen = settings.inputMethod === 'mic' && !drums;
+  // Chosen on an earlier visit, the microphone still waits for a click or a key press on this one:
+  // a page does not start listening because it was opened.
+  const [gestured, setGestured] = useState(false);
+  useEffect(() => {
+    const seen = () => setGestured(true);
+    const opts = { capture: true, once: true };
+    window.addEventListener('pointerdown', seen, opts);
+    window.addEventListener('keydown', seen, opts);
+    return () => { window.removeEventListener('pointerdown', seen, opts); window.removeEventListener('keydown', seen, opts); };
+  }, []);
+  // While the tuner is open the notes it hears are for tuning, not for the lesson.
+  useMicNotes(micChosen && gestured, kit?.tuning ? kit : null, tunerOpen);
+  const mic = useMicStatus();
+  const micListening = mic.status === MIC_STATUS.ON;
   const [requestedTab, setRequestedTab] = useState(null);
   const [libraryInstrument, setLibraryInstrument] = useState(settings.practiceInstrument ?? 'piano');
   useEffect(() => { audio.setInstrumentType(instrument); }, [instrument]);
@@ -135,6 +159,13 @@ export default function App({ startupSettings = {} }) {
   const [calibratingTouch, setCalibratingTouch] = useState(false);
   const [error, setError] = useState(null);
   const storageProblem = !!storageFailure;
+  // A microphone that stops while it is how notes are played in must not pass in silence.
+  useEffect(() => {
+    if (!micChosen || tunerOpen) return;
+    if (mic.status === MIC_STATUS.ERROR) setError(`${mic.error} Notes from your instrument are not being heard. Open Input & sound to turn the microphone back on.`);
+    else if (mic.status === MIC_STATUS.DENIED) setError('Microphone access is blocked, so notes from your instrument are not being heard. Allow it for this site in your browser’s address bar, then open Input & sound.');
+    else if (mic.status === MIC_STATUS.UNSUPPORTED) setError('This browser cannot use a microphone here. Open Input & sound to choose another way to play.');
+  }, [micChosen, tunerOpen, mic.status, mic.error]);
   useEffect(() => { playInput.error = e => setError(`Could not play this note: ${e.message}`); return () => { playInput.clear(); playInput.error = () => {}; }; }, []);
   useEffect(() => { playInput.clear(); }, [instrument, freePlay, settings.renderer, settings.pianoRange, settings.typingOctave]);
 
@@ -208,6 +239,24 @@ export default function App({ startupSettings = {} }) {
     };
   }, []);
 
+  // A controller plugged in while the app is open is announced: it plays at once, and Input & sound can check it.
+  // The ones already there when the page loads are not news.
+  const [found, setFound] = useState(null);
+  const knownInputs = useRef(null);
+  useEffect(() => {
+    if (midiState.status !== MIDI_STATUS.READY) return;
+    const before = knownInputs.current;
+    knownInputs.current = new Set(midiState.inputs.map(input => input.id));
+    const fresh = before && midiState.inputs.find(input => !before.has(input.id));
+    if (fresh) setFound(fresh);
+    else if (found && !knownInputs.current.has(found.id)) setFound(null);
+  }, [midiState]);
+  useEffect(() => {
+    if (!found) return undefined;
+    const id = setTimeout(() => setFound(null), 12000);
+    return () => clearTimeout(id);
+  }, [found]);
+
   // Honour a remembered output port once the ports actually exist.
   useEffect(() => {
     if (settings.midiOutputId && outputState.outputs.some((o) => o.id === settings.midiOutputId)) {
@@ -250,6 +299,7 @@ export default function App({ startupSettings = {} }) {
   const stageEngine = freePlay ? { ...engine, sessionRef: { current: null } } : engine;
   const changeWorkspace = value => { learning.leave(); setFreePlay(value); };
   const openSetup = () => { preview.stop(); engine.actions.pause(); setSetupOpen(true); };
+  const openTuner = () => { preview.stop(); engine.actions.pause(); setSetupOpen(false); setTunerOpen(true); };
   const selectStudy = id => {
     const owner = instrumentKit(instrumentForStudy(id));
     if (!owner) return;
@@ -344,7 +394,8 @@ export default function App({ startupSettings = {} }) {
     if ((settings.practiceInstrument ?? 'piano') === value) return;
     engine.actions.pause();
     engine.clearLastResult();
-    setSettings(s => ({ ...s, practiceInstrument: value, learningView: s.learningView === 'lesson' ? 'home' : s.learningView, loop: null }));
+    // The kind chosen (the bass) is remembered for its family, so the picker's Guitar button comes back to it.
+    setSettings(s => ({ ...s, practiceInstrument: value, variants: { ...s.variants, [familyOf(value)]: value }, learningView: s.learningView === 'lesson' ? 'home' : s.learningView, loop: null }));
   };
 
   // Open the first bundled piece once the manifest has arrived.
@@ -443,6 +494,11 @@ export default function App({ startupSettings = {} }) {
     if (suggested) pickSong(suggested);
   }, [engine, pickSong, suggested]);
 
+  // What the report offers after a run: on a kit, the lesson the path has opened; on the piano, the piece suggested.
+  const nextLessonId = kitted && path.state.currentId !== score?.id ? path.state.currentId : null;
+  const reportNext = nextLessonId ? { label: 'Next lesson', go: () => selectStudy(nextLessonId) }
+    : suggested ? { label: 'Next piece', go: () => goToSuggested() } : null;
+
   const reportStep = useMemo(
     () =>
       engine.lastResult
@@ -505,7 +561,7 @@ export default function App({ startupSettings = {} }) {
   }, [score, appData]);
 
   const startAudio = useCallback(async () => {
-    try { await engine.actions.ensureAudio(); } catch (err) { setError(`Could not enable sound: ${err.message}. Open Instrument setup to try again.`); }
+    try { await engine.actions.ensureAudio(); } catch (err) { setError(`Could not enable sound: ${err.message}. Open Input & sound to try again.`); }
   }, [engine.actions]);
 
   // Sound needs one real click or key press on the page before the browser
@@ -530,7 +586,8 @@ export default function App({ startupSettings = {} }) {
   }, [startAudio]);
   const [soundNudge, setSoundNudge] = useState(false);
   useEffect(() => midiInput.onMessage((msg) => {
-    if (msg.type === 'noteon' && !audioReadyRef.current) setSoundNudge(true);
+    // A note from the microphone needs no sound from the app, so there is nothing to nudge about.
+    if (msg.type === 'noteon' && msg.source !== 'mic' && !audioReadyRef.current) setSoundNudge(true);
   }), []);
   useEffect(() => { if (engine.audioReady) setSoundNudge(false); }, [engine.audioReady]);
 
@@ -549,14 +606,15 @@ export default function App({ startupSettings = {} }) {
   // the same click.
   const showStartBanner = !engine.audioReady && !engine.playing && !beforeFirstNote;
   const stageNote = stageCaption(instrument, freePlay);
+  useEffect(() => { document.title = pageTitle({ piece: score?.title, instrument: instrumentInfo(instrument).label, freePlay, home: learning.homeOpen }); }, [score?.title, instrument, freePlay, learning.homeOpen]);
 
   // Setup chrome recedes while you play. Opacity only — collapsing any of it
   // would reflow the toolbar at the exact moment you are trying to hit a note.
   return (
     <div className={`app studio-app ${kitted ? 'guitar-mode' : 'piano-mode'} ${instrument}-mode ${learning.active ? 'guided-lesson' : ''} ${engine.playing ? 'focused' : ''} ${focus ? 'focus-view' : ''} ${freePlay ? 'free-play' : ''}`}>
       <a className="skip-link" href="#practice-stage">Skip to practice</a>
-      <TopBar onLearn={learning.openHome} learningHome={learning.homeOpen} theme={theme} onToggleTheme={() => setSettings(s => ({ ...s, theme: theme === 'light' ? 'dark' : 'light' }))} onSetup={openSetup} onProgress={openProgress}
-        midiState={midiState}
+      <TopBar onLearn={learning.openHome} learningHome={learning.homeOpen} theme={theme} onToggleTheme={() => setSettings(s => ({ ...s, theme: theme === 'light' ? 'dark' : 'light' }))} onSetup={openSetup} onTuner={openTuner} onProgress={openProgress}
+        midiState={midiState} micListening={micListening} micChosen={micChosen} midiChosen={settings.inputMethod === 'midi'} deviceName={deviceName}
         onSelectDevice={(id) => midiInput.select(id)}
         storageProblem={storageProblem}
         onConnectMidi={() => midiInput.connect()}
@@ -574,6 +632,13 @@ export default function App({ startupSettings = {} }) {
           outputState.outputs.find((o) => o.id === outputState.selectedId)?.name ?? null
         }
       />
+
+      {found && <div className="device-toast" role="status">
+        <Icon name="check" size={16} />
+        <span><strong>{found.name}</strong> is connected and ready to play.</span>
+        <button className="primary" onClick={() => { setSettings(s => ({ ...s, inputMethod: 'midi' })); setFound(null); openSetup(); }}>Check it</button>
+        <button onClick={() => setFound(null)} aria-label="Dismiss">×</button>
+      </div>}
 
       {soundNudge && !engine.audioReady && (
         <div className="sound-nudge" role="alert">
@@ -597,7 +662,7 @@ export default function App({ startupSettings = {} }) {
           <Drawer onClose={() => setLibraryOpen(false)} requestedTab={requestedTab}
             songs={
               <>
-              <StudioLibrary instrument={libraryInstrument} onInstrument={setLibraryInstrument} onPickStudy={selectStudy}
+              <StudioLibrary instrument={libraryInstrument} onInstrument={(id, exact) => setLibraryInstrument(exact ? id : chooseVariant(settings.variants, id))} onPickStudy={selectStudy}
                 favorites={settings.favoritePieces ?? []} onFavorite={id => setSettings(s => ({ ...s, favoritePieces: (s.favoritePieces ?? []).includes(id) ? s.favoritePieces.filter(f => f !== id) : [...(s.favoritePieces ?? []), id] }))}
                 dailySet={path.set} dailyProgress={path.progress} onPlan={() => setRequestedTab({ id: 'path', at: Date.now() })}
                 recentId={usesKit(libraryInstrument) ? studyIdFor(settings, libraryInstrument) : settings.lastPianoId}
@@ -642,40 +707,6 @@ export default function App({ startupSettings = {} }) {
                 onRestored={refreshAfterRestore}
               /></>
             }
-            keyboard={
-          <KeyboardPanel
-            deviceName={deviceName}
-            profile={profile}
-            profileId={settings.keyboardId}
-            onProfileChange={(keyboardId) => setSettings((s) => ({ ...s, keyboardId }))}
-            window={keyWindow}
-            onShiftOctave={shiftOctave}
-            onResetOctave={resetOctave}
-            autoDetected={autoDetected}
-            fit={settings.fit}
-            onFitChange={(fit) => setSettings((s) => ({ ...s, fit }))}
-            assessment={assessment}
-            latencyMs={settings.inputLatencyMs}
-            onCalibrate={() => setCalibrating(true)}
-            velocityCurve={settings.velocityCurve}
-            onCalibrateTouch={() => setCalibratingTouch(true)}
-            instrumentSource={settings.instrumentSource}
-            onInstrumentSourceChange={(instrumentSource) =>
-              setSettings((s) => ({ ...s, instrumentSource }))
-            }
-            outputs={outputState.outputs}
-            selectedOutputId={outputState.selectedId}
-            onSelectOutput={(id) => {
-              midiOutput.select(id);
-              setSettings((s) => ({ ...s, midiOutputId: id }));
-            }}
-            forwardInput={settings.forwardInput}
-            onForwardInputChange={(forwardInput) => setSettings((s) => ({ ...s, forwardInput }))}
-            onLoadSamples={handleLoadSamples}
-            pieceRange={rawScore?.range ?? null}
-            onMoveWindow={setKeyboardLow}
-          />
-            }
           />
         </aside>
 
@@ -695,6 +726,7 @@ export default function App({ startupSettings = {} }) {
             onHearOrTry={hearOrTry}
             onToggleLoop={toggleLoop}
           />}
+          {freePlay && !learning.active && <FreePlayBar kit={kit} onTuner={kit?.tuning ? openTuner : null} onSetup={openSetup} />}
 
           {!freePlay && !learning.active && <Minimap theme={theme}
             score={score}
@@ -736,12 +768,12 @@ export default function App({ startupSettings = {} }) {
               that is currently at full feature parity. */}
           {/* The chord and scale explorers go in the side column; on a narrow screen that column is a slide-over that
               free play has no button to open, so there they stay inline under the stage. */}
-          {guitar ? <GuitarWorkspace score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
+          {fretted ? <GuitarWorkspace key={instrument} instrument={instrument} onInstrument={changeInstrument} onTuner={openTuner} score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
             onStudy={selectStudy}
             inspector={focus || narrow ? null : chordInspector} onError={setError} onContextLost={why => { setSettings(s => ({ ...s, renderer: 'canvas' })); setError(`Switched to 2D Trainer — ${why}.`); }}
           /> : drums ? <DrumWorkspace score={stageScore} engine={stageEngine} settings={settings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
             onStudy={selectStudy} inspector={focus || narrow ? null : chordInspector} listening={settings.mode === MODES.LISTEN} compact={narrow} onError={e => setError(`Could not play this drum: ${e.message}`)}
-          /> : kitted ? <BowedWorkspace key={instrument} instrument={instrument} score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
+          /> : kitted ? <BowedWorkspace key={instrument} instrument={instrument} onInstrument={changeInstrument} onTuner={openTuner} score={stageScore} engine={stageEngine} settings={settings} setSettings={setSettings} freePlay={freePlay} onFreePlay={() => changeWorkspace(true)}
             onStudy={selectStudy} inspector={focus || narrow ? null : chordInspector}
           /> : useGL ? (
             <Suspense fallback={<div className="roll-gl" />}>
@@ -813,6 +845,7 @@ export default function App({ startupSettings = {} }) {
                  transposed and hand-filtered exactly as the roll showed them. */
               scoreNotes={score?.notes ?? []}
               onHearPassage={hearReportPassage}
+              next={reportNext}
             />
           )}
 
@@ -844,7 +877,7 @@ export default function App({ startupSettings = {} }) {
           {/* One status line: what the stage shows on the left, how it is set up on the right. Shortcuts live in Help. */}
           <footer className="studio-footer">
             <span className="stage-caption"><i />{stageNote.caption}<span className="stage-description">{stageNote.description}</span></span>
-            <span>{guitar ? `Standard tuning · ${settings.guitarFrets ?? 12} frets · ` : kitted ? `${kit.label} · ${instrumentInfo(instrument).detail} · ` : ''}{freePlay ? 'Explore freely · no score recorded' : <><kbd>Space</kbd> play / pause{learning.active && <span className="footer-detail"> · Your lesson is saved automatically</span>}</>}</span>
+            <span>{fretted ? `${guitar ? '' : `${kit.label} · `}Standard tuning · ${settings.guitarFrets ?? 12} frets · ` : kitted ? `${kit.label} · ${instrumentInfo(instrument).detail} · ` : ''}{freePlay ? 'Explore freely · no score recorded' : <><kbd>Space</kbd> play / pause{learning.active && <span className="footer-detail"> · Your lesson is saved automatically</span>}</>}</span>
           </footer>
         </main>
 
@@ -854,7 +887,7 @@ export default function App({ startupSettings = {} }) {
 
         <aside className="pane right" aria-label={learning.active ? 'Lesson guide' : 'This run'}>
           {narrow && <button className="close-feedback" onClick={() => setFeedbackOpen(false)} aria-label={learning.active ? 'Close lesson guide' : 'Close this run panel'}><Icon name="close" size={14} /> Close</button>}
-          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} instrument={instrument} onSetup={openSetup} path={path} typingOctave={settings.typingOctave ?? 0}/> : freePlay && kitted ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">{guitar ? 'Choose a chord below the fretboard, then strum. The numbered dots show which fingers to use.' : 'Click the keys or play your MIDI controller. A–J on your computer keyboard covers the middle-C octave.'}</div><button onClick={openSetup}>Check instrument setup</button><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
+          {learning.active ? <LessonGuide learning={learning} engine={engine} score={score} instrument={instrument} onSetup={openSetup} path={path} typingOctave={settings.typingOctave ?? 0}/> : freePlay && kitted ? <div ref={setChordInspector} className="chord-inspector"/> : freePlay ? <div className="section free-play-coach"><h2>Follow your curiosity.</h2><p>Play a few notes, find a chord you like, and make it your own.</p><div className="free-play-tip">Click the keys, play a MIDI controller, or use your computer keyboard: the row from A to J is the white keys from middle C.</div><p className="hint">Free play is not graded and does not add practice results.</p></div> : beforeFirstNote ? (
             <>
               <PiecePanel
                 score={score}
@@ -902,10 +935,46 @@ export default function App({ startupSettings = {} }) {
         </aside>
       </div>}
 
-      {setupOpen && <SetupDialog settings={settings} setSettings={setSettings} midiState={midiState} audioReady={engine.audioReady} audioLabel={engine.instrument} onTest={testSound} onClose={() => setSetupOpen(false)} onAdvanced={() => { setSetupOpen(false); setLibraryOpen(true); setRequestedTab({ id: 'keyboard', at: Date.now() }); }} />}
+      {setupOpen && <SetupDialog settings={settings} setSettings={setSettings} midiState={midiState} audioReady={engine.audioReady} audioLabel={engine.instrument} onTest={testSound} onTuner={openTuner} onClose={() => setSetupOpen(false)} more={
+          <KeyboardPanel
+            piano={!kitted}
+            midi={settings.inputMethod === 'midi'}
+            deviceName={deviceName}
+            profile={profile}
+            profileId={settings.keyboardId}
+            onProfileChange={(keyboardId) => setSettings((s) => ({ ...s, keyboardId }))}
+            window={keyWindow}
+            onShiftOctave={shiftOctave}
+            onResetOctave={resetOctave}
+            autoDetected={autoDetected}
+            fit={settings.fit}
+            onFitChange={(fit) => setSettings((s) => ({ ...s, fit }))}
+            assessment={assessment}
+            latencyMs={settings.inputLatencyMs}
+            onCalibrate={() => { setSetupOpen(false); setCalibrating(true); }}
+            velocityCurve={settings.velocityCurve}
+            onCalibrateTouch={() => { setSetupOpen(false); setCalibratingTouch(true); }}
+            instrumentSource={settings.instrumentSource}
+            onInstrumentSourceChange={(instrumentSource) =>
+              setSettings((s) => ({ ...s, instrumentSource }))
+            }
+            outputs={outputState.outputs}
+            selectedOutputId={outputState.selectedId}
+            onSelectOutput={(id) => {
+              midiOutput.select(id);
+              setSettings((s) => ({ ...s, midiOutputId: id }));
+            }}
+            forwardInput={settings.forwardInput}
+            onForwardInputChange={(forwardInput) => setSettings((s) => ({ ...s, forwardInput }))}
+            onLoadSamples={handleLoadSamples}
+            pieceRange={rawScore?.range ?? null}
+            onMoveWindow={setKeyboardLow}
+          />
+      } />}
+      {tunerOpen && <TunerDialog instrument={instrument} onClose={() => setTunerOpen(false)} />}
       <AppModals
         practiceInstrument={settings.practiceInstrument}
-        onInstrumentChange={changeInstrument}
+        onInstrumentChange={family => changeInstrument(chooseVariant(settings.variants, family))}
         onSetup={() => { setSettings(s => ({ ...s, onboarded: true })); openSetup(); }}
         showFirstRun={!settings.onboarded && library.length > 0}
         onBeginner={learning.openHome}

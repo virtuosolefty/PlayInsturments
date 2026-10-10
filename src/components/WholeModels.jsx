@@ -14,8 +14,9 @@ import { isStaged, modelsFor, playedModel } from '../lib/stageModels.js';
  * - one the stage can rig (a bass guitar, an electric violin) is handed to
  *   the stage through `onStage`, which shows it on a rig of its own, so its
  *   strings move and its bow plays; `staged` says which the stage is showing;
- * - one that is only looked at (another drum kit) is shown over the stage in
- *   the viewer (ModelViewer.jsx), and turned by dragging.
+ * - one that is not (another drum kit) is shown over the stage in the viewer
+ *   (ModelViewer.jsx), and turned by dragging; a kit lights and moves each
+ *   drum as it is hit, told of the hits through `hits`.
  *
  * Whatever is shown in place of the played instrument carries its maker's
  * credit. One that cannot be shown gives the stage back and says so. An
@@ -32,8 +33,9 @@ import { isStaged, modelsFor, playedModel } from '../lib/stageModels.js';
  * @param {string} [props.staged] the id of the instrument the stage itself is showing; the played one unless given
  * @param {(id: string) => void} [props.onStage] asks the stage to show an instrument itself: the played one, or one it rigs
  * @param {string} [props.stageNotice] what the stage has to say, e.g. that an instrument it was asked for could not be shown
+ * @param {(listener: Function) => () => void} [props.hits] where a shown drum kit hears the hits made on the stage
  */
-export default function WholeModels({ instrument, active, quality = 'auto', onShowing, staged, onStage, stageNotice = '' }) {
+export default function WholeModels({ instrument, active, quality = 'auto', onShowing, staged, onStage, stageNotice = '', hits }) {
   const models = modelsFor(instrument);
   const played = playedModel(instrument);
   const [picked, setPicked] = useState(null);
@@ -69,7 +71,7 @@ export default function WholeModels({ instrument, active, quality = 'auto', onSh
   };
 
   return <>
-    {shown && <ModelViewer key={shown.id} model={shown} quality={quality} onFailed={failed} />}
+    {shown && <ModelViewer key={shown.id} model={shown} quality={quality} onFailed={failed} hits={hits} />}
     {other && <div className="model-caption"><strong>{other.label}</strong>{credit && <span>
       <a href={credit.source} target="_blank" rel="noopener noreferrer">“{credit.title}”</a> by <a href={credit.authorUrl} target="_blank" rel="noopener noreferrer">{credit.author}</a> · <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer">{credit.license}</a>
     </span>}</div>}

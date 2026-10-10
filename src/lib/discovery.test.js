@@ -3,7 +3,6 @@ import { INSTRUMENTS, instrumentKit } from './instruments.js';
 import { COLLECTIONS as ALL_COLLECTIONS, FIRST_LESSON as FIRST_LESSONS, pieceDetails as detailsOf, sharedLessonUrl as lessonUrl } from './discovery.js';
 import { weeklyPractice,collectionEntries,pieceDetails,sharedLessonUrl,COLLECTIONS } from './discovery.js';
 import { lessonCanVisit,lessonOutcome } from './learning.js';
-import { GUITAR_STUDIES } from './guitar.js';
 import fs from 'node:fs';
 
 describe('discovery, habit and first-phrase safeguards',()=>{
@@ -17,7 +16,7 @@ describe('discovery, habit and first-phrase safeguards',()=>{
   });
   it('curates only existing entries for each instrument and leaves favorites in their original order',()=>{
     const piano=JSON.parse(fs.readFileSync(new URL('../../public/songs/songs.json',import.meta.url)));
-    for(const [instrument,entries] of [['piano',piano],['guitar',GUITAR_STUDIES]])for(const c of COLLECTIONS[instrument])expect(collectionEntries(entries,instrument,c.id).map(e=>e.id)).toEqual(c.ids);
+    for(const [instrument,entries] of [['piano',piano],['guitar',instrumentKit('guitar').studies]])for(const c of COLLECTIONS[instrument])expect(collectionEntries(entries,instrument,c.id).map(e=>e.id)).toEqual(c.ids);
     expect(collectionEntries(piano,'piano','favorites',['missing','twinkle-mini']).map(e=>e.id)).toEqual(['twinkle-mini']);
   });
   it('labels actual score length separately from a promised learning time',()=>{
@@ -59,10 +58,26 @@ describe('every instrument on the learning home', () => {
   it('describes a drum lesson by what it teaches', () => {
     const kit = instrumentKit('drums');
     expect(ALL_COLLECTIONS.drums.flatMap(collection => collection.ids).sort()).toEqual(kit.studies.map(study => study.id).sort());
-    const first = detailsOf(kit.studies[0]);
+    const first = detailsOf(kit.lessons[0]);
     expect(first.skill).toBe('Find every drum and cymbal');
     expect(first.level).toBe('First steps');
-    expect(detailsOf(kit.studies.at(-1)).level).toBe('Building confidence');
+    expect(detailsOf(kit.lessons.at(-1)).level).toBe('Building confidence');
+  });
+
+  it('gives every instrument a collection of ten songs or beats it already knows', () => {
+    const piano = JSON.parse(fs.readFileSync(new URL('../../public/songs/songs.json', import.meta.url)));
+    for (const instrument of INSTRUMENTS) {
+      const collection = ALL_COLLECTIONS[instrument].find(each => each.id === 'songs');
+      expect(collection?.ids, instrument).toHaveLength(10);
+      const entries = instrumentKit(instrument)?.studies ?? piano;
+      for (const id of collection.ids) {
+        const entry = entries.find(each => each.id === id);
+        expect(entry, id).toBeTruthy();
+        // A song says what it is in its own words, and none of them asks for experience it has not got.
+        expect(detailsOf(entry).skill, id).toBe(entry.description);
+        expect(['First steps', 'Building confidence']).toContain(detailsOf(entry).level);
+      }
+    }
   });
 
   it('shares a drum lesson with a link that opens the drums', () => {

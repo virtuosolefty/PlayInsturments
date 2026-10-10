@@ -5,7 +5,9 @@
  * and scripts/models/recipes.mjs writes each line into its model's file.
  *
  * `model` is the model's id, which is also its file name in public/models/
- * (see stageModels.js); `instrument` is the instrument it is shown with.
+ * (see stageModels.js); `instrument` is the instrument it is shown with. Two
+ * models serve a second instrument as well (instruments.js): the bass guitar
+ * is what the Bass is played on.
  */
 
 const LICENCE = Object.freeze({ license: 'CC BY 4.0', licenseUrl: 'https://creativecommons.org/licenses/by/4.0/' });
@@ -13,6 +15,8 @@ const LICENCE = Object.freeze({ license: 'CC BY 4.0', licenseUrl: 'https://creat
 const PLAYED = 'the strings between nut and bridge replaced, scaled and re-encoded';
 /** A model that is only shown is left as it was made. */
 const SHOWN = 'scaled and re-encoded';
+/** A drum kit that answers to being hit: each drum is lifted out as a part of its own, so it can move and light alone. */
+const STRUCK = `each drum made a part of its own, ${SHOWN}`;
 
 const model = (uid, slug) => `https://sketchfab.com/3d-models/${slug}-${uid}`;
 
@@ -23,8 +27,8 @@ export const MODEL_CREDITS = Object.freeze([
   { instrument: 'guitar', model: 'guitar-bass', title: 'Percussion bass guitar', author: 'Kanade_Tatibana', authorUrl: 'https://sketchfab.com/Kanade_Tatibana', source: model('d1f04fc920b8425a9a78b057b532dd89', 'percussion-bass-guitar'), changes: PLAYED },
   { instrument: 'violin', model: 'violin-electric', title: 'Electric Violin', author: 'Belzar Sirus', authorUrl: 'https://sketchfab.com/belzar.sirus', source: model('71813d2dc6414a0c93b1523d329aba23', 'electric-violin'), changes: PLAYED },
   { instrument: 'cello', model: 'cello-antique', title: 'Cello', author: 'slidon', authorUrl: 'https://sketchfab.com/slidon', source: model('a1e5e2a37d6a42299dcd5cec06cd1ddc', 'cello'), changes: PLAYED },
-  { instrument: 'drums', model: 'drums-acoustic', title: 'Drum Kit', author: 'art.katja', authorUrl: 'https://sketchfab.com/art.katja', source: model('898f2f4ba1704abe9c784066e2b0f751', 'drum-kit'), changes: SHOWN },
-  { instrument: 'drums', model: 'drums-electronic', title: 'Electronic Drum Set', author: 'SINNIK', authorUrl: 'https://sketchfab.com/sinnik', source: model('51b95e62da844b95b6ca871c23b6e858', 'electronic-drum-set'), changes: `its trailing cable left out, ${SHOWN}` },
+  { instrument: 'drums', model: 'drums-acoustic', title: 'Drum Kit', author: 'art.katja', authorUrl: 'https://sketchfab.com/art.katja', source: model('898f2f4ba1704abe9c784066e2b0f751', 'drum-kit'), changes: STRUCK },
+  { instrument: 'drums', model: 'drums-electronic', title: 'Electronic Drum Set', author: 'SINNIK', authorUrl: 'https://sketchfab.com/sinnik', source: model('51b95e62da844b95b6ca871c23b6e858', 'electronic-drum-set'), changes: `its trailing cable left out, ${STRUCK}` },
 ].map(credit => Object.freeze({ ...credit, ...LICENCE })));
 
 /** The credit for one model, by its id. The model each instrument is played on has the instrument's own name. */

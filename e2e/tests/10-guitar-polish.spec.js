@@ -55,7 +55,7 @@ test('desktop light, dark, first-position and focus layouts stay usable', async 
     await page.setViewportSize(viewport);
     const footer=await page.locator('.studio-footer').boundingBox();
     expect(footer.y+footer.height).toBeLessThanOrEqual(viewport.height);
-    const hint=await page.locator('.chord-card .hint').boundingBox();
+    const hint=await page.locator('.chord-card .chord-feel').boundingBox();
     expect(hint.y+hint.height).toBeLessThan(viewport.height);
     await page.screenshot({path:`test-results/screens/guitar-upgrade/light-${viewport.height}.png`});
   }

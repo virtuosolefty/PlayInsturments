@@ -133,6 +133,39 @@ export const DRUM_STUDIES = [
     ], { bpm: 72 }),
 ];
 
+const backbeat = '----x-------x---';
+
+/** A beat to play along to: one bar written out, played twice. */
+const groove = (id, title, description, rows, bpm, difficulty = 1) => ({ ...study(id, title, description, [rows, rows], { bpm }), difficulty, easy: true });
+
+/**
+ * Ten beats from the music people already listen to, easiest first, open from
+ * the start. They are the kit's answer to the other instruments' easy songs
+ * (easySongs.js) and are not part of the path.
+ */
+export const DRUM_BEATS = [
+  groove('stomp-stomp-clap', 'Stomp, stomp, clap', 'Two kicks and a snare, then a gap. A whole crowd can play this one.',
+    { kick: 'x-x-----x-x-----', snare: backbeat }, 80),
+  groove('train-beat', 'Train beat', 'The snare keeps the eighths rolling like wheels on a track, with the kick on one and three.',
+    { snare: eighths, kick: 'x-------x-------' }, 92),
+  groove('four-on-the-snare', 'Four on the snare', 'The snare on every beat, the way an old soul record drives its chorus.',
+    { hihat: eighths, kick: 'x-------x-------', snare: beats }, 100),
+  groove('pop-rock', 'Pop rock', 'The beat under a thousand songs: the kick comes back early, just before the second snare.',
+    { hihat: eighths, kick: 'x-------x-x-----', snare: backbeat }, 84),
+  groove('half-time', 'Half-time', 'The same hi-hat, but the snare waits for beat three, so everything feels half as fast.',
+    { hihat: eighths, kick: 'x---------x-----', snare: '--------x-------' }, 88),
+  groove('one-drop', 'One drop', 'Reggae leaves beat one empty: the kick and the snare land together on three.',
+    { hihat: eighths, kick: '--------x-------', snare: '--------x-------' }, 76),
+  groove('tom-groove', 'Tom groove', 'The floor tom takes the hi-hat’s place, for a darker, heavier beat.',
+    { 'tom-floor': 'x-x---x-x-x---x-', kick: 'x-------x-------', snare: backbeat }, 84, 2),
+  groove('disco', 'Disco', 'Kick on every beat, snare on two and four, and the hi-hat opening in between.',
+    { kick: beats, snare: backbeat, 'hihat-open': '--x---x---x---x-' }, 104, 2),
+  groove('boom-bap', 'Boom bap', 'A hip-hop pattern: the kick leans in just ahead of beat three.',
+    { hihat: eighths, kick: 'x-----x---x-----', snare: backbeat }, 86, 2),
+  groove('surf-beat', 'Surf beat', 'Two quick snares on beat two and one on four, with the ride cymbal keeping time.',
+    { ride: eighths, kick: 'x-------x-------', snare: '----x-x-----x---' }, 100, 2),
+];
+
 export const DRUM_PATH_STAGES = [
   { id: 'kit', name: 'Meet the kit', goal: 'Find every drum and cymbal and hear what it does.', exercises: ['drums-meet-the-kit'] },
   { id: 'pulse', name: 'Keep a steady pulse', goal: 'Hold an even beat with the kick, then answer it with the snare.', exercises: ['drums-steady-kick', 'drums-backbeat'] },

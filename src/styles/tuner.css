@@ -1,0 +1,45 @@
+/* The tuner (TunerDialog.jsx) and the microphone's part of Input & sound (SetupDialog.jsx). */
+
+/* Three ways to play: on screen, a controller, a microphone. */
+.setup-inputs { grid-template-columns: repeat(3, 1fr); }
+.setup-inputs button:disabled { opacity: .55; cursor: not-allowed; }
+.setup-microphone h3 { font-size: var(--fs-md); margin: var(--sp-4) 0 0; }
+.setup-microphone .setup-mic-limits { font-size: var(--fs-xs); margin-top: var(--sp-2); }
+.setup-microphone button { margin-right: var(--sp-2); }
+
+.tuner-dialog { width: min(520px, 92vw); }
+.tuner-face { display: grid; justify-items: center; gap: var(--sp-3); padding: var(--sp-5) var(--sp-4); border: 1px solid var(--line-soft); border-radius: var(--radius-lg); background: var(--bg); }
+.tuner-note { font: var(--fw-bold) 64px/1 var(--sans); letter-spacing: var(--tracking-tight); color: var(--text-dim); min-height: 64px; }
+/* The state is carried by the words below as well as by colour. */
+.tuner-face.in-tune .tuner-note { color: var(--good); }
+.tuner-face.flat .tuner-note, .tuner-face.sharp .tuner-note { color: var(--text); }
+.tuner-scale { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--sp-3); width: 100%; color: var(--text-dim); font-size: var(--fs-md); }
+.tuner-track { position: relative; height: 28px; border-radius: var(--radius-pill); background: linear-gradient(90deg, transparent calc(50% - 5%), color-mix(in srgb, var(--good) 22%, transparent) calc(50% - 5%), color-mix(in srgb, var(--good) 22%, transparent) calc(50% + 5%), transparent calc(50% + 5%)), var(--bg-2); border: 1px solid var(--line-soft); }
+.tuner-centre { position: absolute; left: 50%; top: 3px; bottom: 3px; width: 2px; margin-left: -1px; background: var(--line-strong); }
+.tuner-needle { position: absolute; top: -4px; bottom: -4px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--warn); transition: left 80ms linear; }
+.tuner-face.in-tune .tuner-needle { background: var(--good); }
+.tuner-verdict { margin: 0; font-size: var(--fs-md); color: var(--text-dim); min-height: 1.5em; }
+.tuner-face.in-tune .tuner-verdict { color: var(--good); font-weight: var(--fw-bold); }
+
+.tuner-strings { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--sp-2); padding: 0; margin: var(--sp-4) 0 0; }
+.tuner-strings li { display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) var(--sp-1); border: 1px solid var(--line-soft); border-radius: var(--radius); min-height: 76px; align-content: start; }
+.tuner-strings small { font-size: var(--fs-2xs); color: var(--text-faint); }
+.tuner-strings b { font-size: var(--fs-md); }
+.tuner-strings span { font-size: var(--fs-2xs); color: var(--text-dim); white-space: nowrap; }
+.tuner-strings li.tuning { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+.tuner-strings li.tuning.in-tune { border-color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+.tuner-strings li.tuning.in-tune span { color: var(--good); font-weight: var(--fw-bold); }
+
+.tuner-listening { display: flex; align-items: center; gap: var(--sp-3); margin-top: var(--sp-4); font-size: var(--fs-sm); color: var(--text-dim); }
+.tuner-listening meter { flex: 1; height: 8px; }
+.tuner-problem { margin-top: var(--sp-4); }
+.tuner-problem button[aria-disabled="true"], .setup-microphone button[aria-disabled="true"] { opacity: .5; cursor: default; }
+.tuner-problem p { margin: 0 0 var(--sp-3); font-size: var(--fs-sm); line-height: 1.7; color: var(--text-dim); }
+.tuner-dialog .hint { margin-top: var(--sp-3); }
+
+@media (prefers-reduced-motion: reduce) { .tuner-needle { transition: none; } }
+@media (max-width: 600px) {
+  .setup-inputs { grid-template-columns: 1fr; }
+  .tuner-note { font-size: 52px; min-height: 52px; }
+  .tuner-strings span { white-space: normal; text-align: center; }
+}

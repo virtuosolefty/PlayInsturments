@@ -71,7 +71,7 @@ export default function TouchCalibrator({ current = IDENTITY_CURVE, onApply, onC
   useEffect(
     () =>
       midiInput.onMessage((msg) => {
-        if (msg.type !== 'noteon' || !runningRef.current) return;
+        if (msg.type !== 'noteon' || msg.source === 'mic' || !runningRef.current) return;
         const i = stepRef.current;
         const take = takesRef.current[i];
         if (take.length >= NOTES_PER_PASS) return;

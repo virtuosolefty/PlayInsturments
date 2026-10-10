@@ -21,18 +21,24 @@ function Rungs({ cleared }) {
   );
 }
 
-function Stars({ count }) {
-  if (!count) return null;
+/**
+ * How well a lesson is known, apart from whether it is finished: a finished
+ * lesson with no stars yet shows five empty ones, so the tick beside it is not
+ * read as a rating.
+ */
+export function Stars({ count, shown = count > 0 }) {
+  if (!shown) return null;
   return (
-    <span className="path-stars" title={`Best: ${count} of 5 stars`}>
-      {'★'.repeat(count)}
+    <span className="path-stars" role="img" aria-label={`${count} of 5 stars`} title={`Best: ${count} of 5 stars`}>
+      {'★'.repeat(count)}<i>{'★'.repeat(5 - count)}</i>
     </span>
   );
 }
 
 function ExerciseRow({ entry, title, isCurrent, onPick }) {
-  const mark = entry.mastered ? '✓' : entry.passed ? '✓' : entry.unlocked ? '▸' : '🔒';
-  const state = entry.mastered ? 'mastered' : entry.passed ? 'passed' : entry.unlocked ? 'open' : 'locked';
+  // Finished is its own state: the next lesson is open, and the stars are still to be earned.
+  const mark = entry.mastered || entry.passed || entry.finished ? '✓' : entry.unlocked ? '▸' : '🔒';
+  const state = entry.mastered ? 'mastered' : entry.passed ? 'passed' : entry.finished ? 'finished' : entry.unlocked ? 'open' : 'locked';
 
   return (
     <button
@@ -42,12 +48,13 @@ function ExerciseRow({ entry, title, isCurrent, onPick }) {
       title={
         entry.unlocked
           ? `Best ${entry.bestStars} of 5 · ${entry.rungsCleared} of ${RUNGS.length} rungs`
-          : 'Pass the exercise before this one to open it'
+          : 'Finish the lesson before this one to open it'
       }
     >
       <span className={`path-mark ${state}`}>{mark}</span>
       <span className="path-name">{title}</span>
-      <Stars count={entry.bestStars} />
+      {isCurrent && <span className="path-next">Next</span>}
+      <Stars count={entry.bestStars} shown={entry.finished} />
       <Rungs cleared={entry.rungsCleared} />
     </button>
   );
@@ -84,7 +91,7 @@ export default function PathTab({
         <h2 className="section-title">
           The Path
           <span className="tally">
-            {state.passedCount} / {state.total}
+            {state.finishedCount} / {state.total}
           </span>
         </h2>
 
@@ -92,16 +99,16 @@ export default function PathTab({
           <div key={stage.id} className={`path-stage ${stage.unlocked ? '' : 'locked'}`}>
             <h3 className="path-stage-head">
               <span>{stage.name}</span>
-              {stage.cleared && <span className="path-cleared">cleared</span>}
+              {stage.finished && <span className="path-cleared">{stage.cleared ? 'mastered' : 'finished'}</span>}
             </h3>
             <p className="path-goal">{stage.goal}</p>
 
             {stage.entries.map((entry) => (
-              /* The row says a padlock; this says what would open it. Not a
-                 tooltip: somebody stuck on a gate is exactly the person who
-                 will not find one, and until this existed the app's answer to
-                 "why has nothing unlocked" was a star count of zero beside a
-                 daily goal it had just called done. */
+              /* The row shows the stars; this says why there are none yet. Not
+                 a tooltip: somebody puzzled by a row of empty stars is exactly
+                 the person who will not find one, and until this existed the
+                 app's answer to fourteen guided runs was a star count of zero
+                 beside a daily goal it had just called done. */
               <div key={entry.id}>
                 <ExerciseRow
                   entry={entry}
@@ -117,16 +124,16 @@ export default function PathTab({
 
             {/* The reward for a stage is music, not a trophy. */}
             {stage.recital && <button
-              className={`path-recital ${stage.cleared ? 'won' : ''}`}
-              onClick={() => stage.cleared && pickById(stage.recital)}
-              disabled={!stage.cleared}
+              className={`path-recital ${stage.finished ? 'won' : ''}`}
+              onClick={() => stage.finished && pickById(stage.recital)}
+              disabled={!stage.finished}
               title={
-                stage.cleared
+                stage.finished
                   ? 'Yours — go and play it'
-                  : 'Master all three exercises in this stage to unlock'
+                  : 'Finish every lesson in this stage to open it'
               }
             >
-              <span className="path-mark">{stage.cleared ? '♪' : '🔒'}</span>
+              <span className="path-mark">{stage.finished ? '♪' : '🔒'}</span>
               <span className="path-name">{titleOf(stage.recital)}</span>
               <span className="path-recital-tag">recital</span>
             </button>}

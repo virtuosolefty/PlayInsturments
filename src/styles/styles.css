@@ -1183,12 +1183,6 @@ button.linky:hover:not(:disabled) {
   border-color: var(--accent-dim);
 }
 
-.piece-play {
-  width: 100%;
-  padding: var(--sp-3);
-  font-size: var(--fs-md);
-}
-
 .piece-hint {
   margin-top: var(--sp-2);
 }
@@ -1881,23 +1875,6 @@ button.io-slot:hover {
 
 .field.stacked input[type='range'] {
   width: 100%;
-}
-
-.run-waiting {
-  display: grid;
-  gap: var(--sp-1);
-  margin: 0;
-}
-
-.run-waiting strong {
-  font-family: var(--mono);
-  font-size: var(--fs-xl);
-  color: var(--text);
-}
-
-.run-waiting span {
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
 }
 
 /* ====================================================== wrong-note breakdown */
@@ -2644,21 +2621,6 @@ button.io-slot:hover {
    verdict — how hard you hit, how evenly — and reference does not need to be
    the first thing your eye lands on. */
 
-/* ------------------------------------------------------------- the needle */
-
-/* The pin itself, not a filled bar: a bar reads as "how much", and this is a
-   "which way". Translated rather than offset so it lands on the exact centre. */
-.needle-pin {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 3px;
-  border-radius: var(--radius-xs);
-  background: var(--text);
-  box-shadow: 0 0 8px rgb(232 237 245 / 60%);
-  transform: translateX(-50%);
-  transition: left var(--dur-base) var(--ease-out);
-}
 
 /* --------------------------------------------------------------- the lamps
    Dark until they have something to report. A row of zeroes is four numbers
@@ -3263,6 +3225,7 @@ button.io-slot:hover {
   color: var(--text-faint);
 }
 
+.path-mark.finished { color: var(--text-dim); }
 .path-mark.passed { color: var(--now); }
 .path-mark.mastered { color: var(--good); }
 .path-mark.open { color: var(--accent); }

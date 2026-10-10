@@ -79,7 +79,7 @@ test.describe('Data integrity — settings', () => {
     expect(settings.hands).toBe('right');
     expect(settings.dailyGoalMinutes).toBe(25);
 
-    await appPage.selectDrawerTab('Keyboard');
+    await appPage.openMoreOptions();
     await expect(page.getByRole('button', { name: 'As written', exact: true })).toHaveClass(/on/);
   });
 });

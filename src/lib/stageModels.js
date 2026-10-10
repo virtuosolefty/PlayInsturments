@@ -8,6 +8,8 @@
  *
  *   rigged   the stage puts its own rig on the model, so its strings move and
  *            its bow plays as the instrument is played;
+ *   struck   a drum kit: shown in the viewer, where each drum lights and moves
+ *            when it is hit (stage/drumModelRig.js);
  *   neither  the model is only looked at and turned, in the viewer.
  *
  * A model's id is its file name in public/models/ (<id>.glb and <id>.json,
@@ -32,8 +34,8 @@ export const STAGE_MODELS = Object.freeze({
   ]),
   drums: list('drums', [
     { id: 'drums', label: 'Practice kit', about: 'The kit you play here, every drum named.', played: true, builtIn: true },
-    { id: 'drums-acoustic', label: 'Acoustic kit', about: 'Shells, heads and cymbals: the kit on a stage.' },
-    { id: 'drums-electronic', label: 'Electronic kit', about: 'Mesh pads on a rack: the kit for practising at home.' },
+    { id: 'drums-acoustic', label: 'Acoustic kit', about: 'Shells, heads and cymbals: the kit on a stage.', struck: true },
+    { id: 'drums-electronic', label: 'Electronic kit', about: 'Mesh pads on a rack: the kit for practising at home.', struck: true },
   ]),
 });
 

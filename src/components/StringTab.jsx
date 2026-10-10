@@ -5,8 +5,9 @@ import { STAGE_COLORS } from '../lib/stageColors.js';
 /**
  * Scrolling string lanes, highest string at the top.
  *
- * Guitar shows fret numbers (tablature). Violin and cello show the finger to
- * use, with the note name above it, because bowed music is read by finger.
+ * A fretted instrument (guitar, bass) shows fret numbers, as
+ * tablature does. A bowed one shows the finger to use, with the note name
+ * above it, because bowed music is read by finger.
  *
  * The tab is part of the stage, which is dark in both interface themes.
  */
@@ -84,6 +85,6 @@ export default function StringTab({ instrument = 'guitar', score, engine, pps })
   }, [kit]);
   const label = kit.bowed
     ? `${kit.label} finger chart: ${kit.stringName(kit.tuning.length - 1).note} string at the top, ${kit.stringName(0).note} string at the bottom. Numbers are fingers; 0 is an open string. Play them as they reach the vertical line.`
-    : 'Guitar tablature: high E at the top, low E at the bottom. Play numbered frets as they reach the vertical line.';
+    : `${kit.label} tablature: ${kit.id === 'guitar' ? 'high E at the top, low E at the bottom' : `string 1 (${kit.stringName(kit.tuning.length - 1).note}) at the top, string ${kit.tuning.length} (${kit.stringName(0).note}) at the bottom`}. Play numbered frets as they reach the vertical line.`;
   return <canvas ref={ref} className="guitar-tab" role="img" aria-label={label} />;
 }

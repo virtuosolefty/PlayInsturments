@@ -59,9 +59,11 @@ describe('the pop-up of instruments to choose from', () => {
     expect(card('Acoustic kit').textContent).not.toContain('You play this one');
   });
 
-  it('says which are only to look at, and says nothing of the ones the stage plays in their turn', async () => {
-    await render(<ModelChooser models={models} value="drums" onChoose={() => {}} onClose={() => {}} />);
-    expect(card('Acoustic kit').textContent).toContain('To look at');
+  it('says which are only to look at, and says nothing of the ones the stage plays or that answer to being hit', async () => {
+    const curio = { id: 'curio', label: 'Curio', about: 'A model with nothing to play.', instrument: 'drums' };
+    await render(<ModelChooser models={[...models, curio]} value="drums" onChoose={() => {}} onClose={() => {}} />);
+    expect(card('Curio').textContent).toContain('To look at');
+    expect(card('Acoustic kit').textContent).not.toContain('To look at');
     expect(card('Practice kit').textContent).not.toContain('To look at');
     await render(<ModelChooser models={modelsFor('violin')} value="violin" onChoose={() => {}} onClose={() => {}} />);
     expect(card('Electric violin').textContent).not.toContain('To look at');

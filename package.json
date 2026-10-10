@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "songs": "node scripts/build-songs.mjs",
+    "icons": "node scripts/build-icons.mjs",
     "shoot": "node scripts/shoot.mjs",
     "check:browser": "node scripts/check-browser.mjs",
     "test:e2e": "playwright test",

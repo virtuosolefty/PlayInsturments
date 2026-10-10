@@ -1,5 +1,79 @@
 # Practice Deck
 
+## Reach: installing, opening lessons, songs, more instruments and the microphone
+
+Added October 2026, in four parts, each to remove something that kept a newcomer out.
+
+### Installing, two names, and the film songs
+
+- **Installing from GitHub Pages.** The site is served from `/PlayInsturments/`, so every address in `public/manifest.webmanifest` is relative (`start_url` and `scope` are `./`): a manifest address that starts at the root points at somebody else's page there. A phone asks for PNG icons, so `npm run icons` (`scripts/build-icons.mjs`) draws `public/icons/` from `public/favicon.svg`: 192 and 512 pixels, a maskable 512 with the background to the edges, and a 180 pixel one for iOS. There is no service worker, so the installed app still needs a connection.
+- **Input & sound**, in the top bar, is what was called Instrument setup; it shared a first word with **Instrument settings** beside the instrument picker and the two were easily confused. It reads **Microphone on** or **Controller connected** when either is.
+- **The stage's playable view has its own name.** Free play's view switch read Learn | Whole instrument under a workspace switch that reads Learn | Free play. The first button now says what it shows: **Fretboard** (guitar, bass), **Fingerboard** (violin, cello) or **Practice kit** (drums). `StageViewSwitch.jsx` takes it as `label`; the value behind it is still `'learn'`.
+- **Film songs are local only.** Six film songs in `public/songs/songs.json` are marked `localOnly`. They are there when the app is run from a clone and are left out of a public build: `scripts/build-public-pages.mjs`, when `GITHUB_PAGES` or `PUBLIC_SITE_URL` is set, rewrites `dist/songs/songs.json` without them and deletes their MIDI files (`scripts/public-library.mjs` decides which). `npm run songs` carries them over, since it does not write them. `scripts/public-library.test.mjs` fails if a song tagged `film-music` is not marked. The files are still in the public repository; taking them out of it, and its history, is a separate decision. Two credits were wrong and are corrected (Rowdy Baby is Yuvan Shankar Raja's, the Theevandi theme Kailas Menon's). No song called "Anjathe Pookkal" could be found, so that entry's credit is unverified.
+
+### Finishing a lesson opens the next one
+
+`src/lib/path.js` keeps two things apart that used to be one. **Finished** is one complete run of a lesson, guided (Wait for me) or timed, at any speed: it opens the next lesson, the next stage once every lesson in a stage is finished, and the stage's recital piece. **Stars** are as before: three at the written tempo pass a lesson's check, four master it, and only a timed run at tempo earns them. `exerciseState` reports `finished` beside `passed` and `mastered`; a stage has `finished` beside `cleared`; `pathState` counts `finishedCount` beside `passedCount`, and its `currentId` is the first open lesson not yet finished, then the first whose check is not passed. An abandoned run (stored without stars) opens nothing.
+
+The words on the learning home, the Path tab, the lesson guide and the end-of-run report say the same: `blockerHelp` now explains why a lesson has no stars, never why the next one is shut. The lesson guide offers **Move on to the next lesson** beside its own next step once a lesson is finished.
+
+### Ten songs for every instrument
+
+`src/lib/easySongs.js` holds ten tunes everybody knows, written once in sol-fa (`d r m f s l t`, with marks for octave and length), all traditional or out of copyright. `arrangeTune` puts each in a key that sits in an instrument's first position: every note goes on the string just below it (the chart a method book prints), and `fitTonic` takes the first key on the instrument's list in which every note lands on an open string or a tape, or failing that within reach. `pianoTune` gives the melody from middle C, which `npm run songs` writes as MIDI, with a fingering where the tune sits under one hand. The drums have ten beats instead (`DRUM_BEATS` in `drums.js`).
+
+A kit (`instruments.js`) now has `lessons` (what its path is made of), `songs` and `studies` (both). Songs are on no path and open from the start; they appear as the second collection on the learning home, in the library, and under their own heading in each workspace's Exercise list (`StudyOptions.jsx`).
+
+### The bass
+
+`INSTRUMENTS` is piano, guitar, bass, violin, cello, drums. A string kit is `fretted` or `bowed`.
+
+**The pickers list five.** The bass is a kind of guitar, so `PICKER` (`instruments.js`) lists piano, guitar, violin, cello and drums, and the guitar has a small **Guitar | Bass** switch (`TypeSwitch.jsx`) in the studio's controls, on the learning home and in the library. Underneath, the bass stays an instrument of its own, with its own tuning, lessons, path, saved place and sound, so nothing keyed by an instrument id changed. `familyOf`, `variantsOf` and `chooseVariant` do the mapping; `settings.variants` remembers which kind the family was last on.
+
+A ukulele and a viola were added with the bass and taken out again on 10 October 2026: the ukulele had no 3D model, and the viola was the violin's lessons a fifth lower on the violin's model. Settings saved for either fall back safely (`normalizeInstrument` gives the piano; `chooseVariant` gives the violin for a remembered viola).
+
+- **The bass** is in `src/lib/fretted.js` (tuning and lessons) and is played in the guitar's studio: `GuitarWorkspace.jsx` takes an `instrument` and reads everything from its kit. It has no chords; `OpenStringsCard.jsx` takes the chord explorer's place.
+- **What the 3D stage shows** is `kit.stage`: `'drawn'` for the guitar (the one built in code, and its model for the whole view); `'model'` for the bass, which is played on the downloaded bass guitar at full detail (`FrettedModelStage.jsx`, with the drawn fretboard at light detail or if the model fails). The stage's painting, labels and pointer handling are shared in `src/lib/frettedStage.js`; `stageLabels`, `hoverText` and `buildModelGuitarRig` take the instrument's tuning, pitch lookup and colours.
+- **Sound.** `audio.js` builds each plucked voice from one table and each bowed voice from another: the bass is heavier and louder than the guitar, the cello darker and slower to speak than the violin.
+- **Five in the pickers.** Below 1300px the studio header shows icons, with the name of the instrument chosen (`strings.css`). The learning home's picker wraps under its heading, and on a phone it and the header sheet's take two rows. `InstrumentIcon` has a drawing for the bass, used where it is shown on its own (the setup dialog, the tuner).
+
+### Easier to follow: free play, practice and input
+
+Added 10 October 2026. New styles are in `src/styles/flow.css`; `e2e/tests/25-flow.spec.js` covers the behaviour.
+
+- **Free play has one row of things to do** (`FreePlayBar.jsx`, under the studio header): the explorer (Chords, Open strings, Scales or Drum keys, which puts the keyboard on that card), Tuner for the instruments that are tuned, and Check input. Beside them is the note played last and, in one line, how to play with nothing plugged in. In free play the tuner is here; in a lesson it stays in the instrument's own controls.
+- **The explorer cards.** A chord's legend (root, finger, played, open, muted) sits under the diagram it explains. Strength, spread, bow pressure and scale tempo fold away under **Feel**, whose summary says what they are set to.
+- **The path names the lesson to do.** On the learning home and in the drawer's Today’s plan the current lesson carries **Next**. Finished is a tick and stars are separate: `Stars` (`PathTab.jsx`) draws five, filled as far as the best run, from the first finished run, so a lesson finished with the notes waiting shows a tick and five empty stars.
+- **The report** says **Finished** apart from its stars, and beside Run again offers **Slower** (one tenth down, never below the slider's 40%) and **Next lesson** (the lesson the path has opened) or **Next piece**.
+- **The tempo slider marks the written tempo**, and off it a **Written tempo** button goes back: stars count toward the path at 100% or faster.
+- **Input & sound is three steps** (`SetupDialog.jsx`): choose how you play, check you are heard, check the sound. Everything else is under **More options** in the same dialog (`KeyboardPanel.jsx`): the two measurements, named for what goes wrong ("Sound arrives late?", "Keys feel too loud or too soft?", the second only when a controller is how you play), a piano keyboard's size and fit, and **Advanced: external sound**. The library drawer no longer has a Settings tab. A calibrator is a dialog of its own, so Input & sound closes for it.
+- **The top bar's input button** reads **No controller found**, in red, when a controller was chosen and none is connected, and its tooltip names the controller when one is.
+- **A controller plugged in while the app is open is announced** (`App.jsx`, `found`): it plays at once, and **Check it** opens Input & sound on it. The ones already there when the page loads are not announced.
+- **One segmented control.** Every "pick one" row (the pickers, Learn | Free play, the practice modes, Guitar | Bass, label modes, fit) shares one trough and one raised segment, in one rule at the top of `flow.css`; each control keeps only its own size. The stage's Fretboard | Whole instrument pill is left as it is, since it floats over the instrument, but it, Reset view and the small tools (`.view-tool`) are now one height.
+
+### Finish
+
+After the bass was folded into the guitar, the app was gone over screen by screen. What changed, and why:
+
+- **The welcome page's pictures were a month out of date.** `public/media/*-studio.png` showed a top bar and studio layout that no longer existed. `scripts/shoot-instruments.mjs` now takes all five on the real graphics card at full detail; retake them whenever the studio's look changes.
+- **The theme follows the device on a first visit** (`lib/theme.js`); a theme the visitor has chosen always wins. The welcome page uses the same rule without loading the studio.
+- **Each screen names itself in the browser tab** (`lib/pageTitle.js`): "Meet the four strings · Bass — Practice Deck".
+- **A Tuner button sits in a string instrument's own controls** (a `view-tool` button in `GuitarWorkspace` and `BowedWorkspace`), not only under More. In free play it is in the free-play bar instead.
+- **The studio's controls row wraps** between 901 and 1250px instead of cutting a select down to a letter, and the line under the studio's title takes a second line before it is cut.
+- **A four-string fretboard gets the room six strings had** in free play when it is the whole instrument (the bass at light detail): `--strings` on the board scales the string height.
+- `e2e/tests/24-polish.spec.js` covers all of it.
+
+### The tuner and the microphone
+
+A real instrument can be played into the app, one note at a time.
+
+- **Hearing a pitch.** `src/lib/pitch.js` finds the pitch of a tenth of a second of sound with the YIN method: the shortest shift at which the sound lines up with itself is one cycle of the note. That is what lets it hear a low string as the note it is when its overtones are louder than its fundamental. It works on plain arrays and is tested on tones made in code, from a bass guitar's low E to the top of a violin.
+- **From pitches to notes.** `src/lib/noteTracker.js` turns thirty readings a second into notes that begin and end: a note begins when the same pitch has been heard twice running, ends after three quiet readings, and begins again if it comes back clearly louder than it had fallen to (a string plucked twice, a bow changing direction).
+- **The microphone** is `src/lib/micInput.js`: one microphone that the tuner and the note input each `hold` while they need it, released when the last lets go. `listenPlan` sets how much sound is read for the sound card's rate: thinned at 96 kHz and above, shorter at a headset's 16 kHz. It asks the browser to cancel the app's own sound and not to suppress noise or level the volume, which are made for speech and treat a held note as noise. What it hears is analysed and discarded; nothing is recorded or sent.
+- **Playing notes in.** With **Microphone** chosen under Input & sound (`settings.inputMethod === 'mic'`), `useMicNotes` (`hooks/useMicInput.js`) sends each note heard through the same path as a controller's, marked `source: 'mic'` and stamped `MIC_LATENCY_MS` earlier, which is about how long it takes to be sure of a note. The practice engine does not sound a note from the microphone (`soundsInput`): the instrument already has, and the app's own sound would go back in. That covers the wrong-note buzz too. Chosen on an earlier visit, the microphone still waits for the first click or key press before it comes on, and the top bar reads **Microphone off** until then. While the tuner is open the microphone stays on but notes are not played in.
+- **The tuner** (`TunerDialog.jsx`, under More, and from Input & sound) shows the note, a needle half a semitone either way, and on a string instrument which string is nearest and which way to turn its peg. `src/lib/tuner.js` decides all of it: `steadyPitch` takes the median of the last few readings, and within 5 cents is in tune.
+- **What it cannot do.** It hears one pitch at a time, so a chord or a strum is not recognised, and it is not offered for the drums. With the accompaniment or the metronome on, headphones keep the app's sound out of the microphone.
+- **Tests.** `pitch.test.js`, `noteTracker.test.js`, `tuner.test.js` and `micInput.test.js` (the last with a made-up microphone and clock). In the browser, `e2e/tests/23-microphone.spec.js` gives Chromium a WAV file as its microphone (`e2e/helpers/fakeMicrophone.js` makes plucked-string notes), so the tuner and a lesson are tested on real sound through the browser's own microphone path. That is a clean signal: a real room, a cheap microphone and a real string have not been tried.
+
 ## Styling: tokens, the stage and the phone layout
 
 Added in the October 2026 design pass. The design system it follows is a Claude artifact; its **Recommended changes** section lists the twenty changes and the measurements behind them.
@@ -7,17 +81,17 @@ Added in the October 2026 design pass. The design system it follows is a Claude 
 - **Tokens.** `src/styles/tokens.css` is loaded first and is the only stylesheet that knows which theme is showing. It holds colours, the type scale (nine sizes from 11px, three weights, two trackings), spacing (4 to 32px), radii, three control heights (32, 40 and 48px), six z-index layers and the per-theme surfaces such as `--primary-bg` and `--seg-trough`. Every other stylesheet reads tokens. Do not add a `[data-theme]` selector outside this file; add a token.
 - **The stage is dark in both themes.** The piano roll, the guitar workspace and the violin and cello workspaces carry the class `stage-dark`, which gives them the dark token values, so labels and overlays on a stage need no theme rules. `src/lib/stageColors.js` reads the stage colours (`--note-right`, `--note-left`, `--hit`, `--miss`, `--late`, `--hit-line`, `--stage`) for the canvases, with the same values built in for tests. Hands are blue and amber. Violet is the interface colour and `--now` blue is the music position and the next note.
 - **Chrome.** `chrome.css` holds the top bar (three destinations, the sound and input group, the More menu), the shared control rules and the one-line footer. Instrument settings sits beside the instrument picker; the stage caption is the left half of the footer.
-- **Breakpoints** are 600, 900, 1200 and 1440px. `phone.css` raises every control to 44px at 900px and below, and at 600px and below on an upright phone moves the destinations to a bottom tab bar and the header controls into a sheet (the button reads "Piano · Learn").
+- **Breakpoints** are 600, 900, 1200 and 1440px, and 1700px for the studio header's instrument picker, which shows icons below it. `phone.css` raises every control to 44px at 900px and below, and at 600px and below on an upright phone moves the destinations to a bottom tab bar and the header controls into a sheet (the button reads "Piano · Learn").
 - **Browser tests.** `e2e/helpers/workspace.js` chooses Learn or Free play at any width. `e2e/helpers/studio.js` saves a returning player's settings before the page loads (`seedSettings`) and gathers page and console errors (`collectErrors`). Help and the theme switch are inside More, so a test opens More first.
 
 ## Whole instrument: choosing what to see
 
-Added October 2026. In free play at full detail, selecting **Whole instrument** opens a pop-up of pictures, one for each instrument there is to see. The one that is played is already on the stage, so choosing it closes the pop-up. Any other is shown over the stage in its place until **Learn**.
+Added October 2026. In free play at full detail, selecting **Whole instrument** opens a pop-up of pictures, one for each instrument there is to see. The one that is played is already on the stage, so choosing it closes the pop-up. Any other is shown over the stage in its place until the stage's playable view is chosen again (**Fretboard**, **Fingerboard** or **Practice kit**).
 
 - **The list** is `src/lib/stageModels.js`: for each instrument, the model that is played first, then the ones that are only shown. A model's id is its file name in `public/models/`, the name of its picture in `public/media/models/` and its key in `modelCredits.js`. Shown-only ids are `<instrument>-<kind>`, such as `guitar-bass`.
 - **The list and the files agree.** `stageModels.files.test.js` reads `public/` and fails when a model on the list lacks its file, its measurements, its picture or its credit, so the app offers every model on the list without asking the server first.
-- **The pop-up** is `ModelChooser.jsx`, a dialog over the app, so it has room for its pictures on a small stage. **The viewer** is `ModelViewer.jsx`: its own studio laid over the stage, the model framed whole and turned by dragging, all the way round. `WholeModels.jsx` ties the two together and is rendered by `GuitarStage.jsx`, `BowedStage3D.jsx` and `DrumStage.jsx`. The drums gain the Learn | Whole instrument switch only when another kit is there.
-- **Rigged or only shown.** A model marked `rigged` in `stageModels.js` (the bass guitar, the electric violin, the antique cello) goes on the stage's own rig in the whole-instrument view, so it answers to playing: `buildBowedRig` gives the violin and cello their strings, finger places and bow, and `buildModelGuitarRig`, strung with `BASS_STRINGS`, gives the bass four strings that move with the guitar strings of the same name (E, A, D and G; the guitar's B and high E have none to move). `stage/otherRigs.js` builds each such rig the first time it is chosen and keeps it; `GuitarStage.jsx` hands it to `guitarViews` and `BowedStage3D.jsx` swaps it in itself. The sound and the lessons stay those of the instrument it stands in for, and Learn always goes back to that instrument. A model that is neither played nor rigged (the two drum kits) is only looked at, in the viewer.
+- **The pop-up** is `ModelChooser.jsx`, a dialog over the app, so it has room for its pictures on a small stage. **The viewer** is `ModelViewer.jsx`: its own studio laid over the stage, the model framed whole and turned by dragging, all the way round. `WholeModels.jsx` ties the two together and is rendered by `GuitarStage.jsx`, `BowedStage3D.jsx` and `DrumStage.jsx`. The drums gain the Practice kit | Whole instrument switch only when another kit is there.
+- **Rigged or only shown.** A model marked `rigged` in `stageModels.js` (the bass guitar, the electric violin, the antique cello) goes on the stage's own rig in the whole-instrument view, so it answers to playing: `buildBowedRig` gives the violin and cello their strings, finger places and bow, and `buildModelGuitarRig`, strung with `BASS_STRINGS`, gives the bass four strings that move with the guitar strings of the same name (E, A, D and G; the guitar's B and high E have none to move). `stage/otherRigs.js` builds each such rig the first time it is chosen and keeps it; `GuitarStage.jsx` hands it to `guitarViews` and `BowedStage3D.jsx` swaps it in itself. The sound and the lessons stay those of the instrument it stands in for, and Learn always goes back to that instrument. A model that is neither played nor rigged is only looked at, in the viewer. The two drum kits are looked at there too, but each drum answers to being hit (`struck` in `stageModels.js`): the recipe's `zones` (boxes in stage units, found by looking at the kit) make each drum a part of its own, named `drum-<id>-<n>` (`drumZonePart`), and `stage/drumModelRig.js` lights it in its verdict's colour and moves it, a cymbal rocking and a drum pressed down. `DrumStage.jsx` hands the viewer every hit it sees, whether from the keys, the pads, the model or a controller. A kit with two of a drum (the electronic kit's crashes and low toms) moves both on the one key. Re-prepare a kit with `node scripts/models/prepare.mjs drums-acoustic drums-electronic`.
 - **Adding one.** Download Sketchfab's glTF, unzip it to `models-src/<id>/`, add the model to `stageModels.js` and its credit to `modelCredits.js`. For one that is only shown, add a `shown(...)` recipe to `scripts/models/recipes.mjs` (which way is up, and the angle it is first seen from). For one the stage is to rig, write a full recipe as for the guitar, violin and cello: which pieces are its strings, which way it lies, and `rightHanded: true` where the strings' thickness cannot say which side the bass is on. Listing the model's separate pieces, longest first, makes the strings stand out. Then, with the dev server running:
 
   ```bash
@@ -27,7 +101,7 @@ Added October 2026. In free play at full detail, selecting **Whole instrument** 
 
   The first writes `public/models/<id>.glb` and `.json` (`showcase.mjs` stands the model on the floor, its longest side 24 stage units); the second writes its picture. Add its row to `CREDITS.md`. `stageModels.files.test.js` fails until the list and the files agree.
 - **What preparing does to a shown-only model.** Nothing is measured or split (a rigged one is measured and has its strings replaced, like the three that are played). Axes that would mirror it are refused. A material written as specular-glossiness, which the loader no longer draws, becomes metallic-roughness (`asMetalRough`). Texture coordinates and tangents are dropped where the material has no picture or normal map to use them (`leanPrimitive`). A recipe may `omit` parts by material name, and the credit then says so: the electronic kit's trailing lead doubled the box the viewer frames. Triangles are not reduced; the electronic kit is 409,000 of them and 6.6 MB, the largest file by far.
-- **The five there now** (October 2026): a bass guitar, an electric violin and an antique cello, all rigged, and an acoustic and an electronic drum kit, only shown. The viewer's backdrop is lit from the middle and lighter than the stage, because the violin and the electronic kit are black.
+- **The five there now** (October 2026): a bass guitar, an electric violin and an antique cello, all rigged, and an acoustic and an electronic drum kit, which are shown and struck. The viewer's backdrop is lit from the middle and lighter than the stage, because the violin and the electronic kit are black.
 - **Tests.** `stageModels.test.js`, `stageModels.files.test.js`, `stage/otherRigs.test.js`, `showcaseView.test.js`, `WholeModels.test.jsx`, `scripts/models/showcase.test.mjs`, and in the browser `e2e/tests/21-whole-instrument-chooser.spec.js`. Specs 18 and 19 keep the instrument that is played when the pop-up opens.
 
 ## Drums
@@ -82,7 +156,7 @@ See [instrument validation](validation/instrument-validation.md).
 ## Desktop studio update
 
 Switch between **Light** and **Dark** from the top bar. Use **Focus** for more playing
-space, **Instrument setup** to check your input and sound, and **Free play** to explore
+space, **Input & sound** to check your input and sound, and **Free play** to explore
 without a score. The unified library includes favorites and remembers your last piece.
 
 On tablets and phones the top bar takes a second line rather than pushing the studio
@@ -111,7 +185,7 @@ resolution a step at a time if frames start arriving late.
 
 At **Full** detail the violin and cello are downloaded 3D models, and so is the guitar in
 free play's **Whole instrument** view (credited under **Help** and in
-[CREDITS.md](../CREDITS.md)). Guitar lessons and free play's **Learn** view use the guitar
+[CREDITS.md](../CREDITS.md)). Guitar lessons and free play's **Fretboard** view use the guitar
 built in code, whose strings sit wider apart and are easier to hit. At **Light** detail
 the guitar is always the one built in code and the violin and cello keep their 2D
 fingerboard. If a model cannot be loaded, the stage shows the light version instead.
@@ -120,8 +194,9 @@ Lessons show the neck straight across the stage through a long lens, so the fret
 their true spacing; the violin and cello maps add finger tapes and numbered markers. String
 names carry the string's number and pitch (6 E2 … 1 E4 on the guitar); where the strings
 are too close together at the nut for the names to sit level with them, a thin line ties
-each name back to its string. **Free play** opens on **Learn**, the same playable view; the
-**Learn | Whole instrument** switch under the stage shows the whole model from
+each name back to its string. **Free play** opens on the same playable view (**Fretboard** on
+the guitar and bass, **Fingerboard** on the bowed strings); the switch between it and
+**Whole instrument** under the stage shows the whole model from
 three-quarters (the cello stands on its endpin) and back. Drag the background to turn the
 instrument a little either way, as far as the stage leaves room to keep the neck in view;
 double-click or press **Reset view** to put it back. A drag that starts on the neck plays
@@ -155,7 +230,7 @@ npm run songs     # generates the bundled practice library (public/songs/*.mid)
 npm run dev       # http://localhost:5173
 ```
 
-Then: open **Instrument setup** to connect your MIDI controller or test the on-screen
+Then: open **Input & sound** to connect your MIDI controller or test the on-screen
 instrument. Press **Play** to enable sound and begin. Choose **Guitar** for tablature,
 or **Free play** for ungraded exploration.
 
@@ -701,10 +776,13 @@ which is a high price for a string nobody sees. Per song:
 
 ## The bundled library
 
-`npm run songs` generates eighteen pieces. All are **public domain** — the
-composers died well over 70 years ago, or the tune is traditional. Recent chart
-hits are still under copyright and are deliberately not included; use the file
-loader for anything you hold a licence to. Imported files are remembered in
+`npm run songs` generates the library: eighteen pieces, the fifteen path
+exercises and their recitals, and the ten easy songs (`easySongs.js`). All are
+**public domain** — the composers died well over 70 years ago, or the tune is
+traditional. Recent chart hits are still under copyright and this script writes
+none; use the file loader for anything you hold a licence to. The six film
+songs kept by hand in `songs.json` are marked `localOnly` and are left out of a
+public build (see "Film songs are local only" above). Imported files are remembered in
 IndexedDB, so "Your files" is still there tomorrow.
 
 | Piece | Level | Why it's here |

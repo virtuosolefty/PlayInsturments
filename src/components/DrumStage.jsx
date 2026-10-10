@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { buildDrumKit, modelPieceFor } from '../lib/drumKitModel.js';
 import { labelWidth, spreadLabels } from '../lib/drumLabels.js';
 import { DRUM_PIECES, drumForMidi } from '../lib/drums.js';
@@ -60,6 +60,12 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
   const host = useRef(null);
   const latest = useRef(null);
   latest.current = { engine, score, onHit, onUnavailable, freePlay, listening };
+  // Whoever shows another kit in place of this one is told of each hit, so it can move its drums.
+  const hearers = useRef(new Set());
+  const hear = useCallback(listener => {
+    hearers.current.add(listener);
+    return () => hearers.current.delete(listener);
+  }, []);
   const [labels, setLabels] = useState([]);
   const [turned, setTurned] = useState(false);
   const reset = useRef(() => {});
@@ -113,7 +119,9 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
     const flash = (id, type = 'free', strength = 0.8) => {
       const piece = kit.pieces.get(modelPieceFor(id));
       if (!piece) return;
-      flashes.set(piece.id, { at: performance.now(), color: FLASH_COLORS[type] ?? FLASH_COLORS.free, strength: Math.min(1, Math.max(0.3, strength)) });
+      const color = FLASH_COLORS[type] ?? FLASH_COLORS.free;
+      flashes.set(piece.id, { at: performance.now(), color, strength: Math.min(1, Math.max(0.3, strength)) });
+      for (const listener of hearers.current) listener({ id: piece.id, color, strength });
       dirty = true;
     };
     const settle = piece => {
@@ -229,13 +237,13 @@ export default function DrumStage({ engine, score, onHit, onUnavailable, freePla
         {NAMES[label.id].short}<kbd>{NAMES[label.id].key.toUpperCase()}</kbd>{label.id === 'hihat' && <kbd title="Open hi-hat">O</kbd>}
       </span>)}
     </div>
-    <WholeModels instrument="drums" active={whole} quality={quality} onShowing={setLooking} />
+    <WholeModels instrument="drums" active={whole} quality={quality} onShowing={setLooking} hits={hear} />
     <div className="guitar-stage-bottom">
       <span className="guitar-stage-legend">{freePlay ? <><i className="played" />Hit</> : <><i className="played" />Hit <i className="next" />Next</>}</span>
       <span className="guitar-stage-end">
-        {offersWhole && <StageViewSwitch value={whole ? 'whole' : 'learn'} onChange={setStageView} />}
+        {offersWhole && <StageViewSwitch label="Practice kit" short="Kit" value={whole ? 'whole' : 'learn'} onChange={setStageView} />}
         {freePlay && turned && <button type="button" className="guitar-reset-view" onClick={() => reset.current()}>Reset view</button>}
-        <span className="guitar-stage-hint">{whole && looking ? 'Drag to turn · Learn to play the kit' : freePlay ? 'Tap a drum to play · drag the floor to turn' : 'Tap a drum, or press its letter'}</span>
+        <span className="guitar-stage-hint">{whole && looking ? 'Drag to turn · keys and pads play it · Practice kit to tap the drums' : freePlay ? 'Tap a drum to play · drag the floor to turn' : 'Tap a drum, or press its letter'}</span>
       </span>
     </div>
   </div>;

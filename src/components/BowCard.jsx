@@ -71,10 +71,10 @@ export default function BowCard({ kit, scale, onScale, onBow, onLift, silence, s
         {kit.tuning.map((_, s) => { const name = kit.stringName(s); return <HoldButton key={s} position={{ string: s, fret: 0 }} onBow={onBow} onLift={onLift} className={sounding.get(s)?.fret === 0 ? 'sounding' : ''} label={`Bow the open ${name.note} string`}><small>{name.number}</small><b>{name.note}</b></HoldButton>; })}
       </div>
     </div>
-    <div className="chord-dynamics">
+    <details className="chord-feel"><summary>Feel <small>{Math.round((settings.bowPressure ?? 0.7) * 100)}% · {tempo} bpm</small></summary><div className="chord-dynamics">
       <label>Bow pressure <output>{Math.round((settings.bowPressure ?? 0.7) * 100)}%</output><input aria-label="Bow pressure" type="range" min=".2" max="1" step=".01" value={settings.bowPressure ?? 0.7} onChange={e => setSettings(s => ({ ...s, bowPressure: +e.target.value }))} /></label>
       <label>Scale tempo <output>{tempo} bpm</output><input aria-label="Scale tempo" type="range" min="48" max="144" step="4" value={tempo} onChange={e => setSettings(s => ({ ...s, scaleTempo: +e.target.value }))} /></label>
-    </div>
+    </div></details>
     <p className="hint">Tapes mark first-position fingers. Hold a note to keep the bow moving; drag along a string to slide between notes.</p>
   </section>;
 }

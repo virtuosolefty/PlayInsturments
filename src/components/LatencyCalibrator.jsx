@@ -34,7 +34,8 @@ export default function LatencyCalibrator({ currentMs, onApply, onClose }) {
   // that land during the measured beats are used.
   useEffect(() => {
     return midiInput.onMessage((msg) => {
-      if (msg.type !== 'noteon') return;
+      // A note heard through the microphone is already stamped earlier to allow for it; this measures a controller.
+      if (msg.type !== 'noteon' || msg.source === 'mic') return;
       tapsRef.current.push(msg.at ?? performance.now());
     });
   }, []);

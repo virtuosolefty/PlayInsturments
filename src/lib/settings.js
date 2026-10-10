@@ -11,6 +11,7 @@ import { AUTO_PROFILE } from './devices.js';
 import { FIT_MODES, HAND_FILTERS } from './arrange.js';
 import { INSTRUMENT_MODES } from './midiOutput.js';
 import { IDENTITY_CURVE } from './velocity.js';
+import { systemTheme } from './theme.js';
 
 /**
  * Bump when a default changes in a way that should reach people who already
@@ -20,7 +21,8 @@ import { IDENTITY_CURVE } from './velocity.js';
 const SETTINGS_VERSION = 5;
 
 export const DEFAULT_SETTINGS = {
-  theme: 'light',
+  // Until a visitor chooses, the device decides (theme.js).
+  theme: systemTheme(),
   inputMethod: 'screen',
   pianoHeight: 104,
   pianoLabels: 'octaves',

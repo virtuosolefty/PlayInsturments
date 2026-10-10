@@ -33,7 +33,7 @@ export default function ModelChooser({ models, value, onChoose, onClose }) {
             <span className="model-picture"><img src={modelImage(model.id)} alt="" width="640" height="400" onError={() => setMissing(old => new Set([...old, model.id]))} /></span>
             <strong>{model.label}</strong>
             <span className="model-about">{model.about}</span>
-            {model.played ? <small>You play this one</small> : !isStaged(model) && <small className="look-only">To look at</small>}
+            {model.played ? <small>You play this one</small> : !isStaged(model) && !model.struck && <small className="look-only">To look at</small>}
           </button>
         </li>)}</ul>
       </section>

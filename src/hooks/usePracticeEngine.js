@@ -85,6 +85,18 @@ function instrumentFor(settings) {
 }
 
 /**
+ * Should the app sound a note the player has just played?
+ *
+ * For the screen, the computer keys and a MIDI controller, always: none of
+ * them makes a sound of its own, and the app must feel like an instrument.
+ * For a note heard through the microphone, never: the real instrument has
+ * already sounded it, and playing it again would go straight back into the
+ * microphone as a note nobody played. The same goes for the buzz on a wrong
+ * note: heard by the microphone it is another wrong note, which buzzes again.
+ */
+export const soundsInput = (msg) => msg.source !== 'mic';
+
+/**
  * Silence both instruments. Which one is live can change between a note
  * starting and the stop that ends it, and a stuck note on a MIDI port rings
  * until something explicitly tells it not to.
@@ -513,7 +525,7 @@ export function usePracticeEngine(score, settings) {
         // Always sound what the player pressed — the app must feel like an
         // instrument even when nothing is running.
         const instrument = instrumentFor(cfg);
-        if (instrument === audio || cfg.forwardInput !== false) {
+        if (soundsInput(msg) && (instrument === audio || cfg.forwardInput !== false)) {
           instrument.attack(midi, touch);
         }
 
@@ -526,7 +538,7 @@ export function usePracticeEngine(score, settings) {
           verdict = event;
           setEvents((prev) => [event, ...prev].slice(0, MAX_EVENTS));
 
-          if (cfg.errorCues) {
+          if (cfg.errorCues && soundsInput(msg)) {
             if (event.type === 'wrong') audio.errorCue(event.kind, event.severity);
             else if (event.type === 'timing' && event.severity > 0.35) audio.errorCue('timing', event.severity);
           }
@@ -561,7 +573,7 @@ export function usePracticeEngine(score, settings) {
       } else if (msg.type === 'noteoff') {
         const midi = playedMidi(cfg, msg.midi);
         const instrument = instrumentFor(cfg);
-        if (instrument === audio || cfg.forwardInput !== false) instrument.release(midi);
+        if (soundsInput(msg) && (instrument === audio || cfg.forwardInput !== false)) instrument.release(midi);
         activeInputRef.current.delete(midi);
         if (session && t.playing) {
           const songT = t.perfToSong(msg.at) - inputLatencySec(cfg);

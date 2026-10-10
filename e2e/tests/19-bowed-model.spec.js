@@ -41,7 +41,7 @@ test('on the full stage the violin is the downloaded model, mapped for lessons a
 
   await workspace(page, 'Free play');
   // Free play opens on Learn: the D major scale's eight places, labelled with their fingers.
-  await expect(viewButton(page, 'Learn')).toHaveAttribute('aria-pressed', 'true', { timeout: 30_000 });
+  await expect(viewButton(page, 'Fingerboard')).toHaveAttribute('aria-pressed', 'true', { timeout: 30_000 });
   await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
   // The whole violin is too small to label.
   await viewButton(page, 'Whole instrument').click();
@@ -49,7 +49,7 @@ test('on the full stage the violin is the downloaded model, mapped for lessons a
   await page.getByRole('dialog', { name: 'Whole instrument' }).locator('.model-card', { has: page.getByText('Violin', { exact: true }) }).click();
   await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
   await expect(labels(page)).toHaveCount(0, { timeout: 30_000 });
-  await viewButton(page, 'Learn').click();
+  await viewButton(page, 'Fingerboard').click();
   await expect(labels(page, 'finger')).toHaveCount(8, { timeout: 30_000 });
   expect(errors).toEqual([]);
 });

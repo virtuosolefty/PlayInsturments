@@ -80,7 +80,8 @@
   .studio-app .guitar-stage,.studio-app .guitar-stage-loading { height:var(--fretboard-height,230px); min-height:180px; flex:0 1 var(--fretboard-height,230px); }
   .studio-app.free-play .guitar-stage { flex:1 1 auto; min-height:300px; }
   .studio-app.free-play .guitar-fret-controls:not(.with-stage) { margin:auto 0; }
-  .studio-app.free-play .guitar-fret-controls:not(.with-stage) .guitar-string button { height:40px; }
+  /* The same room for the strings whatever their number: six at 40px, four at 60px. */
+  .studio-app.free-play .guitar-fret-controls:not(.with-stage) .guitar-string button { height:calc(240px / var(--strings, 6)); }
   .guitar-fret-controls > summary { padding:5px 16px; }
   .guitar-fretboard { padding:6px 16px; }
   .studio-app .guitar-string button { height:28px; }

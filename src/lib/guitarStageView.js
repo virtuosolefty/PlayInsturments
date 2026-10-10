@@ -5,7 +5,7 @@
  * decisions here keeps them testable and identical for any guitar model.
  */
 
-import { GUITAR_TUNING } from './guitar.js';
+import { GUITAR_TUNING, guitarMidi } from './guitar.js';
 import { chordPositionLabel, chordTone } from './guitarPresentation.js';
 import { DRAWN_NECK, fretSpace, OPEN_SPACE, STRING_COUNT } from './guitarNeck.js';
 import { noteName } from './theory.js';
@@ -161,29 +161,36 @@ export function stringColumn(names, { x, fontSize, band = null, toward = 1 }) {
  * @param {{ top: number, bottom: number }|null} [view.stringBand] stage pixels the string names must stay between
  * @param {object} [view.neck] where the guitar shown puts its strings and labels (guitarNeck.js)
  * @param {boolean} [view.stringNames] false where the nut is too far off for names pinned to the stage's edge to line up with it
+ * @param {number[]} [view.tuning] the open strings of the instrument on stage, lowest-numbered index first; the guitar's unless given
+ * @param {(string: number, fret: number) => number} [view.midiAt] its pitch at a place, for chord labels; the guitar's unless given
  * @returns {{ text: string, x: number, y: number, kind: 'string'|'fret'|'finger'|'muted', root: boolean, number?: number, leader?: object|null }[]}
  *   string names also carry their tablature number and their leader (see `stringColumn`)
  */
-export function stageLabels({ project, width, maxFret, chord = null, labelMode = 'fingers', leftHanded = false, fontSize = 14, stringBand = null, neck = DRAWN_NECK, stringNames = true }) {
+export function stageLabels({ project, width, maxFret, chord = null, labelMode = 'fingers', leftHanded = false, fontSize = 14, stringBand = null, neck = DRAWN_NECK, stringNames = true, tuning = GUITAR_TUNING, midiAt = guitarMidi }) {
   // A stored text size that is not a number would turn every gap into NaN; use the standard size instead.
   const size = Number.isFinite(fontSize) ? fontSize : 14;
   const label = (text, x, at, kind, root = false) => ({ text, ...project(x, at.y, at.z), kind, root });
-  const strings = !stringNames ? [] : stringColumn(GUITAR_TUNING.map((pitch, s) => {
+  const strings = !stringNames ? [] : stringColumn(tuning.map((pitch, s) => {
     const wire = neck.stringAt(s, neck.nutX);
-    return { ...label(noteName(pitch), neck.nutX, neck.labelAt('string', s, neck.nutX), 'string'), number: STRING_COUNT - s, to: project(neck.nutX, wire.y, wire.z) };
+    return { ...label(noteName(pitch), neck.nutX, neck.labelAt('string', s, neck.nutX), 'string'), number: tuning.length - s, to: project(neck.nutX, wire.y, wire.z) };
   }), { x: leftHanded ? width - STRING_LABEL_INSET : STRING_LABEL_INSET, fontSize: size, band: stringBand, toward: leftHanded ? -1 : 1 });
   const frets = fittingFrets(Array.from({ length: maxFret }, (_, i) => label(String(i + 1), fretSpace(i + 1).x, neck.fretLabelAt(fretSpace(i + 1).x), 'fret')), size);
-  const fingers = !chord ? [] : Array.from({ length: STRING_COUNT }, (_, s) => s).flatMap(s => {
+  const fingers = !chord ? [] : Array.from({ length: tuning.length }, (_, s) => s).flatMap(s => {
     const fret = chord.frets[s];
     if (fret > maxFret) return [];
     const x = fret == null || fret === 0 ? OPEN_SPACE.x : fretSpace(fret).x;
-    return [label(chordPositionLabel(chord, s, labelMode), x, neck.labelAt('chord', s, x), fret == null ? 'muted' : 'finger', !!chordTone(chord, s)?.root)];
+    return [label(chordPositionLabel(chord, s, labelMode, midiAt), x, neck.labelAt('chord', s, x), fret == null ? 'muted' : 'finger', !!chordTone(chord, s, midiAt)?.root)];
   });
   return [...strings, ...frets, ...fingers];
 }
 
-/** The hint under the stage for the place under the pointer; strings are numbered as tablature does. */
-export function hoverText(place) {
+/**
+ * The hint under the stage for the place under the pointer; strings are numbered as tablature does.
+ *
+ * @param {{ string: number, fret: number, midi: number } | null} place
+ * @param {number} [count] how many strings the instrument on stage has; the guitar's six unless given
+ */
+export function hoverText(place, count = STRING_COUNT) {
   if (!place) return '';
-  return `String ${STRING_COUNT - place.string} · ${place.fret ? `fret ${place.fret}` : 'open'} · ${noteName(place.midi)}`;
+  return `String ${count - place.string} · ${place.fret ? `fret ${place.fret}` : 'open'} · ${noteName(place.midi)}`;
 }

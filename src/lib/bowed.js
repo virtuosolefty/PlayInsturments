@@ -1,3 +1,4 @@
+import { easyStudies } from './easySongs.js';
 import { noteName } from './theory.js';
 
 /**
@@ -14,6 +15,7 @@ export const CELLO_TUNING = [36, 43, 50, 57]; // C2 G2 D3 A3
 export const BOWED_MAX_POSITION = 12;
 
 const TUNINGS = { violin: VIOLIN_TUNING, cello: CELLO_TUNING };
+const LABELS = { violin: 'Violin', cello: 'Cello' };
 
 // Semitones above the open string → first-position finger. A place beyond the
 // hand frame needs a shift, so it gets no finger rather than a guessed one.
@@ -63,9 +65,8 @@ function study(instrument, id, title, description, places, { bpm = 66, tonic = 0
     time += beat * beats;
     return note;
   });
-  const label = instrument === 'violin' ? 'Violin' : 'Cello';
   return {
-    id: `${instrument}-${id}`, title, description, composer: `${label} essentials`,
+    id: `${instrument}-${id}`, title, description, composer: `${LABELS[instrument]} essentials`,
     source: `authored-${instrument}-study`, instrument, variant: `${instrument}:first-position`,
     bpm, timeSignature: [4, 4], key: { tonic, mode, name: `${noteName(60 + tonic).replace(/\d/g, '')} ${mode}`, confidence: 1 },
     notes, noteCount: notes.length, duration: notes.at(-1).time + notes.at(-1).duration,
@@ -120,20 +121,37 @@ const CELLO_STUDIES = [
     [[2, 0], [2, 0], [3, 0], [3, 0], [3, 2], [3, 2], [3, 0, 2], [2, 5], [2, 5], [2, 4], [2, 4], [2, 2], [2, 2], [2, 0, 2]], { bpm: 80, tonic: 2 }),
 ];
 
+const STAGE_LESSONS = {
+  violin: { fingers: ['violin-a-string-fingers', 'violin-e-string'], scales: ['violin-d-major', 'violin-g-major'] },
+  cello: { fingers: ['cello-d-string-fingers', 'cello-g-string'], scales: ['cello-c-major', 'cello-d-major'] },
+};
+
 const stages = instrument => [
   { id: 'strings', name: 'Meet your strings', goal: 'Bow all four open strings with a steady sound.', exercises: [`${instrument}-open-strings`] },
-  { id: 'fingers', name: 'Place your first fingers', goal: 'Find the finger places marked by the tapes.',
-    exercises: instrument === 'violin' ? ['violin-a-string-fingers', 'violin-e-string'] : ['cello-d-string-fingers', 'cello-g-string'] },
-  { id: 'scales', name: 'Your first scales', goal: 'Join two strings into a one-octave scale.',
-    exercises: instrument === 'violin' ? ['violin-d-major', 'violin-g-major'] : ['cello-c-major', 'cello-d-major'] },
+  { id: 'fingers', name: 'Place your first fingers', goal: 'Find the finger places marked by the tapes.', exercises: STAGE_LESSONS[instrument].fingers },
+  { id: 'scales', name: 'Your first scales', goal: 'Join two strings into a one-octave scale.', exercises: STAGE_LESSONS[instrument].scales },
   { id: 'first-tune', name: 'Play your first tune', goal: 'Bring your fingers and bow together in a melody.', exercises: [`${instrument}-twinkle`] },
 ];
 
 const scale = (name, places) => ({ name, positions: places.map(([string, fret]) => ({ string, fret })) });
 
+/**
+ * A bowed instrument as the easy songs are arranged for it (easySongs.js):
+ * first position, on the open strings and the tapes wherever a key allows,
+ * in the keys its first scales are in, friendliest first.
+ */
+const songSpec = (instrument, label, tonics) => Object.freeze({
+  instrument, label, bowed: true, tuning: TUNINGS[instrument], reach: REACH[instrument], variant: `${instrument}:first-position`,
+  tapes: [0, ...BOWED_TAPES[instrument].map(tape => tape.fret)], tonics, finger: fret => bowedFinger(instrument, fret),
+});
+
+/** Ten tunes everybody knows, open from the start. They are not part of the path. */
+const VIOLIN_SONGS = easyStudies(songSpec('violin', 'Violin', [62, 69, 55, 67, 74]));
+const CELLO_SONGS = easyStudies(songSpec('cello', 'Cello', [50, 43, 36, 55, 48, 45]));
+
 export const BOWED = {
   violin: {
-    tuning: VIOLIN_TUNING, studies: VIOLIN_STUDIES, pathStages: stages('violin'), firstLesson: 'violin-open-strings',
+    tuning: VIOLIN_TUNING, lessons: VIOLIN_STUDIES, songs: VIOLIN_SONGS, studies: [...VIOLIN_STUDIES, ...VIOLIN_SONGS], pathStages: stages('violin'), firstLesson: 'violin-open-strings',
     scales: [
       scale('D major', [...run(1, [0, 2, 4, 5]), ...run(2, [0, 2, 4, 5])]),
       scale('A major', [...run(2, [0, 2, 4, 5]), ...run(3, [0, 2, 4, 5])]),
@@ -142,7 +160,7 @@ export const BOWED = {
     ],
   },
   cello: {
-    tuning: CELLO_TUNING, studies: CELLO_STUDIES, pathStages: stages('cello'), firstLesson: 'cello-open-strings',
+    tuning: CELLO_TUNING, lessons: CELLO_STUDIES, songs: CELLO_SONGS, studies: [...CELLO_STUDIES, ...CELLO_SONGS], pathStages: stages('cello'), firstLesson: 'cello-open-strings',
     scales: [
       scale('C major', [...run(0, [0, 2, 4, 5]), ...run(1, [0, 2, 4, 5])]),
       scale('G major', [...run(1, [0, 2, 4, 5]), ...run(2, [0, 2, 4, 5])]),

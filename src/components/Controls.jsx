@@ -215,16 +215,21 @@ export default function Controls({
 
           <span className="field" title="Playback speed — slow it down until it's clean, then push it up">
             Tempo
-            <input
-              type="range"
-              aria-label="Playback speed"
-              min="0.4"
-              max="1.5"
-              step="0.05"
-              value={settings.rate}
-              onChange={(e) => patch({ rate: Number(e.target.value) })}
-            />
+            {/* The mark is the written tempo: stars count toward the path only at or above it. */}
+            <span className="tempo-slider">
+              <input
+                type="range"
+                aria-label="Playback speed"
+                min="0.4"
+                max="1.5"
+                step="0.05"
+                value={settings.rate}
+                onChange={(e) => patch({ rate: Number(e.target.value) })}
+              />
+              <i className="tempo-target" aria-hidden="true" />
+            </span>
             <span className="val">{Math.round(settings.rate * 100)}%</span>
+            {Math.abs(settings.rate - 1) > 0.001 && <button type="button" className="tempo-reset" onClick={() => patch({ rate: 1 })} title="Back to the written tempo. Stars count toward your path at 100% or faster.">Written tempo</button>}
           </span>
         </div>
       </section>

@@ -9,7 +9,6 @@
 .learning-instruments { display: flex; flex-shrink: 0; border: 1px solid var(--line); padding: var(--sp-1); border-radius: var(--radius); background: var(--bg-2); }
 .learning-instruments button { display: flex; align-items: center; gap: var(--sp-2); min-height: var(--control-h); padding: var(--sp-2) var(--sp-4); background: transparent; border-color: transparent; border-radius: var(--control-r); }
 .learning-instruments svg { width: 20px; height: 20px; }
-.learning-instruments button[aria-pressed="true"] { color: var(--text); background: var(--bg-1); box-shadow: 0 2px 5px #25243b12; }
 .learning-home-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: var(--sp-5); }
 .next-lesson-card, .daily-learning-card { padding: var(--sp-5); border: 1px solid var(--line-soft); border-radius: var(--radius-lg); background: var(--bg-1); }
 .next-lesson-card { background: linear-gradient(135deg, var(--accent-soft), var(--bg-1) 72%); border-color: var(--accent-dim); display: flex; flex-direction: column; align-items: flex-start; }

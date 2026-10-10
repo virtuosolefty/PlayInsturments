@@ -47,7 +47,6 @@
 .chord-visual { background:var(--bg); border:1px solid var(--line-soft); border-radius: var(--radius); padding:8px; }
 .chord-label-modes { display:flex; padding:3px; background:var(--bg-2); border-radius: var(--radius-sm); gap:2px; }
 .chord-label-modes button { flex:1; border:0; background:none; min-height: var(--control-h-sm); padding:var(--sp-1) 2px; font-size: var(--fs-2xs); color:var(--text-dim); }
-.chord-label-modes button[aria-pressed=true] { background:var(--bg-1); color:var(--text); box-shadow:0 1px 4px #0001; border-radius: var(--radius-xs); }
 .chord-card .chord-diagram { height:205px; margin:0 auto; }
 .chord-diagram .diagram-fret-number { font: var(--fs-2xs) var(--mono); fill:var(--text-faint); }
 .chord-diagram .diagram-finger { font-size: var(--fs-sm); font-weight: var(--fw-bold); }

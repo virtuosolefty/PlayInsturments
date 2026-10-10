@@ -2,7 +2,9 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import DrumLanes from './DrumLanes.jsx';
 import DrumPads from './DrumPads.jsx';
-import { DRUM_PIECES, DRUM_STUDIES, drumForMidi, drumInstruction, drumLanes } from '../lib/drums.js';
+import StudyOptions from './StudyOptions.jsx';
+import { DRUM_PIECES, drumForMidi, drumInstruction, drumLanes } from '../lib/drums.js';
+import { instrumentKit } from '../lib/instruments.js';
 import { normalizeStageQuality } from '../lib/stage/quality.js';
 import { webglAvailable } from '../lib/webgl.js';
 import { useDrumInput } from '../hooks/useDrumInput.js';
@@ -80,7 +82,7 @@ export default function DrumWorkspace({ score, engine, settings, onStudy, freePl
       </div>}
       {!freePlay && <div className="guitar-next"><span>UP NEXT</span><strong>{coming.length ? coming.map(drumInstruction).join('  +  ') : 'Study complete'}</strong>
         <label className="guitar-exercise drum-exercise">Exercise<select aria-label="Drum exercise" value={score.id} onChange={event => onStudy(event.target.value)}>
-          {DRUM_STUDIES.map(study => <option key={study.id} value={study.id}>{study.title}</option>)}
+          <StudyOptions kit={instrumentKit('drums')} />
         </select></label>
       </div>}
       {solid && !compact

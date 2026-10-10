@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SHOWCASE_SIZE, asMetalRough, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
+import { SHOWCASE_SIZE, asMetalRough, drumZonePart, leanPrimitive, showcaseTransform, wholePieces } from './showcase.mjs';
 
 const UPRIGHT = [[0, 1], [1, 1], [2, 1]];
 const corners = ({ min, max }) => [min[0], max[0]].flatMap(x => [min[1], max[1]].flatMap(y => [min[2], max[2]].map(z => [x, y, z])));
@@ -113,5 +113,34 @@ describe('what a primitive needs to carry', () => {
     const frozen = Object.freeze({ ...prim });
     expect(leanPrimitive(frozen, undefined)).toEqual({ ...prim, uvs: null, tangents: null });
     expect(frozen.uvs).toEqual([2]);
+  });
+});
+
+describe('finding which drum a piece of a kit belongs to', () => {
+  const zones = [
+    { id: 'snare', at: [0, 0, 0, 4, 2, 4], maxSize: 5 },
+    { id: 'crash', at: [10, 0, 0, 14, 2, 4], maxSize: 5 },
+    { id: 'crash', at: [20, 0, 0, 24, 2, 4], maxSize: 5 },
+    { id: 'kick', at: [0, 0, 0, 30, 9, 9], maxSize: 8 },
+  ];
+  const piece = (centre, size = [1, 1, 1]) => ({ centre, size });
+
+  it('names a piece by the drum whose box holds its centre, and by which of that drum’s boxes', () => {
+    expect(drumZonePart(zones, piece([2, 1, 2]))).toBe('drum-snare-0');
+    expect(drumZonePart(zones, piece([12, 1, 2]))).toBe('drum-crash-0');
+    expect(drumZonePart(zones, piece([22, 1, 2]))).toBe('drum-crash-1');
+  });
+
+  it('gives a piece in two boxes to the first listed', () => {
+    expect(drumZonePart(zones, piece([2, 1, 2]))).not.toBe('drum-kick-0');
+  });
+
+  it('leaves out a piece too long to be part of the drum, such as a stand passing through', () => {
+    expect(drumZonePart(zones, piece([2, 1, 2], [0.3, 6, 0.3]))).toBe('drum-kick-0');
+    expect(drumZonePart(zones, piece([2, 1, 2], [0.3, 9, 0.3]))).toBeNull();
+  });
+
+  it('is null for a piece in no box', () => {
+    expect(drumZonePart(zones, piece([50, 1, 2]))).toBeNull();
   });
 });

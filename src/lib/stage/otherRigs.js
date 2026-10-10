@@ -47,6 +47,38 @@ export async function loadRig(id, build) {
 }
 
 /**
+ * Fetches an instrument's model, builds its rig and puts it on stage in place
+ * of whatever is there. Returns a function that abandons the attempt; a model
+ * that arrives after that is disposed.
+ *
+ * @param {{ swap: (rig: object) => void }} run the stage runner (stageRunner.js)
+ * @param {object} options
+ * @param {string} options.id the model's id (stageModels.js)
+ * @param {string} options.name what to call the instrument in a message, e.g. "violin"
+ * @param {(owned: object, model: object) => object} options.build the rig's parts, as for `rigFrom`
+ * @param {(rig: object) => void} options.onReady the rig is on stage
+ * @param {(why: string) => void} options.onFailed
+ */
+export function bringModel(run, { id, name, build, onReady, onFailed }) {
+  let abandoned = false;
+  loadInstrumentModel(id).then(model => {
+    if (abandoned) { if (model) disposeResources(collectResources(model.scene)); return; }
+    if (!model) { onFailed(`the ${name} model could not be loaded`); return; }
+    let rig = null;
+    try {
+      rig = rigFrom(model, id, build);
+      run.swap(rig);
+      onReady(rig);
+    } catch (error) {
+      // A rig that was built but could not go on stage is still this function's to dispose; it owns the model too.
+      if (rig) disposeResources(rig.owned);
+      onFailed(error.message);
+    }
+  }, error => { if (!abandoned) onFailed(error.message); });
+  return () => { abandoned = true; };
+}
+
+/**
  * The rigs of the other instruments a stage can show, each built once.
  *
  * @param {object} options

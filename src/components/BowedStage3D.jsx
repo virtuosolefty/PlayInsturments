@@ -4,11 +4,10 @@ import { buildBowedRig } from '../lib/bowedRig.js';
 import { bowedLabels, placeText } from '../lib/bowedStageView.js';
 import { dotLook } from '../lib/guitarStageView.js';
 import { guitarFeedback } from '../lib/instrumentView.js';
-import { collectResources, loadInstrumentModel } from '../lib/stage/models.js';
-import { loadRig, otherRigs, rigFrom } from '../lib/stage/otherRigs.js';
+import { bringModel, loadRig, otherRigs } from '../lib/stage/otherRigs.js';
 import { STAGE_TIERS } from '../lib/stage/quality.js';
 import { runStage } from '../lib/stage/stageRunner.js';
-import { createStudio, disposeResources } from '../lib/stage/studio.js';
+import { createStudio } from '../lib/stage/studio.js';
 import { findModel } from '../lib/stageModels.js';
 import ResetViewButton from './ResetViewButton.jsx';
 import StageLabels from './StageLabels.jsx';
@@ -134,29 +133,6 @@ function watchBowing(canvas, run, pointed, latest, { onHover, onLost }) {
 }
 
 /**
- * Fetches the instrument and puts it on stage. Returns a function that
- * abandons the attempt; a model that arrives after that is disposed.
- */
-function bringModel(run, { kit, maxFret, lacquered, onReady, onFailed }) {
-  let abandoned = false;
-  loadInstrumentModel(kit.id).then(model => {
-    if (abandoned) { if (model) disposeResources(collectResources(model.scene)); return; }
-    if (!model) { onFailed(`the ${kit.label.toLowerCase()} model could not be loaded`); return; }
-    let rig = null;
-    try {
-      rig = rigFrom(model, kit.id, owned => ({ ...buildBowedRig({ owned, kit, maxFret, model, lacquered }), maxFret }));
-      run.swap(rig);
-      onReady(rig);
-    } catch (error) {
-      // A rig that was built but could not go on stage is still this function's to dispose; it owns the model too.
-      if (rig) disposeResources(rig.owned);
-      onFailed(error.message);
-    }
-  });
-  return () => { abandoned = true; };
-}
-
-/**
  * The rig of another instrument of the same kind for the whole-instrument
  * view (an electric violin, an antique cello), or null when its files could
  * not be loaded. It is strung, fingered and bowed as the instrument on stage
@@ -247,15 +223,19 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
       } catch (error) { fail(error.message); }
     }
     rigs.current = { apply };
-    const abandon = bringModel(run, { kit: played, maxFret, lacquered: true, onReady: rig => { main = rig; setReady(true); apply(); }, onFailed: fail });
+    const abandon = bringModel(run, {
+      id: played.model ?? played.id, name: played.label.toLowerCase(),
+      build: (owned, model) => ({ ...buildBowedRig({ owned, kit: played, maxFret, model, lacquered: true }), maxFret }),
+      onReady: rig => { main = rig; setReady(true); apply(); }, onFailed: fail,
+    });
     return () => { abandon(); if (rigs.current?.apply === apply) rigs.current = null; others.stop(); unwatch(); run.stop(); };
   }, [kit.id, theme, quality, maxFret]);
   // Choosing a view, or another instrument for the whole-instrument view, puts that one on stage.
   useEffect(() => { rigs.current?.apply(); }, [view, closeUp, modelId]);
   // The bowing stretch by the bridge is in view only when the whole instrument is.
   const hint = hover ? placeText(kit, hover)
-    : whole && looking ? 'Drag to turn · Learn to play'
-    : whole ? 'Drag to turn · hold by the bridge to bow an open string · Learn for the finger places'
+    : whole && looking ? 'Drag to turn · Fingerboard to play'
+    : whole ? 'Drag to turn · hold by the bridge to bow an open string · Fingerboard for the finger places'
     : `Press and hold to bow · drag along a string to slide${turnable ? ' · drag the background to turn' : ''}`;
   return <div className="guitar-stage bowed-stage-3d" ref={host} role="group" aria-label={`Three-dimensional ${name}`} data-view={view}>
     <div className="guitar-stage-top"><div><strong>{kit.label}</strong><span>{selection ? 'First position · press and hold to bow' : `Tuned in fifths · ${kit.tuning.map((_, s) => kit.stringName(s).note).join(' ')}`}</span></div></div>
@@ -264,6 +244,6 @@ export default function BowedStage3D({ kit, engine, maxFret, labelMode = 'finger
     {!ready && <div className="bowed-stage-preparing" role="status">Preparing your {name}…</div>}
     {ready && whole && preparing && <div className="stage-status" role="status">Preparing the {findModel(preparing)?.label.toLowerCase() ?? 'instrument'}…</div>}
     <WholeModels instrument={kit.id} active={whole} quality={quality} onShowing={setLooking} staged={modelId} onStage={stage} stageNotice={stageNotice} />
-    <div className="guitar-stage-bottom"><span className="guitar-stage-legend"><i className="played" />Played <i className="next" />{target ? 'Next note' : 'Hover'}{selection && <><i className="root" />Scale</>}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch value={whole ? 'whole' : 'learn'} onChange={setStageView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint" role="status">{hint}</span></span></div>
+    <div className="guitar-stage-bottom"><span className="guitar-stage-legend"><i className="played" />Played <i className="next" />{target ? 'Next note' : 'Hover'}{selection && <><i className="root" />Scale</>}</span><span className="guitar-stage-end">{offersWhole && <StageViewSwitch label="Fingerboard" short="Fingers" value={whole ? 'whole' : 'learn'} onChange={setStageView} />}{turnable && (turned || resetFocused) && <ResetViewButton turned={turned} onReset={resetView} onFocusChange={setResetFocused} />}<span className="guitar-stage-hint" role="status">{hint}</span></span></div>
   </div>;
 }

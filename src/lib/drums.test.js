@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DRUM_KEYS, DRUM_PATH_STAGES, DRUM_PIECES, DRUM_STUDIES, canonicalDrumMidi, drumForMidi, drumInstruction, drumLanes, drumPiece } from './drums.js';
+import { DRUM_BEATS, DRUM_KEYS, DRUM_PATH_STAGES, DRUM_PIECES, DRUM_STUDIES, canonicalDrumMidi, drumForMidi, drumInstruction, drumLanes, drumPiece } from './drums.js';
 
 describe('the kit', () => {
   it('gives every piece its own note, its own key and a name', () => {
@@ -121,6 +121,44 @@ describe('the lessons', () => {
     for (const stage of DRUM_PATH_STAGES) {
       expect(stage.name).toBeTruthy();
       expect(stage.goal).toBeTruthy();
+    }
+  });
+});
+
+describe('the beats to play along to', () => {
+  it('are ten, each one bar played twice, and none of them a lesson on the path', () => {
+    expect(DRUM_BEATS).toHaveLength(10);
+    expect(new Set(DRUM_BEATS.map(beat => beat.id)).size).toBe(10);
+    const onPath = new Set(DRUM_PATH_STAGES.flatMap(stage => stage.exercises));
+    for (const beat of DRUM_BEATS) {
+      expect(beat.id, beat.id).toMatch(/^drums-/);
+      expect(onPath.has(beat.id), beat.id).toBe(false);
+      expect(DRUM_STUDIES.some(study => study.id === beat.id), beat.id).toBe(false);
+      expect(beat).toMatchObject({ instrument: 'drums', easy: true, timeSignature: [4, 4] });
+      expect([1, 2]).toContain(beat.difficulty);
+      expect(beat.description.length, beat.id).toBeGreaterThan(20);
+      // Two bars of four beats, and the second bar is the first again.
+      const bar = 4 * 60 / beat.bpm;
+      expect(beat.duration, beat.id).toBeCloseTo(2 * bar);
+      const first = beat.notes.filter(note => note.time < bar - 1e-9).map(note => [note.piece, +note.time.toFixed(4)]);
+      const second = beat.notes.filter(note => note.time >= bar - 1e-9).map(note => [note.piece, +(note.time - bar).toFixed(4)]);
+      expect(second, beat.id).toEqual(first);
+    }
+  });
+
+  it('all keep time with the kick or the snare, and start with the easiest', () => {
+    for (const beat of DRUM_BEATS) expect(beat.notes.some(note => note.piece === 'kick' || note.piece === 'snare'), beat.id).toBe(true);
+    const levels = DRUM_BEATS.map(beat => beat.difficulty);
+    expect(levels).toEqual([...levels].sort((a, b) => a - b));
+    expect(DRUM_BEATS[0].id).toBe('drums-stomp-stomp-clap');
+  });
+
+  it('never ask one hand for two things on the same step that a hi-hat player could not reach', () => {
+    // A beat uses at most three pieces at once: two hands and the kick foot.
+    for (const beat of DRUM_BEATS) {
+      const together = new Map();
+      for (const note of beat.notes) together.set(note.time.toFixed(4), (together.get(note.time.toFixed(4)) ?? 0) + 1);
+      expect(Math.max(...together.values()), beat.id).toBeLessThanOrEqual(3);
     }
   });
 });

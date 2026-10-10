@@ -2,7 +2,9 @@ import PieceArt from './PieceArt.jsx';
 import Icon from './Icon.jsx';
 import { useState } from 'react';
 import SongLibrary from './SongLibrary.jsx';
-import { INSTRUMENTS, instrumentInfo, instrumentKit, usesKit } from '../lib/instruments.js';
+import { instrumentInfo, instrumentKit, usesKit } from '../lib/instruments.js';
+import InstrumentButtons from './InstrumentButtons.jsx';
+import TypeSwitch from './TypeSwitch.jsx';
 
 export default function StudioLibrary({ instrument, onInstrument, onPickStudy, favorites = [], onFavorite, recentId, dailySet = [], dailyProgress, onPlan, ...props }) {
   const [filter, setFilter] = useState('all');
@@ -22,7 +24,8 @@ export default function StudioLibrary({ instrument, onInstrument, onPickStudy, f
       <h2>Find your next piece.</h2>
       <label className="library-search"><span className="sr-only">{guitar ? `Search ${label.toLowerCase()} studies` : 'Search pieces and composers'}</span><input type="search" placeholder={guitar ? `Search ${label.toLowerCase()} studies…` : 'Search pieces or composers…'} value={query} onChange={e => setQuery(e.target.value)} /></label>
       <div className="library-filter-row">
-        <div className="library-instruments" role="group" aria-label="Library instrument">{INSTRUMENTS.map(v => <button key={v} aria-pressed={instrument === v} onClick={() => { onInstrument(v); setQuery(''); }}>{instrumentInfo(v).label}</button>)}</div>
+        <InstrumentButtons className="library-instruments" label="Library instrument" current={instrument} onPick={v => { onInstrument(v); setQuery(''); }} />
+        <TypeSwitch className="library-type" instrument={instrument} onChange={v => { onInstrument(v, true); setQuery(''); }} />
         <div className="library-filters"><button aria-pressed={filter === 'favorites'} onClick={() => setFilter(filter === 'favorites' ? 'all' : 'favorites')}><Icon name="heart" size={14} /> Favorites</button><select aria-label="Difficulty" value={level} onChange={e => setLevel(e.target.value)}><option value="all">All levels</option><option value="beginner">Beginner</option></select></div>
       </div>
       {searching ? <button className="clear-library-filters" onClick={() => { setQuery(''); setFilter('all'); setLevel('all'); }}>Clear search and filters</button> : <div className="library-start">

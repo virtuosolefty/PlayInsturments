@@ -1,3 +1,4 @@
+import { easyStudies } from './easySongs.js';
 import { noteName } from './theory.js';
 
 // Low E to high E. String numbers follow standard tablature (high E = 1).
@@ -78,6 +79,19 @@ GUITAR_STUDIES.push(
   study('first-song', 'Morning steps · your first tune', 'An original eight-note melody using open strings and frets 1–3. Let each note ring before moving on.',
     [[4,1],[4,3],[5,0],[5,3],[5,1],[5,0],[4,3],[4,1]], 64, 0),
 );
+
+/**
+ * The guitar as the easy songs are arranged for it (easySongs.js): first
+ * position, frets 0 to 4 with a finger to a fret, and the keys a beginner
+ * meets first, friendliest first.
+ */
+const GUITAR_SONG_SPEC = Object.freeze({
+  instrument: 'guitar', label: 'Guitar', tuning: GUITAR_TUNING, reach: 4, variant: 'guitar:standard:12',
+  tonics: [60, 55, 62, 57, 52, 48, 50], finger: fret => Math.min(4, fret),
+});
+
+/** Ten tunes everybody knows, open from the start. They are not part of the path. */
+export const GUITAR_SONGS = easyStudies(GUITAR_SONG_SPEC);
 
 export const GUITAR_PATH_STAGES = [
   { id: 'strings', name: 'Meet your strings', goal: 'Find all six open strings, from low E to high E.', exercises: ['guitar-open-strings'] },

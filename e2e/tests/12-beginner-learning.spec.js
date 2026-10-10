@@ -43,22 +43,24 @@ test('a new learner confirms sound, plays the first note, and resumes without au
   await expect(page.locator('.lesson-bar [aria-current="step"]')).toContainText('Listen');
 });
 
-test('a full guided piano phrase saves learning without passing mastery and retains practice tempo',async({page})=>{
+test('a full guided piano phrase opens the next lesson without passing mastery and retains practice tempo',async({page})=>{
   test.setTimeout(90_000);
   await seed(page,{learningView:'lesson',learning:{piano:record('path-01-home-five-right')}});
   await page.goto('/');await expect(page.getByRole('button',{name:'Play this step',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Play this step',exact:true}).click();await autoFollow(page);
   await expect(page.locator('.lesson-result h3')).toHaveText('Guided practice completed',{timeout:65_000});
   await page.evaluate(()=>clearInterval(window.__followTimer));
-  await expect(page.locator('.lesson-result')).toContainText('timing was not assessed');
+  await expect(page.locator('.lesson-result')).toContainText('the next lesson is open. Timing was not assessed');
   await page.getByRole('button',{name:'Next: add a rhythm →'}).click();
   const speed=page.getByRole('slider',{name:'Lesson practice speed'});await speed.fill('0.75');
   await page.reload();await expect(speed).toHaveValue('0.75');
   await expect(page.locator('.lesson-bar [aria-current="step"]')).toContainText('Practice');
   await expect(page.getByRole('button',{name:'Pause lesson'})).toHaveCount(0);
   await page.getByRole('button',{name:'Save & leave'}).click();
-  await expect(page.locator('.learning-roadmap > header')).toContainText('1 guided · 0 / 15 checks passed');
-  await expect(page.locator('.learning-stage-lessons button').filter({hasText:'Home Five — Left Hand'})).toBeDisabled();
+  await expect(page.locator('.learning-roadmap > header')).toContainText('1 / 15 lessons finished · 0 checks passed');
+  // Finishing the lesson, even with the notes waiting, opens the next one; the one after stays shut.
+  await expect(page.locator('.learning-stage-lessons button').filter({hasText:'Home Five — Left Hand'})).toBeEnabled();
+  await expect(page.locator('.learning-stage-lessons button').filter({hasText:'Mirror Hands'})).toBeDisabled();
 });
 
 test('guitar first notes and an instrument switch keep separate saved lessons',async({page})=>{
@@ -122,7 +124,7 @@ test('daily guided completion advances the saved queue and closes with a clear n
   await page.evaluate(()=>clearInterval(window.__followTimer));
   await page.getByRole('button',{name:'Continue today’s practice →'}).click();
   await expect(page.locator('.daily-finished')).toContainText('Today’s practice is complete.');
-  await expect(page.locator('.learning-roadmap > header')).toContainText('0 / 7 checks passed');
+  await expect(page.locator('.learning-roadmap > header')).toContainText('1 / 7 lessons finished · 0 checks passed');
   await page.reload();await expect(page.locator('.daily-finished')).toBeVisible();
 });
 

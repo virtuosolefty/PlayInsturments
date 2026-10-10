@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('./models.js', () => ({ loadInstrumentModel: vi.fn(), collectResources: vi.fn() }));
 
 const { loadInstrumentModel, collectResources } = await import('./models.js');
-const { loadRig, newOwned, otherRigs, rigFrom } = await import('./otherRigs.js');
+const { bringModel, loadRig, newOwned, otherRigs, rigFrom } = await import('./otherRigs.js');
 
 const resource = () => ({ dispose: vi.fn() });
 const rigFor = id => ({ id, owned: { geometries: new Set([resource()]), materials: new Set([resource()]), textures: new Set([resource()]) } });
@@ -11,6 +11,55 @@ const disposed = rig => rig.disposed === true || [...rig.kept].every(item => ite
 /** A rig that remembers what it owned, since disposing empties the sets. */
 const tracked = id => { const rig = rigFor(id); rig.kept = [...rig.owned.geometries, ...rig.owned.materials, ...rig.owned.textures]; return rig; };
 const settle = () => new Promise(resolve => setTimeout(resolve, 0));
+
+describe('bringing an instrument on stage', () => {
+  const model = () => ({ scene: { id: 'scene' }, fit: {} });
+  const setup = (loaded, build = () => ({ owned: newOwned() })) => {
+    loadInstrumentModel.mockReset();
+    loadInstrumentModel.mockImplementation(() => (loaded instanceof Error ? Promise.reject(loaded) : Promise.resolve(loaded)));
+    const run = { swap: vi.fn() }, onReady = vi.fn(), onFailed = vi.fn();
+    return { run, onReady, onFailed, start: () => bringModel(run, { id: 'violin', name: 'violin', build, onReady, onFailed }) };
+  };
+
+  it('builds the rig, puts it on stage and says so', async () => {
+    const { run, onReady, start } = setup(model());
+    start();
+    await settle();
+    expect(loadInstrumentModel).toHaveBeenCalledWith('violin');
+    expect(run.swap).toHaveBeenCalledOnce();
+    expect(onReady).toHaveBeenCalledWith(run.swap.mock.calls[0][0]);
+    expect(onReady.mock.calls[0][0].model).toBe('violin');
+  });
+
+  it('says what could not be loaded, whether the files were missing or the download failed', async () => {
+    for (const loaded of [null, new Error('the server answered 503')]) {
+      const { run, onFailed, start } = setup(loaded);
+      start();
+      await settle();
+      expect(run.swap).not.toHaveBeenCalled();
+      expect(onFailed).toHaveBeenCalledWith(loaded ? 'the server answered 503' : 'the violin model could not be loaded');
+    }
+  });
+
+  it('disposes a model that arrives after the attempt was abandoned, and does not put it on stage', async () => {
+    const { run, onReady, start } = setup(model());
+    collectResources.mockReturnValue({ geometries: new Set(), materials: new Set(), textures: new Set() });
+    start()();
+    await settle();
+    expect(collectResources).toHaveBeenCalled();
+    expect(run.swap).not.toHaveBeenCalled();
+    expect(onReady).not.toHaveBeenCalled();
+  });
+
+  it('reports a rig that cannot go on stage', async () => {
+    const { run, onFailed, onReady, start } = setup(model());
+    run.swap.mockImplementation(() => { throw new Error('no graphics'); });
+    start();
+    await settle();
+    expect(onFailed).toHaveBeenCalledWith('no graphics');
+    expect(onReady).not.toHaveBeenCalled();
+  });
+});
 
 describe('the rigs of instruments shown in place of a stage\'s own', () => {
   it('builds one the first time it is asked for, and says when it is ready', async () => {

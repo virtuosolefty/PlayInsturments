@@ -17,7 +17,8 @@ function loadLesson(entry) {
 }
 
 /** Orchestrates the existing transport and matcher. Guided completion is kept
- * separately from engine grades; it can never award stars or unlock a gate. */
+ * separately from engine grades and can never award stars. What opens the next
+ * lesson is the finished run the engine records, guided or not (path.js). */
 export function useLearningFlow({ settings, setSettings, library, path, score, engine, onScore, onLeaveFreePlay, testSound }) {
   const instrument = normalizeInstrument(settings.practiceInstrument);
   const kit = instrumentKit(instrument);
@@ -89,7 +90,8 @@ export function useLearningFlow({ settings, setSettings, library, path, score, e
     let cancelled = false;
     setLoading(true); setError(null); setTestSent(false); setNoteHint('');
     halt();
-    const stageAsset = settings.renderer === 'gl' && webglAvailable() && !kit?.bowed
+    // Fetched ahead so the lesson does not open on an empty stage: the guitar's 3D stage, or the piano's roll.
+    const stageAsset = settings.renderer === 'gl' && webglAvailable() && (instrument === 'guitar' || !kit)
       ? instrument === 'guitar' ? import('../components/GuitarStage.jsx') : import('../components/RollGL.jsx')
       : Promise.resolve();
     Promise.all([loadLesson(lesson), stageAsset]).then(([loaded]) => {

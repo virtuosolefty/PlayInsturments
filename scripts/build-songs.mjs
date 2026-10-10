@@ -3,10 +3,12 @@
  *
  * Run with `npm run songs`. Writes .mid files + songs.json into public/songs/.
  *
- * COPYRIGHT NOTE: every piece here is in the worldwide public domain (composers
+ * COPYRIGHT NOTE: every piece written here is in the public domain (composers
  * died well over 70 years ago, or the melody is traditional/anonymous). Modern
- * chart hits are still under copyright, so they are deliberately not included —
- * use the "Load your own file" button for anything you own a licence to.
+ * chart hits are still under copyright, so this script writes none — use the
+ * "Load your own file" button for anything you own a licence to. The few film
+ * songs kept by hand in songs.json are marked `localOnly`: they are carried
+ * over below and left out of the public build (scripts/public-library.mjs).
  *
  * Arrangements are deliberately simplified: opening sections, thinned textures,
  * and a comfortable register. They are practice studies, not urtext editions.
@@ -16,8 +18,9 @@
 // default export here. The browser bundle (see src/lib/score.js) uses the ESM
 // build and can import { Midi } directly.
 import toneMidi from '@tonejs/midi';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { EASY_TUNES, pianoTune } from '../src/lib/easySongs.js';
 import { fileURLToPath } from 'node:url';
 
 const { Midi } = toneMidi;
@@ -1299,6 +1302,28 @@ function toMidiFile(song) {
   }
 }
 
+/* ============================================================== EASY SONGS
+ * Ten tunes everybody knows, as a single line for the right hand from middle
+ * C. They are written once, in src/lib/easySongs.js, and every other
+ * instrument plays the same ten; this is the piano's copy. Where a tune sits
+ * under one hand position it carries that fingering.
+ */
+for (const tune of EASY_TUNES) {
+  const { notes, key } = pianoTune(tune);
+  songs.push({
+    id: tune.id,
+    title: tune.title,
+    composer: tune.composer,
+    difficulty: 1,
+    bpm: tune.bpm,
+    timeSignature: [tune.meter, 4],
+    key,
+    tags: ['beginner', 'melody', 'easy-song'],
+    description: tune.description,
+    tracks: [{ hand: 'right', notes: notes.map((note) => n(note.midi, note.start, note.beats * 0.9, 0.8, note.finger)) }],
+  });
+}
+
 mkdirSync(OUT, { recursive: true });
 
 const manifest = songs.map((song) => {
@@ -1364,6 +1389,15 @@ manifest.push({
   range: [41, 69],
   approxDuration: 13,
 });
+
+// Songs kept by hand for whoever runs the app at home (film music: see
+// scripts/public-library.mjs) are not written by this script. Carry them over,
+// or regenerating the library would quietly delete them.
+const previous = resolve(OUT, 'songs.json');
+if (existsSync(previous)) {
+  const made = new Set(manifest.map((entry) => entry.id));
+  manifest.push(...JSON.parse(readFileSync(previous, 'utf8')).filter((entry) => entry.localOnly && !made.has(entry.id)));
+}
 
 writeFileSync(resolve(OUT, 'songs.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 

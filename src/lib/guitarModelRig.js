@@ -28,6 +28,8 @@ const WOUND_STRINGS = 4;
 const ACOUSTIC_STRINGS = Object.freeze({ gauges: GAUGES_INCHES, scaleInches: SCALE_INCHES, wound: WOUND_STRINGS });
 /** A bass guitar's: four wound strings, 45 to 105, on a 34 inch scale. */
 export const BASS_STRINGS = Object.freeze({ gauges: Object.freeze([0.105, 0.085, 0.065, 0.045]), scaleInches: 34, wound: 4 });
+/** How each model that is not an acoustic guitar is strung, by its id (stageModels.js). */
+export const MODEL_STRINGS = Object.freeze({ 'guitar-bass': BASS_STRINGS });
 const DOT_LIFT = 0.06;
 /**
  * A marker is drawn this much larger than its shape when it shows something
@@ -74,15 +76,15 @@ function buildString({ shapes, mat, set }, { nut, bridge }, s, scaleLength) {
 }
 
 /** The click target and the marker for every place on string `s`, open through `maxFret`. */
-function buildPlaces({ shapes, mat, inactive, neck }, s, maxFret) {
+function buildPlaces({ shapes, mat, inactive, neck, midiAt, colors }, s, maxFret) {
   const targets = [], dots = [];
   for (let fret = 0; fret <= maxFret; fret++) {
     const { x, width } = fretSpace(fret), at = neck.stringAt(s, x);
-    const place = { midi: guitarMidi(s, fret), string: s, fret };
+    const place = { midi: midiAt(s, fret), string: s, fret };
     const target = new Mesh(shapes.hitBox, inactive);
     target.position.set(x, at.y + 0.03, at.z);
     target.scale.set(width, TARGET_HEIGHT, gapAt(neck, s, x) * 0.98);
-    const dot = new Mesh(shapes.disk, mat(GUITAR_COLORS[s], { roughness: 0.8, emissiveIntensity: 0 }));
+    const dot = new Mesh(shapes.disk, mat(colors[s], { roughness: 0.8, emissiveIntensity: 0 }));
     dot.position.set(x, at.y + DOT_LIFT, at.z);
     for (const o of [target, dot]) o.userData = place;
     targets.push(target); dots.push(dot);
@@ -126,10 +128,13 @@ function buildInlays({ mat, shapes }, model, neck, maxFret) {
  * @param {{ scene: import('three').Group, fit: object }} options.model from loadInstrumentModel('guitar')
  * @param {boolean} [options.lacquered] gloss on the body and satin on the neck; costs a clearcoat pass, so full tier only
  * @param {{ gauges: number[], scaleInches: number, wound: number }} [options.strings] the set it is strung with; an acoustic guitar's unless given
+ * @param {(string: number, fret: number) => number} [options.midiAt] the pitch at each place. The guitar's unless given, which is
+ *   also right for another instrument shown in the guitar's place (its strings then answer to the guitar's of the same name)
+ * @param {string[]} [options.colors] a marker colour for each string; the guitar's unless given
  * @returns {{ instrument: Group, strings: Mesh[], targets: Mesh[], dots: Mesh[], shapes: { disk: object, ring: object }, neck: object, showcase: object, ground: object }}
  *   `ground` is the box the floor and its shadow are fitted to
  */
-export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false, strings: set = ACOUSTIC_STRINGS }) {
+export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false, strings: set = ACOUSTIC_STRINGS, midiAt = guitarMidi, colors = GUITAR_COLORS }) {
   const { fit } = model, neck = modelNeck(fit);
   const narrowest = Math.min(...Array.from({ length: neck.count }, (_, s) => gapAt(neck, s, fit.nutX)));
   const dotRadius = (narrowest * MARKER_SHARE_OF_GAP) / 2 / SHOWN_MARKER;
@@ -145,7 +150,7 @@ export function buildModelGuitarRig({ owned, maxFret, model, lacquered = false, 
   const mat = (color, props = {}) => { const m = new MeshPhysicalMaterial({ color, roughness: 0.68, ...props }); owned.materials.add(m); return m; };
   const inactive = new MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
   owned.materials.add(inactive);
-  const parts = { shapes, mat, inactive, neck, set };
+  const parts = { shapes, mat, inactive, neck, set, midiAt, colors };
 
   castShadows(model.scene);
   if (lacquered) lacquer(model.scene, LACQUER);

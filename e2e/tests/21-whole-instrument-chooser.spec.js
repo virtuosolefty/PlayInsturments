@@ -73,7 +73,7 @@ test('Whole instrument opens a pop-up of pictures; another cello takes the stage
   await expect(caption(page)).toContainText('Antique cello');
   await expect(caption(page).getByRole('link', { name: 'slidon' })).toHaveAttribute('href', 'https://sketchfab.com/slidon');
   await expect(caption(page).getByRole('link', { name: 'CC BY 4.0' })).toHaveAttribute('href', 'https://creativecommons.org/licenses/by/4.0/');
-  await expect(hint(page)).toHaveText('Drag to turn · hold by the bridge to bow an open string · Learn for the finger places');
+  await expect(hint(page)).toHaveText('Drag to turn · hold by the bridge to bow an open string · Fingerboard for the finger places');
 
   // Playing it moves its bow: the A string is the cello's fourth, counted from the lowest.
   await bowOpenA(page, async () => {
@@ -96,11 +96,11 @@ test('Whole instrument opens a pop-up of pictures; another cello takes the stage
   await expect(caption(page)).toHaveCount(0);
   await expect(viewButton(page, 'Whole instrument')).toHaveAttribute('aria-pressed', 'true');
 
-  // Learn always goes back to the cello that is played, whichever was on show.
+  // Fingerboard always goes back to the cello that is played, whichever was on show.
   await change(page).click();
   await card(page, 'Antique cello').click();
   await onStage(page, 'cello-antique');
-  await viewButton(page, 'Learn').click();
+  await viewButton(page, 'Fingerboard').click();
   await onStage(page, 'cello');
   await expect(change(page)).toHaveCount(0);
   await expect(caption(page)).toHaveCount(0);
@@ -136,7 +136,7 @@ test('the bass guitar\'s four strings answer to the guitar\'s six', async ({ pag
   await onStage(page, 'guitar-bass');
   await expect(viewer(page)).toHaveCount(0);
   await expect(caption(page)).toContainText('Kanade_Tatibana');
-  await expect(hint(page)).toHaveText('Drag to turn · Learn to play the frets');
+  await expect(hint(page)).toHaveText('Drag to turn · Fretboard to play the frets');
 
   // A strum is over quickly, so the most strings seen sounding at once is remembered as it happens.
   const mostSounding = async () => {
@@ -167,7 +167,7 @@ test('the bass guitar\'s four strings answer to the guitar\'s six', async ({ pag
   expect(errors).toEqual([]);
 });
 
-test('both other drum kits load from the site\'s own files, to look at', async ({ page }) => {
+test('both other drum kits load from the site\'s own files, and are not marked as only to look at', async ({ page }) => {
   test.setTimeout(300_000);
   const errors = collectErrors(page);
   await openWhole(page, 'drums');
@@ -175,7 +175,7 @@ test('both other drum kits load from the site\'s own files, to look at', async (
   for (const [name, id, author] of [['Acoustic kit', 'drums-acoustic', 'art.katja'], ['Electronic kit', 'drums-electronic', 'SINNIK']]) {
     if (!await chooser(page).isVisible()) await change(page).click();
     await pictured(page, name);
-    await expect(card(page, name)).toContainText('To look at');
+    await expect(card(page, name)).not.toContainText('To look at');
     await card(page, name).click();
     await expect(viewer(page)).toHaveAttribute('data-model', id);
     await expect(viewer(page)).toHaveAttribute('data-ready', 'true', { timeout: 150_000 });
@@ -206,7 +206,7 @@ test('a kit that is only looked at takes the stage in the viewer, and Learn give
   await card(page, 'Acoustic kit').click();
   await expect(viewer(page)).toHaveAttribute('data-ready', 'true', { timeout: 60_000 });
   await expect(caption(page)).toContainText('art.katja');
-  await expect(hint(page)).toHaveText('Drag to turn · Learn to play the kit');
+  await expect(hint(page)).toHaveText('Drag to turn · keys and pads play it · Practice kit to tap the drums');
   // The names over the practice kit are not left floating over another kit.
   await expect(page.locator('.drum-labels')).toBeHidden();
 
@@ -220,7 +220,7 @@ test('a kit that is only looked at takes the stage in the viewer, and Learn give
   await viewer(page).getByRole('button', { name: 'Reset view' }).click();
   await expect(viewer(page).getByRole('button', { name: 'Reset view' })).toHaveCount(0);
 
-  await viewButton(page, 'Learn').click();
+  await viewButton(page, 'Practice kit').click();
   await expect(viewer(page)).toHaveCount(0);
   await expect(page.locator('.drum-labels')).toBeVisible();
   await expect(hint(page)).toHaveText('Tap a drum to play · drag the floor to turn');

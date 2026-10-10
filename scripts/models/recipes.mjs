@@ -36,10 +36,13 @@ const HEAD_TOWARD_X = { lengthAxis: 0, headAt: 'max', axes: [[0, -1], [1, 1], [2
  * A model that is only shown (showcase.mjs): `axes` stands it up, and `view`
  * is the angle the viewer first sees it from, in degrees round it and above it.
  * `omit` names the materials of anything left out, which the model's credit
- * (modelCredits.js) then has to say.
+ * (modelCredits.js) then has to say. `zones` is for a drum kit that answers to
+ * being hit: where each drum stands, in stage units (see `drumZonePart`), so
+ * that each is a part of its own.
  */
-const shown = (model, { axes = UPRIGHT, view, imageSize = 1024, omit = () => false }) => ({
+const shown = (model, { axes = UPRIGHT, view, imageSize = 1024, omit = () => false, zones }) => ({
   showcase: true,
+  zones,
   lean: true,
   credit: credit(model),
   axes,
@@ -148,9 +151,38 @@ export const RECIPES = {
     imageSize: (image, role) => (role === 'baseColor' && image.includes('Body') ? 2048 : 1024),
   },
 
-  // These two are only shown, never played (showcase.mjs).
-  'drums-acoustic': shown('drums-acoustic', { view: { azimuthDeg: 25, elevationDeg: 22 } }),
+  // These two are shown, not played (showcase.mjs), but each drum is its own part, so a hit moves and lights it.
+  // Boxes are in stage units, found by looking at the kit; the kick is listed last because its box holds the others' lower edges.
+  'drums-acoustic': shown('drums-acoustic', {
+    view: { azimuthDeg: 25, elevationDeg: 22 },
+    zones: [
+      { id: 'crash', at: [3, 10.5, 0, 7.5, 13.5, 4.5], maxSize: 6 },
+      { id: 'ride', at: [-10.5, 9.8, -0.5, -5.5, 13, 3.5], maxSize: 7 },
+      { id: 'hihat', at: [6, 9.3, -2, 10, 12, 2.5], maxSize: 4.5 },
+      { id: 'snare', at: [2, 5.9, -3.5, 6.4, 8.6, 0.8], maxSize: 4 },
+      { id: 'tom-high', at: [0, 7.2, -0.8, 3.7, 10.6, 3.4], maxSize: 4.2 },
+      { id: 'tom-mid', at: [-3.9, 7, -0.8, -0.4, 10.6, 3.2], maxSize: 4.2 },
+      { id: 'tom-floor', at: [-7.4, 3.4, -2.8, -3.4, 8.8, 1.2], maxSize: 4.4 },
+      { id: 'kick', at: [-3.7, 0.2, -0.6, 3.4, 7, 4.6], maxSize: 7.2 },
+    ],
+  }),
   // Its pads face the drummer, who sits toward −z: seen from that side and above, as on its box.
   // A lead trails a kit's width across the floor to a plug (the parts named EDK-T14): framed with it, the kit is half the size.
-  'drums-electronic': shown('drums-electronic', { view: { azimuthDeg: 205, elevationDeg: 30 }, omit: material => material.endsWith('EDK-T14') }),
+  // It has two crash pads and two low toms, and each answers to the one key.
+  'drums-electronic': shown('drums-electronic', {
+    view: { azimuthDeg: 205, elevationDeg: 30 },
+    omit: material => material.endsWith('EDK-T14'),
+    zones: [
+      { id: 'hihat', at: [6.8, 11.5, -1.2, 11.8, 13.6, 4.2], maxSize: 5.6 },
+      { id: 'ride', at: [-12, 11.8, -2.2, -6.6, 14.2, 3.4], maxSize: 6 },
+      { id: 'crash', at: [2.6, 14, 3.8, 7.6, 16.6, 8.6], maxSize: 5.4 },
+      { id: 'crash', at: [-6, 14, 3.8, -1, 16.6, 8.6], maxSize: 5.4 },
+      { id: 'tom-high', at: [1.4, 10.2, 2, 5.6, 13.2, 6.2], maxSize: 4.4 },
+      { id: 'tom-mid', at: [-3, 10.2, 2, 1.1, 13.2, 6.2], maxSize: 4.4 },
+      { id: 'tom-floor', at: [-7.2, 8.1, 0.2, -3.2, 10.5, 4.3], maxSize: 4.4 },
+      { id: 'tom-floor', at: [-9, 8.1, -3.9, -5, 10.5, 0.1], maxSize: 4.4 },
+      { id: 'snare', at: [2, 6.6, -3, 6.6, 8.8, 1.4], maxSize: 5 },
+      { id: 'kick', at: [-0.4, 1.3, 3.4, 2.2, 3.6, 5.8], maxSize: 2.8 },
+    ],
+  }),
 };
